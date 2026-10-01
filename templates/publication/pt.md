@@ -28,8 +28,8 @@ date: 2026-10-01
 
 # Estado atual (igual nos dois idiomas). Obrigatório em product e experiment.
 # Em article, apague esta linha.
-#   product:    in-development | live | paused | archived
-#   experiment: in-development | live | paused | archived | running | concluded
+#   product:    in-development | demo | live | paused | archived
+#   experiment: in-development | demo | live | paused | archived | running | concluded
 status: in-development
 
 # Opcional: palavras-chave curtas, escritas no idioma deste arquivo. Ex.: ["SaaS B2B", "Onboarding"]
@@ -43,6 +43,20 @@ links: []
 
 # Opcional: imagem de capa salva nesta mesma pasta. Use só se a imagem existir.
 # cover: ./cover.png
+
+# Opcional: números de destaque (cards abaixo do título). Só números reais.
+#   stats:
+#     - { value: "489", label: "testes unitários" }
+stats: []
+
+# Opcional: stack, mostrada em chips no fim da página.
+#   stack: ["Next.js 16", "NestJS 11", "PostgreSQL 16"]
+stack: []
+
+# Opcional: galeria de telas (arquivos nesta pasta). orientation: landscape (padrão) ou portrait.
+#   gallery:
+#     - { src: ./tela.webp, alt: "Descrição da tela", caption: "Legenda curta" }
+gallery: []
 
 # true  → rascunho: a publicação fica fora do site (nos dois idiomas).
 # false → publicada. Precisa estar igual em pt.md e en.md.

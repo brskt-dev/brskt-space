@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ExternalLink from '../ExternalLink.astro';
 import Reactions from '../Reactions.astro';
+import SectionHeading from '../SectionHeading.astro';
 import Cover from '../ui/Cover.astro';
 import Icon, { type IconName } from '../ui/Icon.astro';
 import { formatDate, isoDate, pathFor, statusLabel, t, typeLabel, type Lang, type PublicationType } from '../../i18n/ui';
@@ -21,7 +22,8 @@ const pub = (await getPublications()).find((p) => p.slug === slug);
 if (!pub) throw new Error(`[publications] Unknown publication "${slug}"`);
 const entry = pub.entries[lang];
 const data = entry.data;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
+const toc = headings.filter((h) => h.depth === 2);
 const backKey = pub.section === 'articles' ? 'pub.back.articles' : 'pub.back.projects';
 const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
 ---
@@ -90,10 +92,11 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       {
         data.links.length > 0 && (
           <ul class="pub-links" aria-label={t(lang, 'pub.links')}>
-            {data.links.map((l) =>
+            {data.links.map((l, i) =>
               isExternal(l.url) ? (
                 <li>
-                  <ExternalLink class="btn" href={l.url} lang={lang}>
+                  <ExternalLink class={i === 0 ? 'btn btn-primary' : 'btn'} href={l.url} lang={lang}>
+                    {i === 0 && <Icon name="rocket" size={16} />}
                     {l.label}
                   </ExternalLink>
                 </li>
@@ -110,9 +113,82 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       }
     </header>
 
+    {
+      data.stats.length > 0 && (
+        <section class="stats" aria-label={t(lang, 'pub.stats')}>
+          <ul>
+            {data.stats.map((st) => (
+              <li class="card stat reveal">
+                <span class="stat-v">{st.value}</span>
+                <span class="stat-l">{st.label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      toc.length > 2 && (
+        <nav class="toc" aria-label={t(lang, 'pub.toc')}>
+          <p class="kicker">
+            <Icon name="orbit" size={15} />
+            {t(lang, 'pub.toc')}
+          </p>
+          <ul class="tag-list">
+            {toc.map((h) => (
+              <li>
+                <a class="chip toc-link" href={`#${h.slug}`}>
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    {
+      data.gallery.length > 0 && (
+        <section class="gallery-wrap" aria-labelledby="gallery-title">
+          <SectionHeading id="gallery-title" kicker={t(lang, 'pub.galleryKicker')} icon="telescope">
+            {t(lang, 'pub.gallery')}
+          </SectionHeading>
+          <div class="gallery">
+            {data.gallery.map((g) => (
+              <figure class:list={['card', 'shot', 'reveal', g.orientation]}>
+                <Image
+                  src={g.src}
+                  alt={g.alt}
+                  widths={g.orientation === 'portrait' ? [300, 600] : [600, 900, 1200]}
+                  sizes={g.orientation === 'portrait' ? '(min-width: 48rem) 18rem, 70vw' : '(min-width: 58rem) 42rem, 100vw'}
+                />
+                {g.caption && <figcaption>{g.caption}</figcaption>}
+              </figure>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
     <div class="prose pub-body">
       <Content />
     </div>
+
+    {
+      data.stack.length > 0 && (
+        <section class="stack-wrap" aria-labelledby="stack-title">
+          <SectionHeading id="stack-title" kicker={t(lang, 'pub.stackKicker')} icon="layers">
+            {t(lang, 'pub.stack')}
+          </SectionHeading>
+          <ul class="tag-list">
+            {data.stack.map((x) => (
+              <li class="chip chip-accent stack-chip">{x}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
     <Reactions lang={lang} slug={slug} />
   </article>
@@ -121,6 +197,10 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
 <style>
   .pub {
     max-width: calc(58rem + 2 * var(--gutter));
+  }
+
+  .pub-body :global(table) {
+    width: 100%;
   }
 
   .back-top {
@@ -205,6 +285,124 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
   .pub-body :global(h2:first-child) {
     padding-top: 0;
     border-top: 0;
+  }
+
+  /* ---------- Stats ---------- */
+  .stats ul {
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  }
+
+  .stat {
+    gap: 0.25rem;
+    padding: 1rem 1.1rem;
+  }
+
+  .stat-v {
+    font: 800 clamp(1.6rem, 1.3rem + 1vw, 2.1rem) / 1 var(--font-display);
+    letter-spacing: -0.03em;
+    background: linear-gradient(120deg, #fff, var(--accent), var(--mint));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stat-l {
+    font-size: var(--fs-meta);
+    line-height: 1.35;
+    color: var(--muted);
+  }
+
+  /* ---------- TOC ---------- */
+  .toc {
+    margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .toc-link {
+    min-height: 2.25rem;
+    padding-inline: 0.8rem;
+    color: var(--text);
+    text-decoration: none;
+    white-space: normal;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      transform 180ms var(--ease-out);
+  }
+
+  .toc-link:hover {
+    border-color: var(--accent-2);
+    background: var(--surface-2);
+    color: var(--text);
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Gallery ---------- */
+  .gallery-wrap,
+  .stack-wrap {
+    margin-top: clamp(2.5rem, 6vw, 3.5rem);
+  }
+
+  .gallery {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 48rem) {
+    .gallery {
+      grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+      grid-auto-flow: row dense;
+      align-items: start;
+    }
+
+    .shot.landscape {
+      grid-column: 1;
+    }
+
+    .shot.landscape:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .shot.portrait {
+      grid-column: 2;
+      grid-row: span 2;
+    }
+  }
+
+  .shot {
+    height: auto;
+    margin: 0;
+  }
+
+  .shot :global(img) {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .shot.portrait {
+    max-width: 20rem;
+    justify-self: center;
+  }
+
+  .shot figcaption {
+    padding: 0.7rem 1rem 0.85rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .stack-chip {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.82rem;
+  }
+
+  /* anchor targets clear the sticky header */
+  .pub-body :global(h2) {
+    scroll-margin-top: 6rem;
   }
 
   @media (max-width: 40rem) {

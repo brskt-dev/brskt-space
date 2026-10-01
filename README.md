@@ -61,7 +61,10 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `summary` | sim | Uma ou duas frases. Vai nos cards e na meta description. |
 | `date` | sim | Dia em que entra no site, `AAAA-MM-DD` (ex.: `2026-10-01`). Outro formato, como `01/10/2026`, faz o build falhar. |
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
-| `status` | em product e experiment | `in-development`, `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Em artigos, apague a linha. |
+| `status` | em product e experiment | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Em artigos, apague a linha. |
+| `stats` | não | Números de destaque em cards: `{ value, label }`. Só números reais. |
+| `stack` | não | Lista de tecnologias, mostrada em chips no fim da página. |
+| `gallery` | não | Telas: `{ src: ./arquivo.webp, alt, caption, orientation }` (`portrait` para telas de celular). Arquivos na pasta da publicação. |
 | `tags` | não | Palavras-chave curtas, no idioma de cada arquivo. |
 | `links` | não | Só links reais (site no ar, repositório, demo). Nunca link provisório. |
 | `cover` | não | Imagem de capa na mesma pasta, por exemplo `./cover.png`. Só se a imagem existir. |

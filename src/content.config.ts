@@ -26,7 +26,7 @@ const isoDate = z
   ])
   .pipe(z.coerce.date());
 
-const PRODUCT_STATUS = ['in-development', 'live', 'paused', 'archived'] as const;
+const PRODUCT_STATUS = ['in-development', 'demo', 'live', 'paused', 'archived'] as const;
 const EXPERIMENT_STATUS = [...PRODUCT_STATUS, 'running', 'concluded'] as const;
 
 const publications = defineCollection({
@@ -54,6 +54,21 @@ const publications = defineCollection({
           )
           .default([]),
         cover: image().optional(),
+        /** Highlight numbers shown as tiles under the title, e.g. { value: "489", label: "unit tests" }. */
+        stats: z.array(z.object({ value: z.string().min(1), label: z.string().min(1) })).default([]),
+        /** Tech stack, shown as chips at the end of the page. */
+        stack: z.array(z.string().min(1)).default([]),
+        /** Screenshots shown as a gallery (files next to the .md). */
+        gallery: z
+          .array(
+            z.object({
+              src: image(),
+              alt: z.string().min(1),
+              caption: z.string().min(1).optional(),
+              orientation: z.enum(['landscape', 'portrait']).default('landscape'),
+            }),
+          )
+          .default([]),
         draft: z.boolean().default(false),
       })
       .superRefine((data, ctx) => {
