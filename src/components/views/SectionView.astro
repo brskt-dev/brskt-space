@@ -18,12 +18,12 @@ const description = t(lang, section === 'projects' ? 'projects.description' : 'a
 
 <BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: section }}>
   <div class="wrap">
-    <header class="page-head">
+    <header class="page-head in-main">
       <h1>{title}</h1>
       <p class="lead">{description}</p>
-      <span class="rule" aria-hidden="true"></span>
     </header>
-    <ul class="card-grid">
+    <span class="rule list-rule" aria-hidden="true"></span>
+    <ul class="entries">
       {
         items.map((pub) => (
           <li>
@@ -36,15 +36,7 @@ const description = t(lang, section === 'projects' ? 'projects.description' : 'a
 </BaseLayout>
 
 <style>
-  .rule {
-    display: block;
-    height: 2px;
-    margin-top: 1.5rem;
-    background: var(--brand-grad);
-    border-radius: 2px;
-  }
-
-  .page-head {
-    margin-bottom: 0.5rem;
+  .list-rule {
+    margin-top: clamp(2rem, 4vw, 2.75rem);
   }
 </style>

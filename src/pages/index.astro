@@ -76,14 +76,14 @@ const choices = [
   .chooser {
     flex: 0 0 auto;
     padding-block: 4rem;
-    max-width: calc(34rem + 2 * var(--gutter));
+    max-width: calc(36rem + 2 * var(--gutter));
   }
 
   .kicker {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .node {
@@ -95,52 +95,72 @@ const choices = [
   }
 
   h1 {
-    font-size: clamp(2.5rem, 1.8rem + 3vw, 3.5rem);
-    letter-spacing: -0.02em;
+    font-size: clamp(2.75rem, 1.8rem + 4vw, 4.25rem);
+    font-weight: 430;
+    letter-spacing: -0.03em;
+    line-height: 1;
   }
 
   .hint {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.25rem;
     color: var(--muted);
   }
 
   .hint .sep {
-    color: var(--border);
-    padding-inline: 0.4rem;
+    color: var(--faint);
+    padding-inline: 0.5rem;
   }
 
   .choices {
     list-style: none;
     padding: 0;
-    margin-top: 2rem;
-    display: grid;
-    gap: 0.75rem;
+    margin-top: 2.25rem;
+    border-top: 2px solid var(--brand);
+    border-image: var(--brand-grad) 1;
+  }
+
+  .choices li {
+    border-bottom: 1px solid var(--border);
   }
 
   .choices a {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
-    min-height: 3.5rem;
-    padding: 0.75rem 1.25rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    gap: 1rem;
+    min-height: 4rem;
+    padding-block: 1rem;
     color: var(--text);
     text-decoration: none;
     font-family: var(--font-serif);
-    font-size: 1.4rem;
-    font-weight: 600;
+    font-optical-sizing: auto;
+    font-size: 1.6rem;
+    font-weight: 450;
+    letter-spacing: -0.01em;
   }
 
   .choices a:hover {
-    background: var(--surface-2);
-    border-color: #3a2e5a;
+    color: var(--accent);
   }
 
   .choices .code {
     font-size: var(--fs-meta);
     font-weight: 400;
     color: var(--accent);
+  }
+
+  .choices .code::after {
+    content: '→';
+    display: inline-block;
+    margin-left: 0.6rem;
+    font-family: var(--font-sans);
+    transition: transform 140ms ease;
+  }
+
+  .choices a:hover .code::after {
+    transform: translateX(3px);
   }
 </style>

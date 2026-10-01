@@ -1,14 +1,26 @@
 ---
-/** Section title followed by the CV-style violet rule. */
+/**
+ * Section title followed by the CV-style violet rule (full width).
+ * Optional `index` renders a mono margin annotation ("01 ──"), decorative only.
+ */
 interface Props {
   id: string;
   level?: 2 | 3;
+  /** 1-based position of the section on the page; shown as "01", "02", ... in the margin. */
+  index?: number;
 }
-const { id, level = 2 } = Astro.props;
+const { id, level = 2, index } = Astro.props;
 const Tag = level === 2 ? 'h2' : 'h3';
 ---
 
 <div class="section-head">
+  {
+    typeof index === 'number' && (
+      <span class="annot section-index tick" aria-hidden="true">
+        {String(index).padStart(2, '0')}
+      </span>
+    )
+  }
   <Tag id={id}><slot /></Tag>
   <span class="rule" aria-hidden="true"></span>
 </div>
