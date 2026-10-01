@@ -62,6 +62,7 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `date` | sim | Dia em que entra no site, `AAAA-MM-DD` (ex.: `2026-10-01`). Outro formato, como `01/10/2026`, faz o build falhar. |
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
 | `status` | em product e experiment | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Em artigos, apague a linha. |
+| `thumbnail` | não | Imagem do card na home e nas listagens. Sem ela, o card usa a `cover`. |
 | `stats` | não | Números de destaque em cards: `{ value, label }`. Só números reais. |
 | `stack` | não | Lista de tecnologias, mostrada em chips no fim da página. |
 | `gallery` | não | Telas: `{ src: ./arquivo.webp, alt, caption, orientation }` (`portrait` para telas de celular). Arquivos na pasta da publicação. |

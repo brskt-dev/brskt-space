@@ -43,7 +43,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       </a>
     </p>
 
-    <div class="banner" aria-hidden="true">
+    <div class:list={['banner', { 'banner-real': data.cover }]} aria-hidden="true">
       {
         data.cover ? (
           <Image src={data.cover} alt="" widths={[800, 1200, 1600]} sizes="(min-width: 76rem) 76rem, 100vw" />
@@ -222,6 +222,10 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
     background: var(--bg-2);
+  }
+
+  .banner-real {
+    aspect-ratio: 16 / 9;
   }
 
   .banner > :global(*) {

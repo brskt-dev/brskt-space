@@ -43,6 +43,8 @@ links: []
 
 # Optional: cover image saved in this same folder. Only if the image exists.
 # cover: ./cover.png
+# Optional: card image (home and listings). Without it, the card uses the cover.
+# thumbnail: ./thumb.png
 
 # Optional: highlight numbers (tiles under the title). Real numbers only.
 #   stats:
