@@ -35,13 +35,7 @@ const extHint = bilingual
       <p class="cta-text">{L('footer.ctaText')}</p>
       <ul class="cta-links" aria-label={contactLabel}>
         <li>
-          <a class="btn btn-primary" href={`mailto:${profile.contact.email}`}>
-            <Icon name="mail" />
-            {L('footer.email')}
-          </a>
-        </li>
-        <li>
-          <ExternalLink class="btn" href={profile.contact.linkedin} lang={lang} hint={extHint}>
+          <ExternalLink class="btn btn-primary" href={profile.contact.linkedin} lang={lang} hint={extHint}>
             <Icon name="linkedin" />
             {t(lang, 'footer.linkedin')}
           </ExternalLink>
@@ -53,7 +47,9 @@ const extHint = bilingual
           </ExternalLink>
         </li>
       </ul>
-      <p class="cta-mail mono">{profile.contact.email}</p>
+      <p class="cta-mail mono">
+        {L('footer.orEmail')} <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+      </p>
     </section>
 
     <div class="footer-bottom">

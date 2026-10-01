@@ -8,4 +8,4 @@ availability: "Aberto a vagas 100% remotas · Brasil e exterior"
 
 Aqui é o meu cantinho na internet. Vou juntando os projetos que estou construindo e, em breve, artigos sobre problemas técnicos que já resolvi.
 
-Se você está começando na área ou já está na estrada há tempo, chega mais. Dúvida, ideia ou papo sobre vaga: meu e-mail está aberto.
+Se você está começando na área ou já está na estrada há tempo, chega mais. Dúvida, ideia ou papo sobre vaga: me chama no LinkedIn.

@@ -12,6 +12,7 @@ import SectionHeading from '../SectionHeading.astro';
 import PublicationCard from '../PublicationCard.astro';
 import SkeletonCard from '../SkeletonCard.astro';
 import Icon from '../ui/Icon.astro';
+import ExternalLink from '../ExternalLink.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import { profile } from '../../data/profile';
 import { pathFor, t, type Lang } from '../../i18n/ui';
@@ -71,10 +72,10 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
           </a>
         </li>
         <li>
-          <a class="btn btn-ghost" href={`mailto:${profile.contact.email}`}>
-            <Icon name="mail" />
-            <span><span class="sr-only">e-mail: </span>{profile.contact.email}</span>
-          </a>
+          <ExternalLink class="btn btn-ghost" href={profile.contact.linkedin} lang={lang}>
+            <Icon name="linkedin" />
+            {t(lang, 'home.linkedin')}
+          </ExternalLink>
         </li>
       </ul>
     </div>
