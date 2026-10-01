@@ -89,6 +89,7 @@ const strings = {
   'nav.about': { pt: 'Sobre', en: 'About' },
 
   'footer.email': { pt: 'E-mail', en: 'Email' },
+  'footer.contact': { pt: 'contato:', en: 'contact:' },
   'footer.linkedin': { pt: 'LinkedIn', en: 'LinkedIn' },
   'footer.github': { pt: 'GitHub', en: 'GitHub' },
   'footer.source': { pt: 'Código do site', en: 'Site source' },

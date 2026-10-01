@@ -61,8 +61,8 @@ const c = profile.contact;
       <SectionHeading id="experience-title" index={1}>{t(lang, 'about.experience')}</SectionHeading>
       <ol class="timeline">
         {
-          profile.experience.map((job) => (
-            <li class="job">
+          profile.experience.map((job, i) => (
+            <li class:list={['job', { 'is-current': !job.end || i === 0 }]}>
               <h3 class="job-title">
                 {job.role[lang]}
                 <span class="sr-only">, </span>
@@ -293,6 +293,13 @@ const c = profile.contact;
       linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
   }
 
+  /* past jobs: hollow node (decorative); the current job keeps the filled one above */
+  .job:not(.is-current)::after {
+    background:
+      radial-gradient(circle at 6px 50%, var(--bg) 0 4px, var(--brand-hi) 4px 5.5px, transparent 6px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
+  }
+
   .job-title {
     font-size: clamp(1.3rem, 1.15rem + 0.55vw, 1.6rem);
     font-weight: 500;
@@ -331,7 +338,7 @@ const c = profile.contact;
   }
 
   .tech-k {
-    color: var(--faint);
+    color: var(--muted);
   }
 
   @media (min-width: 48rem) {
@@ -579,7 +586,7 @@ const c = profile.contact;
   }
 
   .contact .sep {
-    color: var(--faint);
+    color: var(--muted);
     padding-inline: 0.5rem;
   }
 

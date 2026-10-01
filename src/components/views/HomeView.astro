@@ -73,11 +73,16 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
           <SectionHeading id="focus-title" index={indexOf('focus')}>
             {t(lang, 'home.focus')}
           </SectionHeading>
-          <ol class="focus-list in-main">
-            {focus.map((item) => (
+          <ol class="focus-list">
+            {focus.map((item, i) => (
               <li>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
+                <span class="annot focus-idx" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div class="focus-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </div>
               </li>
             ))}
           </ol>
@@ -208,8 +213,10 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--brand);
     font-size: var(--fs-small);
-    color: var(--muted);
+    color: var(--text);
   }
 
   .avail-node {
@@ -238,7 +245,7 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
   .mail-k {
     display: inline-block; /* not underlined */
     margin-right: 0.5em;
-    color: var(--faint);
+    color: var(--muted);
   }
 
   @media (min-width: 64rem) {
@@ -286,9 +293,12 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
   }
 
   .focus-list li {
+    padding-block: 1.15rem 1.3rem;
+  }
+
+  .focus-body {
     display: grid;
     gap: 0.35rem 2rem;
-    padding-block: 1.15rem 1.3rem;
   }
 
   .focus-list li + li {
@@ -297,6 +307,11 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
 
   .focus-list li:first-child {
     padding-top: 0;
+  }
+
+  /* sub-index in the margin (wide screens only): no tick, so it doesn't read as a section number */
+  .focus-idx {
+    display: none;
   }
 
   .focus-list h3 {
@@ -312,14 +327,31 @@ const indexOf = (key: string) => order.indexOf(key) + 1;
   }
 
   @media (min-width: 48rem) {
-    .focus-list li {
+    .focus-body {
       grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
       align-items: baseline;
+    }
+
+    .focus-list li {
       padding-block: 1.4rem 1.5rem;
     }
 
     .focus-list li:first-child {
       padding-top: 0.25rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .focus-list li {
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .focus-idx {
+      display: block;
+      text-align: right;
     }
   }
 

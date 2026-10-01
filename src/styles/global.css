@@ -33,9 +33,8 @@
   --accent: #b39dff; /* links, highlights, focus — 8.6:1 */
   --accent-2: #9b7bff; /* link hover / secondary accent — 6.2:1 */
 
-  /* Editorial additions (text colors checked against --bg / --surface / --surface-2) */
-  --text-soft: #d6d1e0; /* long-form reading text: 13.1 / 12.5 / 11.7 :1 (less glare than --text) */
-  --faint: #8c86a0; /* tertiary annotation text (keys like "tipo:"): 5.6 / 5.3 / 5.0 :1 */
+  /* Editorial addition: a derived reading tint of --text (checked against --bg / --surface / --surface-2) */
+  --text-soft: #d6d1e0; /* derived reading tint of --text for long-form text: 13.1 / 12.5 / 11.7 :1 (less glare) */
 
   --brand-grad: linear-gradient(90deg, var(--brand), var(--brand-hi));
   --grid-line: rgb(179 157 255 / 0.05);
@@ -281,7 +280,7 @@ a:hover {
 }
 
 .annot .k {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .annot .v {
@@ -289,8 +288,32 @@ a:hover {
 }
 
 .annot .sep {
-  color: var(--faint);
+  color: var(--muted);
   padding-inline: 0.5em;
+}
+
+/* Status glyph before the status value (decorative; the label is the content).
+   Hollow = in progress (in-development, running), filled = live/concluded,
+   muted hollow = paused/archived. */
+.status-glyph {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.5em;
+  border-radius: 50%;
+  vertical-align: 0.06em;
+  box-shadow: inset 0 0 0 1.5px var(--accent-2);
+  background: transparent;
+}
+
+.status-glyph[data-status='live'],
+.status-glyph[data-status='concluded'] {
+  background: var(--accent-2);
+}
+
+.status-glyph[data-status='paused'],
+.status-glyph[data-status='archived'] {
+  box-shadow: inset 0 0 0 1.5px var(--muted);
 }
 
 /* Margin annotation: a "a · b · c" line on small screens; on wide screens one fact
@@ -325,7 +348,10 @@ a:hover {
 }
 
 /* Tags: quiet mono list, dot-separated (no chips). The leading separator of every
-   line is clipped away so wrapped lines start clean. */
+   line is clipped away so wrapped lines start clean.
+   NOTE: tags must stay NON-INTERACTIVE. The negative left margin + clip-path would
+   clip a focus outline or hover effect on a tag. If tags ever become links, switch
+   to a gap-based layout instead of this clip trick. */
 .tags {
   --tag-sep: 1.3em;
   list-style: none;
@@ -352,7 +378,7 @@ a:hover {
   flex: none;
   width: var(--tag-sep);
   height: 1em;
-  background: radial-gradient(circle, var(--faint) 0 1.4px, transparent 1.9px) center / 100% 100% no-repeat;
+  background: radial-gradient(circle, var(--muted) 0 1.4px, transparent 1.9px) center / 100% 100% no-repeat;
 }
 
 /* "──●" bullet: a short brand line ending in a node. Decorative (CSS only). */
@@ -747,8 +773,18 @@ a:hover {
   color: var(--accent);
 }
 
-.entry-link:focus-visible {
-  outline: none;
+/* Focus: the whole row gets the ring when :has() is supported; otherwise the link
+   keeps the global 2px --accent outline (fallback for browsers without :has()). */
+@supports selector(:has(*)) {
+  .entry-link:focus-visible {
+    outline: none;
+  }
+
+  .entry:has(.entry-link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
 }
 
 /* stretch the title link over the whole row */
@@ -774,12 +810,6 @@ a:hover {
 
 .entry:hover .arrow {
   transform: translateX(4px);
-}
-
-.entry:has(.entry-link:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-  border-radius: 4px;
 }
 
 .entry .summary {
@@ -820,5 +850,10 @@ a:hover {
 
   .entry .entry-meta .pub-meta .sep {
     display: none;
+  }
+
+  .entry .entry-meta .pub-meta {
+    margin-left: 0;
+    clip-path: none;
   }
 }

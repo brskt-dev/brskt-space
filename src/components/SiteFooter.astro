@@ -13,18 +13,24 @@ interface Props {
 const { lang, bilingual = false } = Astro.props;
 const year = new Date().getFullYear();
 const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'footer.source')}` : t(lang, 'footer.source');
+const contactKey = bilingual
+  ? `${t('pt', 'footer.contact').replace(/:$/, '')} / ${t('en', 'footer.contact')}`
+  : t(lang, 'footer.contact');
 ---
 
 <footer class="site-footer">
   <div class="wrap footer-inner cols">
-    <ul class="footer-links col-main" aria-label={t(lang, 'a11y.contactLinks')}>
-      <li>
-        <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
-      </li>
-      <li><ExternalLink href={profile.contact.linkedin} lang={lang}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
-      <li><ExternalLink href={profile.contact.github} lang={lang}>{t(lang, 'footer.github')}</ExternalLink></li>
-      <li><ExternalLink href={profile.siteRepo} lang={lang}>{sourceLabel}</ExternalLink></li>
-    </ul>
+    <div class="footer-contact col-main">
+      <span class="annot footer-k" aria-hidden="true">{contactKey}</span>
+      <ul class="footer-links" aria-label={t(lang, 'a11y.contactLinks')}>
+        <li>
+          <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+        </li>
+        <li><ExternalLink href={profile.contact.linkedin} lang={lang}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
+        <li><ExternalLink href={profile.contact.github} lang={lang}>{t(lang, 'footer.github')}</ExternalLink></li>
+        <li><ExternalLink href={profile.siteRepo} lang={lang}>{sourceLabel}</ExternalLink></li>
+      </ul>
+    </div>
     <p class="annot copyright col-m">
       <span aria-hidden="true" class="node"></span>© {year} {profile.name}
     </p>
@@ -41,6 +47,17 @@ const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'foote
     align-items: center;
     row-gap: 0.25rem;
     padding-block: 1.25rem 2rem;
+  }
+
+  .footer-contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+  }
+
+  .footer-k {
+    color: var(--muted);
   }
 
   .footer-links {
