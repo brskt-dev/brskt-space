@@ -12,7 +12,7 @@ export const giscus = {
   repoId: 'R_kgDOU2HOYw',
   category: 'Announcements',
   /** Empty = widget disabled. */
-  categoryId: '',
+  categoryId: 'DIC_kwDOU2HOY84DGz1o',
 } as const;
 
 export const giscusEnabled = (giscus.categoryId as string).length > 0;
