@@ -1,0 +1,32 @@
+---
+/** Card for a publication in a list: type + status, title (whole card is the link), summary, tags. */
+import PubMeta from './PubMeta.astro';
+import { publicationUrl, type Lang } from '../i18n/ui';
+import type { Publication } from '../lib/publications';
+
+interface Props {
+  lang: Lang;
+  pub: Publication;
+  headingLevel?: 2 | 3;
+}
+
+const { lang, pub, headingLevel = 3 } = Astro.props;
+const data = pub.entries[lang].data;
+const Heading = headingLevel === 2 ? 'h2' : 'h3';
+const href = publicationUrl(lang, pub.type, pub.slug);
+---
+
+<article class="card">
+  <PubMeta lang={lang} type={pub.type} status={pub.status} keys={false} />
+  <Heading><a class="card-link" href={href}>{data.title}</a></Heading>
+  <p class="summary">{data.summary}</p>
+  {
+    data.tags.length > 0 && (
+      <ul class="tags" aria-label="Tags">
+        {data.tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+</article>

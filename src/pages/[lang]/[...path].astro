@@ -1,0 +1,34 @@
+---
+/**
+ * Every localized route (/pt/..., /en/...) is generated here from the central route
+ * table in src/lib/routes.ts (segments live in src/i18n/ui.ts). Sections with no
+ * publications produce no route at all.
+ */
+import type { GetStaticPaths } from 'astro';
+import HomeView from '../../components/views/HomeView.astro';
+import AboutView from '../../components/views/AboutView.astro';
+import SectionView from '../../components/views/SectionView.astro';
+import PublicationView from '../../components/views/PublicationView.astro';
+import { getSiteRoutes, type RouteView } from '../../lib/routes';
+import type { Lang } from '../../i18n/ui';
+
+export const getStaticPaths = (async () => {
+  const routes = await getSiteRoutes();
+  return routes.map((r) => ({
+    params: { lang: r.lang, path: r.path },
+    props: { lang: r.lang, route: r.route },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  lang: Lang;
+  route: RouteView;
+}
+
+const { lang, route } = Astro.props;
+---
+
+{route.view === 'home' && <HomeView lang={lang} />}
+{route.view === 'about' && <AboutView lang={lang} />}
+{route.view === 'section' && <SectionView lang={lang} section={route.section} />}
+{route.view === 'publication' && <PublicationView lang={lang} slug={route.slug} />}

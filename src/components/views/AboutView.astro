@@ -1,0 +1,473 @@
+---
+/**
+ * About: photo + narrative (src/content/pages/about/<lang>.md) → experience timeline →
+ * skills → education → languages → contact. Facts come from src/data/profile.ts.
+ */
+import { getEntry, render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import ExternalLink from '../ExternalLink.astro';
+import photo from '../../assets/bruno-anhezini.jpg';
+import { formatMonth, l10n, profile } from '../../data/profile';
+import { t, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('about', lang);
+if (!entry) throw new Error(`[about] Missing src/content/pages/about/${lang}.md`);
+const { Content } = await render(entry);
+const { title, description } = entry.data;
+const c = profile.contact;
+
+---
+
+<BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: 'about' }} ogType="profile">
+  <div class="wrap">
+    <header class="page-head about-head">
+      <p class="annot annot-row"><span class="k">{profile.name}</span><span class="sep" aria-hidden="true">·</span><span class="k">{profile.role[lang]}</span></p>
+      <h1>{title}</h1>
+    </header>
+
+    <section class="about-intro" aria-label={title}>
+      <figure class="photo">
+        <Picture
+          src={photo}
+          alt={t(lang, 'about.photoAlt')}
+          formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+          width={720}
+          height={720}
+          widths={[240, 360, 480, 720]}
+          sizes="(min-width: 48rem) 18rem, 10rem"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      <div class="prose narrative">
+        <Content />
+      </div>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="experience-title">
+    <div class="wrap">
+      <SectionHeading id="experience-title">{t(lang, 'about.experience')}</SectionHeading>
+      <ol class="timeline">
+        {
+          profile.experience.map((job) => (
+            <li class="job">
+              <div class="job-head">
+                <h3>
+                  {job.role[lang]}
+                  <span class="sr-only">, </span>
+                  <span class="at">
+                    <span class="dash" aria-hidden="true">
+                      {' '}—{' '}
+                    </span>
+                    {job.company}
+                  </span>
+                </h3>
+                <p class="annot annot-row job-meta">
+                  <span class="v nw">
+                    <time datetime={job.start}>{formatMonth(lang, job.start)}</time> –{' '}
+                    {job.end ? <time datetime={job.end}>{formatMonth(lang, job.end)}</time> : t(lang, 'about.present')}
+                  </span>
+                  <span class="sep" aria-hidden="true">·</span>
+                  <span class="nw">{job.location[lang]}</span>
+                  <span class="sep" aria-hidden="true">·</span>
+                  <span class="nw">{job.mode[lang]}</span>
+                </p>
+              </div>
+              <ul class="node-list highlights">
+                {job.highlights.map((h) => (
+                  <li>{h[lang]}</li>
+                ))}
+              </ul>
+              <div class="job-tech">
+                <span class="annot tech-k">{t(lang, 'about.tech')}:</span>
+                <ul class="tags">
+                  {job.tech.map((x) => (
+                    <li>{l10n(x, lang)}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="skills-title">
+    <div class="wrap">
+      <SectionHeading id="skills-title">{t(lang, 'about.skills')}</SectionHeading>
+      <dl class="skills">
+        {
+          profile.skills.map((g) => (
+            <div class="skill-row">
+              <dt>{g.name[lang]}</dt>
+              <dd>{g.items[lang]}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="ai-note">{profile.aiStatement[lang]}</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="education-title">
+    <div class="wrap">
+      <SectionHeading id="education-title">{t(lang, 'about.education')}</SectionHeading>
+      {
+        profile.education.map((ed) => (
+          <div class="edu">
+            <h3>{ed.degree[lang]}</h3>
+            <p class="edu-inst">{ed.institution}</p>
+            <p class="annot annot-row">
+              <span class="v nw">{ed.completed[lang]}</span>
+              <span class="sep" aria-hidden="true">·</span>
+              <span class="nw">{ed.location[lang]}</span>
+            </p>
+            <p class="edu-note">{ed.note[lang]}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="languages-title">
+    <div class="wrap">
+      <SectionHeading id="languages-title">{t(lang, 'about.languages')}</SectionHeading>
+      <ul class="langs">
+        {
+          profile.languages.map((l) => (
+            <li>
+              <span class="lang-name">{l.name[lang]}</span>
+              <span class="annot">{l.level[lang]}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="contact-title">
+    <div class="wrap">
+      <SectionHeading id="contact-title">{t(lang, 'about.contact')}</SectionHeading>
+      <p class="contact-lead">{profile.lookingFor[lang]}</p>
+      <dl class="contact">
+        <div>
+          <dt class="annot">{t(lang, 'about.email')}</dt>
+          <dd><a href={`mailto:${c.email}`}>{c.email}</a></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.phone')}</dt>
+          <dd>
+            <a href={`tel:${c.phoneE164}`}>{c.phoneDisplay}</a>
+            <span class="sep" aria-hidden="true">·</span>
+            <ExternalLink href={c.whatsapp} lang={lang}>WhatsApp</ExternalLink>
+          </dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.linkedin')}</dt>
+          <dd><ExternalLink href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.github')}</dt>
+          <dd><ExternalLink href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.location')}</dt>
+          <dd>{profile.location[lang]}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-head .annot {
+    margin-bottom: 0.9rem;
+  }
+
+  .about-intro {
+    display: grid;
+    gap: 1.75rem;
+    padding-bottom: clamp(0.5rem, 2vw, 1.5rem);
+  }
+
+  .photo {
+    margin: 0;
+    width: 10rem;
+    position: relative;
+  }
+
+  .photo :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .photo::after {
+    /* brand tick under the photo, like a figure annotation */
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 2px;
+    margin-top: 0.75rem;
+    background: var(--brand-grad);
+    border-radius: 2px;
+  }
+
+  @media (min-width: 48rem) {
+    .about-intro {
+      grid-template-columns: 18rem minmax(0, 1fr);
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .photo {
+      width: 18rem;
+    }
+  }
+
+  /* ---------- Timeline (──● nodes) ---------- */
+  .timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+    display: grid;
+    gap: 2.75rem;
+  }
+
+  .job {
+    position: relative;
+    min-width: 0;
+    padding-left: 2.25rem;
+  }
+
+  /* vertical spine segment for each job, continuing to the next */
+  .job::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1.1rem;
+    bottom: -2.75rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--brand), rgb(73 0 199 / 0.25));
+  }
+
+  .job:last-child::before {
+    bottom: 0;
+    background: linear-gradient(180deg, var(--brand), transparent);
+  }
+
+  /* node + short connector "●──" */
+  .job::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 1.75rem;
+    height: 12px;
+    background:
+      radial-gradient(circle at 6px 50%, var(--brand) 0 4.5px, var(--accent) 4.5px 6px, transparent 6.5px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
+  }
+
+  .job-head h3 {
+    font-size: clamp(1.3rem, 1.15rem + 0.5vw, 1.55rem);
+  }
+
+  .job-head .at {
+    display: block;
+    margin-top: 0.15rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .job-head .dash {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .job-head .at {
+      display: inline;
+      margin-top: 0;
+    }
+
+    .job-head .dash {
+      display: inline;
+    }
+  }
+
+  .nw {
+    white-space: nowrap;
+  }
+
+  .job-meta {
+    margin-top: 0.35rem;
+  }
+
+  .highlights {
+    margin-top: 1rem;
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    line-height: 1.65;
+  }
+
+  .job-tech {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 0.75rem;
+  }
+
+  /* ---------- Skills ---------- */
+  .skills {
+    margin: 0;
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .skill-row {
+    display: grid;
+    gap: 0.25rem 2rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-row dt {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .skill-row dd {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 48rem) {
+    .skill-row {
+      grid-template-columns: 16rem minmax(0, 1fr);
+    }
+  }
+
+  .ai-note {
+    margin-top: 1.25rem;
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    color: var(--muted);
+    padding-left: 1rem;
+    border-left: 2px solid var(--brand-hi);
+  }
+
+  /* ---------- Education ---------- */
+  .edu h3 {
+    font-size: clamp(1.3rem, 1.15rem + 0.5vw, 1.55rem);
+  }
+
+  .edu-inst {
+    color: var(--accent);
+    font-weight: 500;
+    margin-top: 0.25rem;
+  }
+
+  .edu .annot {
+    margin-top: 0.35rem;
+  }
+
+  .edu-note {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    max-width: var(--measure);
+  }
+
+  /* ---------- Languages ---------- */
+  .langs {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .langs li {
+    display: flex;
+    flex-direction: column;
+    min-width: 9rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .lang-name {
+    font-weight: 600;
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-lead {
+    max-width: var(--measure);
+    margin-bottom: 1.25rem;
+  }
+
+  .contact {
+    margin: 0;
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .contact > div {
+    display: grid;
+    gap: 0 2rem;
+    align-items: center;
+    padding-block: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact dt {
+    padding-top: 0.6rem;
+  }
+
+  .contact dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.25rem;
+    min-height: var(--tap);
+  }
+
+  .contact dd a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+
+  .contact .sep {
+    color: var(--border);
+    padding-inline: 0.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .contact > div {
+      grid-template-columns: 16rem minmax(0, 1fr);
+    }
+
+    .contact dt {
+      padding-top: 0;
+    }
+  }
+</style>

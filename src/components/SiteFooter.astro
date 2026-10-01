@@ -1,0 +1,80 @@
+---
+/** Footer on every page: email, LinkedIn, GitHub, site source, © year. No phone here (About only). */
+import ExternalLink from './ExternalLink.astro';
+import { profile } from '../data/profile';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** 404 page: show the source label in both languages. */
+  bilingual?: boolean;
+}
+
+const { lang, bilingual = false } = Astro.props;
+const year = new Date().getFullYear();
+const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'footer.source')}` : t(lang, 'footer.source');
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <ul class="footer-links" aria-label={t(lang, 'a11y.contactLinks')}>
+      <li>
+        <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+      </li>
+      <li><ExternalLink href={profile.contact.linkedin} lang={lang}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
+      <li><ExternalLink href={profile.contact.github} lang={lang}>{t(lang, 'footer.github')}</ExternalLink></li>
+      <li><ExternalLink href={profile.siteRepo} lang={lang}>{sourceLabel}</ExternalLink></li>
+    </ul>
+    <p class="annot copyright">
+      <span aria-hidden="true" class="node"></span>© {year} {profile.name}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(3rem, 8vw, 5rem);
+    border-top: 1px solid var(--border);
+    background: linear-gradient(180deg, rgb(21 16 34 / 0.6), transparent 70%);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-block: 1.25rem 1.75rem;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+    margin-inline: -0.1rem;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: 0.1rem;
+    font-size: var(--fs-small);
+  }
+
+  .copyright {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .node {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 1.5px var(--accent-2);
+  }
+</style>

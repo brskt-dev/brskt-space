@@ -1,0 +1,14 @@
+---
+/** Section title followed by the CV-style violet rule. */
+interface Props {
+  id: string;
+  level?: 2 | 3;
+}
+const { id, level = 2 } = Astro.props;
+const Tag = level === 2 ? 'h2' : 'h3';
+---
+
+<div class="section-head">
+  <Tag id={id}><slot /></Tag>
+  <span class="rule" aria-hidden="true"></span>
+</div>

@@ -1,0 +1,59 @@
+---
+/** Margin-annotation style metadata: "tipo: produto · status: em desenvolvimento · publicado: 1 out. 2026". */
+import { formatDate, isoDate, statusLabel, t, typeLabel, type Lang, type PublicationType } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  type: PublicationType;
+  status?: string;
+  date?: Date;
+  updated?: Date;
+  /** Show "key: value" pairs (true) or values only (false, compact cards). */
+  keys?: boolean;
+  class?: string;
+}
+
+const { lang, type, status, date, updated, keys = true, class: className } = Astro.props;
+
+const parts: { k: string; v: string; datetime?: string }[] = [{ k: t(lang, 'meta.type'), v: typeLabel(lang, type) }];
+if (status) parts.push({ k: t(lang, 'meta.status'), v: statusLabel(lang, status) });
+if (date) parts.push({ k: t(lang, 'meta.date'), v: formatDate(lang, date), datetime: isoDate(date) });
+if (updated) parts.push({ k: t(lang, 'meta.updated'), v: formatDate(lang, updated), datetime: isoDate(updated) });
+---
+
+<p class:list={['annot', 'pub-meta', className]}>
+  {
+    parts.map((p, i) => (
+      <>
+        {i > 0 && (
+          <span class="sep" aria-hidden="true">
+            ·
+          </span>
+        )}
+        <span class="pair">
+          {keys && <span class="k">{p.k}: </span>}
+          {p.datetime ? (
+            <time class="v" datetime={p.datetime}>
+              {p.v}
+            </time>
+          ) : (
+            <span class="v">{p.v}</span>
+          )}
+        </span>
+      </>
+    ))
+  }
+</p>
+
+<style>
+  .pub-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    row-gap: 0.1rem;
+  }
+
+  .pair {
+    white-space: nowrap;
+  }
+</style>

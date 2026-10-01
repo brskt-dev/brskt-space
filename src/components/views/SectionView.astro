@@ -1,0 +1,50 @@
+---
+/** Listing page for a section (projects = product + experiment, articles = article). */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PublicationCard from '../PublicationCard.astro';
+import { t, type Lang, type SectionKey } from '../../i18n/ui';
+import { getSection } from '../../lib/publications';
+
+interface Props {
+  lang: Lang;
+  section: SectionKey;
+}
+
+const { lang, section } = Astro.props;
+const items = await getSection(section);
+const title = t(lang, section === 'projects' ? 'projects.title' : 'articles.title');
+const description = t(lang, section === 'projects' ? 'projects.description' : 'articles.description');
+---
+
+<BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: section }}>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <span class="rule" aria-hidden="true"></span>
+    </header>
+    <ul class="card-grid">
+      {
+        items.map((pub) => (
+          <li>
+            <PublicationCard lang={lang} pub={pub} headingLevel={2} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .rule {
+    display: block;
+    height: 2px;
+    margin-top: 1.5rem;
+    background: var(--brand-grad);
+    border-radius: 2px;
+  }
+
+  .page-head {
+    margin-bottom: 0.5rem;
+  }
+</style>

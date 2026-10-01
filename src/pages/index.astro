@@ -1,0 +1,146 @@
+---
+/**
+ * Root language chooser (/brskt-space/). Works without JS (two links); with JS a tiny
+ * inline script redirects by navigator.languages (pt* → /pt/, en* → /en/, default /en/).
+ */
+import BaseHead from '../components/BaseHead.astro';
+import { htmlLang, LANGS, pathFor, rootUrl, t } from '../i18n/ui';
+import { BASE } from '../lib/url';
+
+const alternates = [
+  ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: pathFor(l, 'home') })),
+  { hreflang: 'x-default', href: rootUrl() },
+];
+const choices = [
+  { lang: 'pt' as const, label: 'Português', hint: t('pt', 'chooser.title') },
+  { lang: 'en' as const, label: 'English', hint: t('en', 'chooser.title') },
+];
+---
+
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <script is:inline define:vars={{ base: BASE }}>
+      (function () {
+        try {
+          var list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+          var target = 'en/';
+          for (var i = 0; i < list.length; i++) {
+            var code = String(list[i] || '').toLowerCase();
+            if (code.indexOf('pt') === 0) { target = 'pt/'; break; }
+            if (code.indexOf('en') === 0) { target = 'en/'; break; }
+          }
+          location.replace(base + target);
+        } catch (e) {}
+      })();
+    </script>
+    <BaseHead
+      title="Bruno Anhezini"
+      description="Bruno Anhezini — Desenvolvedor Full Stack / Full Stack Developer. Escolha o idioma · Choose a language."
+      path={rootUrl()}
+      locale="en_US"
+      localeAlternates={['pt_BR']}
+      alternates={alternates}
+    />
+  </head>
+  <body>
+    <main class="chooser wrap">
+      <p class="annot kicker"><span class="node" aria-hidden="true"></span>brskt-space</p>
+      <h1>Bruno Anhezini</h1>
+      <p class="hint">
+        <span lang="pt-BR">{t('pt', 'chooser.title')}</span>
+        <span class="sep" aria-hidden="true">/</span>
+        <span>{t('en', 'chooser.title')}</span>
+      </p>
+      <ul class="choices">
+        {
+          choices.map((c) => (
+            <li>
+              <a href={pathFor(c.lang, 'home')} hreflang={htmlLang[c.lang]} lang={htmlLang[c.lang]}>
+                <span class="label">{c.label}</span>
+                <span class="annot code" aria-hidden="true">{c.lang}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    justify-content: center;
+  }
+
+  .chooser {
+    flex: 0 0 auto;
+    padding-block: 4rem;
+    max-width: calc(34rem + 2 * var(--gutter));
+  }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .node {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 2px var(--accent-2);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 1.8rem + 3vw, 3.5rem);
+    letter-spacing: -0.02em;
+  }
+
+  .hint {
+    margin-top: 0.75rem;
+    color: var(--muted);
+  }
+
+  .hint .sep {
+    color: var(--border);
+    padding-inline: 0.4rem;
+  }
+
+  .choices {
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .choices a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    text-decoration: none;
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .choices a:hover {
+    background: var(--surface-2);
+    border-color: #3a2e5a;
+  }
+
+  .choices .code {
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    color: var(--accent);
+  }
+</style>

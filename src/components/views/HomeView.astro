@@ -1,0 +1,263 @@
+---
+/**
+ * Home: hero (name h1, tagline, intro body, availability, links) → focus areas →
+ * projects (if any) → articles (if any). Copy comes from src/content/pages/home/<lang>.md.
+ */
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import PublicationCard from '../PublicationCard.astro';
+import { profile } from '../../data/profile';
+import { pathFor, t, type Lang } from '../../i18n/ui';
+import { getSection } from '../../lib/publications';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('home', lang);
+if (!entry) throw new Error(`[home] Missing src/content/pages/home/${lang}.md`);
+const { Content } = await render(entry);
+const { title, description, tagline, availability, focus } = entry.data;
+
+const projects = await getSection('projects');
+const articles = await getSection('articles');
+const pad = (n: number) => String(n + 1).padStart(2, '0');
+---
+
+<BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <p class="annot annot-row hero-annot">
+        <span class="k nw">{profile.role[lang]}</span><span class="sep" aria-hidden="true">·</span><span class="k nw"
+          >{profile.location[lang]}</span
+        >
+      </p>
+      <h1 id="hero-title">{profile.name}</h1>
+      <p class="tagline">{tagline}</p>
+      <div class="intro prose">
+        <Content />
+      </div>
+      <p class="availability">
+        <span class="avail-node" aria-hidden="true"></span>
+        <span>{availability}</span>
+      </p>
+      <ul class="hero-links">
+        <li>
+          <a class="text-link" href={pathFor(lang, 'about')}>
+            {t(lang, 'home.aboutLink')}<span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="text-link mail" href={`mailto:${profile.contact.email}`}>
+            <span class="annot mail-k" aria-hidden="true">email:</span>{profile.contact.email}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  {
+    focus.length > 0 && (
+      <section class="section" aria-labelledby="focus-title">
+        <div class="wrap">
+          <SectionHeading id="focus-title">{t(lang, 'home.focus')}</SectionHeading>
+          <ol class="focus-list">
+            {focus.map((item, i) => (
+              <li>
+                <span class="annot focus-index" aria-hidden="true">
+                  {pad(i)}
+                </span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    projects.length > 0 && (
+      <section class="section" aria-labelledby="projects-title">
+        <div class="wrap">
+          <SectionHeading id="projects-title">{t(lang, 'home.projects')}</SectionHeading>
+          <ul class="card-grid">
+            {projects.map((pub) => (
+              <li>
+                <PublicationCard lang={lang} pub={pub} />
+              </li>
+            ))}
+          </ul>
+          {projects.length > 3 && (
+            <p class="section-more">
+              <a class="text-link" href={pathFor(lang, 'projects')}>
+                {t(lang, 'home.allProjects')}
+                <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    articles.length > 0 && (
+      <section class="section" aria-labelledby="articles-title">
+        <div class="wrap">
+          <SectionHeading id="articles-title">{t(lang, 'home.articles')}</SectionHeading>
+          <ul class="card-grid">
+            {articles.slice(0, 6).map((pub) => (
+              <li>
+                <PublicationCard lang={lang} pub={pub} />
+              </li>
+            ))}
+          </ul>
+          <p class="section-more">
+            <a class="text-link" href={pathFor(lang, 'articles')}>
+              {t(lang, 'home.allArticles')}
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3rem, 9vw, 7rem) clamp(0.5rem, 2vw, 1.5rem);
+    overflow: hidden;
+  }
+
+  /* Engineering-notebook grid, only here, fading out. */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 90% at 20% 0%, #000 25%, transparent 75%);
+    mask-image: radial-gradient(ellipse 85% 90% at 20% 0%, #000 25%, transparent 75%);
+  }
+
+  .hero-inner > * {
+    max-width: var(--measure);
+  }
+
+  .hero-annot {
+    margin-bottom: 1.1rem;
+  }
+
+  .nw {
+    white-space: nowrap;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.75rem, 1.6rem + 5vw, 5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+  }
+
+  .tagline {
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.75rem);
+    line-height: 1.35;
+    font-weight: 400;
+    color: var(--accent);
+    max-width: 34ch;
+  }
+
+  .intro {
+    margin-top: 1.5rem;
+    color: var(--text);
+  }
+
+  .availability {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .avail-node {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 2px var(--accent-2);
+    transform: translateY(-1px);
+  }
+
+  .hero-links {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.75rem;
+  }
+
+  .mail {
+    font-weight: 400;
+  }
+
+  .mail-k {
+    display: inline-block; /* not underlined */
+    margin-right: 0.5em;
+    font-size: var(--fs-meta);
+  }
+
+  .focus-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.75rem 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .focus-list li {
+    position: relative;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .focus-index {
+    position: absolute;
+    top: -0.75rem;
+    left: 0;
+    padding-right: 0.6rem;
+    background: var(--bg);
+    color: var(--accent-2);
+  }
+
+  .focus-list h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .focus-list p {
+    color: var(--muted);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+
+  .section-more {
+    margin-top: 1rem;
+  }
+</style>

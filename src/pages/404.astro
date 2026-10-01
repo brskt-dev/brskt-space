@@ -1,0 +1,138 @@
+---
+/**
+ * Single bilingual 404 (GitHub Pages serves <base>/404.html for any missing path),
+ * so every URL here is absolute-with-base.
+ */
+import BaseHead from '../components/BaseHead.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { htmlLang, pathFor, rootUrl, t } from '../i18n/ui';
+import { joinBase } from '../lib/url';
+
+const blocks = [
+  { lang: 'pt' as const },
+  { lang: 'en' as const },
+];
+---
+
+<!doctype html>
+<html lang="pt-BR" dir="ltr">
+  <head>
+    <BaseHead
+      title={`${t('pt', 'notfound.title')} · ${t('en', 'notfound.title')} · Bruno Anhezini`}
+      description={`${t('pt', 'notfound.text')} ${t('en', 'notfound.text')}`}
+      path={joinBase('404.html').replace(/\/$/, '')}
+      locale="pt_BR"
+      localeAlternates={['en_US']}
+      canonical={false}
+    />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('pt', 'a11y.skip')}</a>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href={rootUrl()}>
+          <span class="brand-node" aria-hidden="true"></span>
+          <span class="brand-name">Bruno Anhezini</span>
+        </a>
+      </div>
+    </header>
+    <main id="main" tabindex="-1" class="wrap nf">
+      <p class="annot code" aria-hidden="true">404</p>
+      {
+        blocks.map(({ lang }, i) => (
+          <section class="nf-block" lang={htmlLang[lang]} aria-labelledby={`nf-${lang}`}>
+            {i === 0 ? (
+              <h1 id={`nf-${lang}`}>{t(lang, 'notfound.title')}</h1>
+            ) : (
+              <h2 id={`nf-${lang}`}>{t(lang, 'notfound.title')}</h2>
+            )}
+            <p>{t(lang, 'notfound.text')}</p>
+            <p>
+              <a class="text-link" href={pathFor(lang, 'home')} hreflang={htmlLang[lang]}>
+                {t(lang, 'notfound.cta')}
+                <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            </p>
+          </section>
+        ))
+      }
+    </main>
+    <SiteFooter lang="pt" bilingual />
+  </body>
+</html>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    padding-block: 0.5rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: var(--tap);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand-name {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .brand-node {
+    width: 1.35rem;
+    height: 10px;
+    background:
+      radial-gradient(circle at calc(100% - 5px) 50%, var(--brand) 0 4px, var(--accent) 4px 5px, transparent 5.5px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) left center / calc(100% - 8px) 2px no-repeat;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  .nf {
+    padding-block: clamp(3rem, 8vw, 6rem) 0;
+  }
+
+  .code {
+    font-size: 1rem;
+    color: var(--accent-2);
+    margin-bottom: 1rem;
+  }
+
+  .nf-block {
+    max-width: var(--measure);
+  }
+
+  .nf-block + .nf-block {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .nf-block h1,
+  .nf-block h2 {
+    font-size: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  .nf-block p {
+    color: var(--muted);
+  }
+
+  .nf-block p + p {
+    margin-top: 0.5rem;
+  }
+</style>
