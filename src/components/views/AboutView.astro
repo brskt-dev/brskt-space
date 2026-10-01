@@ -1,0 +1,594 @@
+---
+/**
+ * About: photo + narrative (src/content/pages/about/<lang>.md) → experience timeline →
+ * skills → education → languages → contact. Facts come from src/data/profile.ts.
+ */
+import { getEntry, render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import ExternalLink from '../ExternalLink.astro';
+import photo from '../../assets/bruno-anhezini.jpg';
+import { formatMonth, l10n, profile } from '../../data/profile';
+import { t, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('about', lang);
+if (!entry) throw new Error(`[about] Missing src/content/pages/about/${lang}.md`);
+const { Content } = await render(entry);
+const { title, description } = entry.data;
+const c = profile.contact;
+---
+
+<BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: 'about' }} ogType="profile">
+  <div class="wrap">
+    <header class="page-head cols about-head">
+      <h1 class="col-main">{title}</h1>
+      <p class="annot annot-margin page-annot col-m">
+        <span class="nw">{profile.name}</span><span class="nw"
+          >{profile.role[lang]}</span
+        >
+      </p>
+    </header>
+
+    <section class="about-intro cols" aria-label={title}>
+      <figure class="photo col-m">
+        <Picture
+          src={photo}
+          alt={t(lang, 'about.photoAlt')}
+          formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+          width={720}
+          height={720}
+          widths={[240, 360, 480, 720]}
+          sizes="(min-width: 80rem) 15rem, (min-width: 64rem) 14.5rem, 9rem"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      <div class="prose narrative col-main">
+        <Content />
+      </div>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="experience-title">
+    <div class="wrap">
+      <SectionHeading id="experience-title" index={1}>{t(lang, 'about.experience')}</SectionHeading>
+      <ol class="timeline">
+        {
+          profile.experience.map((job, i) => (
+            <li class:list={['job', { 'is-current': !job.end || i === 0 }]}>
+              <h3 class="job-title">
+                {job.role[lang]}
+                <span class="sr-only">, </span>
+                <span class="at">
+                  <span class="dash" aria-hidden="true">
+                    {' '}—{' '}
+                  </span>
+                  {job.company}
+                </span>
+              </h3>
+              <p class="annot annot-margin job-meta">
+                <span class="v nw">
+                  <time datetime={job.start}>{formatMonth(lang, job.start)}</time> –{' '}
+                  {job.end ? <time datetime={job.end}>{formatMonth(lang, job.end)}</time> : t(lang, 'about.present')}
+                </span>
+                <span class="nw">{job.location[lang]}</span>
+                <span class="nw">{job.mode[lang]}</span>
+              </p>
+              <ul class="node-list highlights">
+                {job.highlights.map((h) => (
+                  <li>{h[lang]}</li>
+                ))}
+              </ul>
+              <div class="job-tech">
+                <span class="annot tech-k">{t(lang, 'about.tech')}</span>
+                <ul class="tags">
+                  {job.tech.map((x) => (
+                    <li>{l10n(x, lang)}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="skills-title">
+    <div class="wrap">
+      <SectionHeading id="skills-title" index={2}>{t(lang, 'about.skills')}</SectionHeading>
+      <dl class="skills">
+        {
+          profile.skills.map((g) => (
+            <div class="skill-row">
+              <dt>{g.name[lang]}</dt>
+              <dd>{g.items[lang]}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="ai-note in-main">{profile.aiStatement[lang]}</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="education-title">
+    <div class="wrap">
+      <SectionHeading id="education-title" index={3}>{t(lang, 'about.education')}</SectionHeading>
+      {
+        profile.education.map((ed) => (
+          <div class="edu">
+            <h3>{ed.degree[lang]}</h3>
+            <p class="edu-inst">{ed.institution}</p>
+            <p class="annot annot-margin edu-meta">
+              <span class="v nw">{ed.completed[lang]}</span>
+              <span class="nw">{ed.location[lang]}</span>
+            </p>
+            <p class="edu-note">{ed.note[lang]}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="languages-title">
+    <div class="wrap">
+      <SectionHeading id="languages-title" index={4}>{t(lang, 'about.languages')}</SectionHeading>
+      <ul class="langs in-main">
+        {
+          profile.languages.map((l) => (
+            <li>
+              <span class="lang-name">{l.name[lang]}</span>
+              <span class="annot">{l.level[lang]}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="contact-title">
+    <div class="wrap">
+      <SectionHeading id="contact-title" index={5}>{t(lang, 'about.contact')}</SectionHeading>
+      <p class="contact-lead in-main">{profile.lookingFor[lang]}</p>
+      <dl class="contact">
+        <div>
+          <dt class="annot">{t(lang, 'about.email')}</dt>
+          <dd><a href={`mailto:${c.email}`}>{c.email}</a></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.phone')}</dt>
+          <dd>
+            <a href={`tel:${c.phoneE164}`}>{c.phoneDisplay}</a>
+            <ExternalLink href={c.whatsapp} lang={lang}>WhatsApp</ExternalLink>
+          </dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.linkedin')}</dt>
+          <dd><ExternalLink href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.github')}</dt>
+          <dd><ExternalLink href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink></dd>
+        </div>
+        <div>
+          <dt class="annot">{t(lang, 'about.location')}</dt>
+          <dd>{profile.location[lang]}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------- Head + intro ---------- */
+  .about-head {
+    align-items: baseline;
+  }
+
+  .about-intro {
+    row-gap: 1.75rem;
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .photo {
+    margin: 0;
+    width: 9rem;
+  }
+
+  .photo :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .photo::after {
+    /* brand tick under the photo, like a figure annotation */
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 2px;
+    margin-top: 0.75rem;
+    background: var(--brand-grad);
+    border-radius: 2px;
+  }
+
+  /* first paragraph of the narrative reads as a standfirst */
+  .narrative > :global(p:first-child) {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(1.3rem, 1.12rem + 0.7vw, 1.6rem);
+    line-height: 1.4;
+    letter-spacing: -0.006em;
+    color: var(--text);
+    margin-bottom: 1.6rem;
+  }
+
+  @media (min-width: 64rem) {
+    .photo {
+      width: 100%;
+      margin-top: 0.4rem;
+    }
+
+    .photo::after {
+      margin-left: auto;
+    }
+  }
+
+  /* ---------- Timeline: dates in the margin, ──● nodes on the gutter ---------- */
+  .timeline {
+    --job-gap: 3.25rem;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--job-gap);
+  }
+
+  .job {
+    --spine-x: 5px;
+    position: relative;
+    min-width: 0;
+    padding-left: 2.25rem;
+  }
+
+  /* vertical spine segment for each job, continuing to the next */
+  .job::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--spine-x) - 1px);
+    top: 1.1rem;
+    bottom: calc(-1 * var(--job-gap));
+    width: 2px;
+    background: linear-gradient(180deg, var(--brand), rgb(73 0 199 / 0.3));
+  }
+
+  .job:last-child::before {
+    bottom: 0;
+    background: linear-gradient(180deg, var(--brand), transparent);
+  }
+
+  /* node + short connector "●──" */
+  .job::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--spine-x) - 6px);
+    top: 0.5rem;
+    width: 1.75rem;
+    height: 12px;
+    background:
+      radial-gradient(circle at 6px 50%, var(--brand) 0 4px, var(--accent) 4px 5.5px, transparent 6px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
+  }
+
+  /* past jobs: hollow node (decorative); the current job keeps the filled one above */
+  .job:not(.is-current)::after {
+    background:
+      radial-gradient(circle at 6px 50%, var(--bg) 0 4px, var(--brand-hi) 4px 5.5px, transparent 6px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
+  }
+
+  .job-title {
+    font-size: clamp(1.3rem, 1.15rem + 0.55vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .job-title .at {
+    display: block;
+    margin-top: 0.1rem;
+    font-weight: 450;
+    color: var(--accent);
+  }
+
+  .job-title .dash {
+    display: none;
+  }
+
+  .job-meta {
+    margin-top: 0.35rem;
+  }
+
+  .highlights {
+    margin-top: 1.1rem;
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    line-height: 1.65;
+    color: var(--text-soft);
+  }
+
+  .job-tech {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.9rem;
+  }
+
+  .tech-k {
+    color: var(--muted);
+  }
+
+  @media (min-width: 48rem) {
+    .job-title .at {
+      display: inline;
+      margin-top: 0;
+    }
+
+    .job-title .dash {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .job {
+      --spine-x: calc(var(--mc) + var(--cg) / 2);
+      padding-left: 0;
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .job::after {
+      top: 0.55rem;
+      width: calc(var(--cg) / 2 - 0.5rem + 6px);
+    }
+
+    .job-title {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .job-meta {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      align-self: start;
+      margin-top: 0;
+      padding-top: 0.35rem;
+    }
+
+    .highlights {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .job-tech {
+      display: contents;
+    }
+
+    .tech-k {
+      grid-column: 1;
+      grid-row: 3;
+      text-align: right;
+      margin-top: 1.1rem;
+    }
+
+    .job-tech .tags {
+      grid-column: 2;
+      grid-row: 3;
+      margin-top: 1.1rem;
+      margin-left: calc(-1 * var(--tag-sep));
+    }
+  }
+
+  /* ---------- Skills: a glossary, group name in the margin ---------- */
+  /* no top hairline: the violet section rule already opens the list */
+  .skills {
+    margin: 0;
+    display: grid;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-row {
+    display: grid;
+    gap: 0.3rem var(--cg);
+    padding-block: 1rem 1.1rem;
+  }
+
+  .skill-row:first-child {
+    padding-top: 0.25rem;
+  }
+
+  .skill-row + .skill-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .skill-row dt {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .skill-row dd {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--text-soft);
+    font-size: var(--fs-small);
+    line-height: 1.65;
+  }
+
+  @media (min-width: 64rem) {
+    .skill-row {
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      align-items: baseline;
+      padding-block: 1.1rem 1.2rem;
+    }
+
+    .skill-row dt {
+      text-align: right;
+      font-size: 1.15rem;
+    }
+  }
+
+  /* pull quote */
+  .ai-note {
+    margin-top: 2rem;
+    max-width: 34em;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--brand-hi);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.2rem, 1.08rem + 0.5vw, 1.45rem);
+    line-height: 1.45;
+    color: var(--text-soft);
+  }
+
+  /* ---------- Education ---------- */
+  .edu h3 {
+    font-size: clamp(1.3rem, 1.15rem + 0.55vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .edu-inst {
+    margin-top: 0.2rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .edu-meta {
+    margin-top: 0.35rem;
+  }
+
+  .edu-note {
+    margin-top: 0.8rem;
+    max-width: var(--measure);
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  @media (min-width: 64rem) {
+    .edu {
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .edu h3,
+    .edu-inst,
+    .edu-note {
+      grid-column: 2;
+    }
+
+    .edu-meta {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      align-self: start;
+      margin-top: 0;
+      padding-top: 0.35rem;
+    }
+  }
+
+  /* ---------- Languages ---------- */
+  .langs {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: 0 2rem;
+    max-width: 44rem;
+  }
+
+  .langs li {
+    display: flex;
+    flex-direction: column;
+    padding-block: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .lang-name {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.3rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-lead {
+    max-width: 30em;
+    margin-bottom: 1.75rem;
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.55rem);
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .contact {
+    margin: 0;
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .contact > div {
+    display: grid;
+    gap: 0 var(--cg);
+    align-items: center;
+    padding-block: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact dt {
+    padding-top: 0.6rem;
+  }
+
+  .contact dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+    min-height: var(--tap);
+  }
+
+  .contact dd a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+
+  @media (min-width: 64rem) {
+    .contact > div {
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+    }
+
+    .contact dt {
+      padding-top: 0;
+      text-align: right;
+    }
+  }
+</style>

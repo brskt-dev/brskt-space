@@ -1,0 +1,24 @@
+---
+/**
+ * Section title followed by the CV-style violet rule (full width).
+ * Optional `index` renders a mono margin annotation ("01 ──"), decorative only.
+ */
+interface Props {
+  id: string;
+  /** 1-based position of the section on the page; shown as "01", "02", ... in the margin. */
+  index?: number;
+}
+const { id, index } = Astro.props;
+---
+
+<div class="section-head">
+  {
+    typeof index === 'number' && (
+      <span class="annot section-index tick" aria-hidden="true">
+        {String(index).padStart(2, '0')}
+      </span>
+    )
+  }
+  <h2 id={id}><slot /></h2>
+  <span class="rule" aria-hidden="true"></span>
+</div>

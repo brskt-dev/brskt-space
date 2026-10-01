@@ -1,0 +1,171 @@
+---
+/**
+ * Root language chooser (/brskt-space/). Works without JS (two links); with JS a tiny
+ * inline script redirects by navigator.languages (pt* → /pt/, en* → /en/, default /en/).
+ */
+import BaseHead from '../components/BaseHead.astro';
+import { htmlLang, LANGS, pathFor, rootUrl, t } from '../i18n/ui';
+import { BASE } from '../lib/url';
+
+const alternates = [
+  ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: pathFor(l, 'home') })),
+  { hreflang: 'x-default', href: rootUrl() },
+];
+const choices = [
+  { lang: 'pt' as const, label: 'Português', hint: t('pt', 'chooser.title') },
+  { lang: 'en' as const, label: 'English', hint: t('en', 'chooser.title') },
+];
+---
+
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <script is:inline define:vars={{ base: BASE }}>
+      (function () {
+        try {
+          var list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+          var target = 'en/';
+          for (var i = 0; i < list.length; i++) {
+            var code = String(list[i] || '').toLowerCase();
+            if (code.indexOf('pt') === 0) { target = 'pt/'; break; }
+            if (code.indexOf('en') === 0) { target = 'en/'; break; }
+          }
+          location.replace(base + target);
+        } catch (e) {}
+      })();
+    </script>
+    <BaseHead
+      title="Bruno Anhezini"
+      description="Bruno Anhezini — Desenvolvedor Full Stack / Full Stack Developer. Escolha o idioma · Choose a language."
+      path={rootUrl()}
+      locale="en_US"
+      localeAlternates={['pt_BR']}
+      alternates={alternates}
+    />
+  </head>
+  <body>
+    <main class="chooser wrap">
+      <p class="annot kicker"><span class="node" aria-hidden="true"></span>brskt-space</p>
+      <h1>Bruno Anhezini</h1>
+      <p class="hint">
+        <span lang="pt-BR">{t('pt', 'chooser.title')}</span>
+        <span class="sep" aria-hidden="true">/</span>
+        <span>{t('en', 'chooser.title')}</span>
+      </p>
+      <ul class="choices">
+        {
+          choices.map((c) => (
+            <li>
+              <a href={pathFor(c.lang, 'home')} hreflang={htmlLang[c.lang]} lang={htmlLang[c.lang]}>
+                <span class="label">{c.label}</span>
+                <span class="annot code" aria-hidden="true">{c.lang}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    justify-content: center;
+  }
+
+  .chooser {
+    flex: 0 0 auto;
+    padding-block: 4rem;
+    max-width: calc(36rem + 2 * var(--gutter));
+  }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .node {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 2px var(--accent-2);
+  }
+
+  h1 {
+    font-size: clamp(2.75rem, 1.8rem + 4vw, 4.25rem);
+    font-weight: 430;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .hint {
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.25rem;
+    color: var(--muted);
+  }
+
+  /* each language phrase is one unit: lines break between them, never inside */
+  .hint > span {
+    display: inline-block;
+  }
+
+  .hint .sep {
+    color: var(--muted);
+    padding-inline: 0.5rem;
+  }
+
+  .choices {
+    list-style: none;
+    padding: 0;
+    margin-top: 2.25rem;
+    border-top: 2px solid var(--brand);
+    border-image: var(--brand-grad) 1;
+  }
+
+  .choices li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .choices a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 4rem;
+    padding-block: 1rem;
+    color: var(--text);
+    text-decoration: none;
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.6rem;
+    font-weight: 450;
+    letter-spacing: -0.01em;
+  }
+
+  .choices a:hover {
+    color: var(--accent);
+  }
+
+  .choices .code {
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .choices .code::after {
+    content: '→';
+    display: inline-block;
+    margin-left: 0.6rem;
+    font-family: var(--font-sans);
+    transition: transform 140ms ease;
+  }
+
+  .choices a:hover .code::after {
+    transform: translateX(3px);
+  }
+</style>

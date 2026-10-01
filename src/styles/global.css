@@ -1,0 +1,869 @@
+/* ==========================================================================
+   brskt-space — global styles
+   Visual: editorial (A) on a technical-sober base (B), with engineering-notebook
+   touches (C) kept to the hero grid, mono margin annotations and ──● markers.
+   Dark only. Tokens per SPEC §4.
+
+   Layout idea: an editorial page with a narrow MARGIN column (mono annotations:
+   section numbers, dates, metadata, labels — set flush right, hugging the gutter)
+   and a MAIN reading column (headings and text, measure ≤ 64ch). Below 64rem
+   everything collapses to one column and annotations sit above what they annotate.
+   ========================================================================== */
+
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-400-italic.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import './fonts.css';
+
+:root {
+  color-scheme: dark;
+
+  /* Color tokens (SPEC §4) */
+  --bg: #0d0a14;
+  --surface: #151022;
+  --surface-2: #1c1530;
+  --border: #2a2140;
+  --text: #e9e6f0; /* 15.9:1 on --bg */
+  --muted: #a39db3; /* 7.5:1 */
+  --brand: #4900c7; /* CV violet — decorative only, never text on dark */
+  --brand-hi: #7c4dff; /* lighter end of the brand gradient (decorative only, 4.07:1) */
+  --accent: #b39dff; /* links, highlights, focus — 8.6:1 */
+  --accent-2: #9b7bff; /* link hover / secondary accent — 6.2:1 */
+
+  /* Editorial addition: a derived reading tint of --text (checked against --bg / --surface / --surface-2) */
+  --text-soft: #d6d1e0; /* derived reading tint of --text for long-form text: 13.1 / 12.5 / 11.7 :1 (less glare) */
+
+  --brand-grad: linear-gradient(90deg, var(--brand), var(--brand-hi));
+  --grid-line: rgb(179 157 255 / 0.05);
+
+  /* Type */
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --fs-body: 1.0625rem; /* 17px */
+  --fs-small: 0.9375rem;
+  --fs-meta: 0.8125rem;
+  --lh-body: 1.65;
+  --measure: 64ch; /* reading column; SPEC caps it at 68ch */
+
+  /* Layout */
+  --wrap: 70rem;
+  --gutter: 1rem; /* 16px on phones */
+  --mc: 14.5rem; /* margin (annotation) column, ≥ 64rem only; fits the longest note, 'Concluído em dezembro de 2024' (~230px) */
+  --cg: 3rem; /* gap between margin and main column */
+  --radius-sm: 6px;
+  --tap: 44px;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --fs-body: 1.125rem; /* 18px */
+    --gutter: 2.5rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --mc: 15rem;
+    --cg: 3.5rem;
+  }
+}
+
+/* ---------- Reset-ish ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: break-word;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+main:focus {
+  outline: none;
+}
+
+img,
+svg,
+picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+::selection {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* ---------- Links & focus ---------- */
+a {
+  color: var(--accent);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(179 157 255 / 0.4);
+  text-underline-offset: 0.24em;
+  transition: color 120ms ease, text-decoration-color 120ms ease;
+}
+
+a:hover {
+  color: var(--accent-2);
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Utilities ---------- */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.nw {
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0.5rem 1rem;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* ---------- Margin / main columns ----------
+   .cols       two-column grid (margin | main) from 64rem; one column below.
+   .col-m      goes to the margin column (annotations, flush right toward the gutter).
+   .col-main   goes to the main column.
+   .in-main    a single block that should start at the main column.            */
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 64rem) {
+  .cols {
+    grid-template-columns: var(--mc) minmax(0, 1fr);
+    column-gap: var(--cg);
+  }
+
+  .cols > .col-m {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+  }
+
+  .cols > .col-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .in-main {
+    margin-left: calc(var(--mc) + var(--cg));
+  }
+}
+
+/* ---------- Mono annotations (margin notes, metadata) ---------- */
+.annot {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.annot .k {
+  color: var(--muted);
+}
+
+.annot .v {
+  color: var(--text);
+}
+
+.annot .sep {
+  color: var(--muted);
+  padding-inline: 0.5em;
+}
+
+/* Status glyph before the status value (decorative; the label is the content).
+   Hollow = in progress (in-development, running), filled = live/concluded,
+   muted hollow = paused/archived. */
+.status-glyph {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.5em;
+  border-radius: 50%;
+  vertical-align: 0.06em;
+  box-shadow: inset 0 0 0 1.5px var(--accent-2);
+  background: transparent;
+}
+
+.status-glyph[data-status='live'],
+.status-glyph[data-status='concluded'] {
+  background: var(--accent-2);
+}
+
+.status-glyph[data-status='paused'],
+.status-glyph[data-status='archived'] {
+  box-shadow: inset 0 0 0 1.5px var(--muted);
+}
+
+/* Margin annotation: a "a · b · c" line on small screens; on wide screens one fact
+   per line, flush right in the margin column (separators hidden). */
+.annot-margin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+/* Below 64rem each fact carries a leading "·" of fixed width; the line is shifted left
+   by that width and clipped, so no line starts or ends on a "·" (same trick as PubMeta).
+   Non-interactive content only. */
+@media (max-width: 63.99rem) {
+  .annot-margin {
+    --am-sep: 1.6em;
+    margin-left: calc(-1 * var(--am-sep));
+    clip-path: inset(-0.5em 0 -0.5em var(--am-sep));
+  }
+
+  .annot-margin > .nw::before {
+    content: '·';
+    content: '·' / '';
+    display: inline-block;
+    width: var(--am-sep);
+    text-align: center;
+    color: var(--muted);
+  }
+}
+
+@media (min-width: 64rem) {
+  .annot-margin {
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+/* ──● callout tick that follows a margin index ("01 ──"). Decorative. */
+.tick::after {
+  content: '';
+  display: inline-block;
+  width: 1.5rem;
+  height: 1px;
+  margin-left: 0.6rem;
+  vertical-align: 0.3em;
+  background: var(--brand-hi);
+}
+
+/* Tags: quiet mono list, dot-separated (no chips). The leading separator of every
+   line is clipped away so wrapped lines start clean.
+   NOTE: tags must stay NON-INTERACTIVE. The negative left margin + clip-path would
+   clip a focus outline or hover effect on a tag. If tags ever become links, switch
+   to a gap-based layout instead of this clip trick. */
+.tags {
+  --tag-sep: 1.3em;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0 0 0 calc(-1 * var(--tag-sep));
+  clip-path: inset(-0.5em 0 -0.5em var(--tag-sep));
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.tags li {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.tags li::before {
+  content: '';
+  flex: none;
+  width: var(--tag-sep);
+  height: 1em;
+  background: radial-gradient(circle, var(--muted) 0 1.4px, transparent 1.9px) center / 100% 100% no-repeat;
+}
+
+/* "──●" bullet: a short brand line ending in a node. Decorative (CSS only). */
+.node-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.node-list > li {
+  position: relative;
+  padding-left: 1.65rem;
+}
+
+.node-list > li::before,
+.prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(0.825em - 4px);
+  width: 1rem;
+  height: 8px;
+  background:
+    radial-gradient(circle at calc(100% - 4px) 50%, var(--brand-hi) 0 2.75px, transparent 3.25px),
+    linear-gradient(var(--brand), var(--brand)) left center / calc(100% - 6px) 1.5px no-repeat;
+}
+
+/* Text link with arrow; generous hit area for touch (≥44px tall).
+   inline-block (not flex) so decorative children marked inline-block stay out of the underline. */
+.text-link {
+  display: inline-block;
+  padding-block: 0.6rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.text-link .arrow {
+  display: inline-block; /* keeps the arrow out of the underline */
+  margin-inline: 0.35em;
+  transition: transform 140ms ease;
+}
+
+.text-link:hover .arrow {
+  transform: translateX(3px);
+}
+
+.ext-icon {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.2em;
+  vertical-align: 0.05em;
+  flex: none;
+}
+
+/* ---------- Sections & the CV violet rule ---------- */
+.section {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem) 0;
+}
+
+.section-head {
+  margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+
+.section-index {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--accent-2);
+}
+
+.section-head h2 {
+  font-size: clamp(1.85rem, 1.35rem + 1.6vw, 2.6rem);
+  font-weight: 450;
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+}
+
+/* Echo of the CV: section title + full-width violet line underneath. */
+.rule {
+  display: block;
+  height: 2px;
+  margin-top: 1rem;
+  background: var(--brand-grad);
+  border-radius: 2px;
+}
+
+@media (min-width: 64rem) {
+  .section-head {
+    display: grid;
+    grid-template-columns: var(--mc) minmax(0, 1fr);
+    column-gap: var(--cg);
+    align-items: baseline;
+  }
+
+  .section-index {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    text-align: right;
+  }
+
+  .section-head h2 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .section-head .rule {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 1.1rem;
+  }
+}
+
+/* ---------- Page heading (inner pages) ---------- */
+.page-head {
+  padding-top: clamp(3rem, 8vw, 6rem);
+}
+
+/* annotation that follows the h1 (a byline under it on phones, in the margin on wide screens) */
+.page-head .page-annot {
+  margin-top: 0.9rem;
+}
+
+.page-head h1 {
+  font-size: clamp(2.75rem, 1.7rem + 4.2vw, 5rem);
+  font-weight: 450;
+  letter-spacing: -0.028em;
+  line-height: 1;
+}
+
+.page-head .lead {
+  margin-top: 1.25rem;
+  max-width: 38em;
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.55rem);
+  line-height: 1.42;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+@media (min-width: 64rem) {
+  .page-head.cols {
+    align-items: baseline;
+  }
+
+  .page-head .page-annot {
+    margin-top: 0;
+  }
+}
+
+/* ---------- Prose (markdown bodies) ---------- */
+.prose {
+  max-width: var(--measure);
+  color: var(--text-soft);
+}
+
+.prose > * + * {
+  margin-top: 1.15em;
+}
+
+.prose h2 {
+  --h2-size: clamp(1.5rem, 1.3rem + 0.6vw, 1.85rem);
+  font-size: var(--h2-size);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 2.3em;
+}
+
+.prose h3 {
+  font-size: 1.3rem;
+  font-weight: 550;
+  margin-top: 1.9em;
+}
+
+.prose h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1.6em;
+}
+
+.prose h2 + *,
+.prose h3 + *,
+.prose h4 + * {
+  margin-top: 0.65em;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.prose ul > li {
+  position: relative;
+  padding-left: 1.65rem;
+}
+
+.prose ol > li {
+  padding-left: 0.3em;
+}
+
+.prose ol > li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--accent-2);
+}
+
+.prose li + li {
+  margin-top: 0.45em;
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin-top: 0.45em;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 0.2rem 0 0.2rem 1.4rem;
+  border-left: 2px solid var(--brand-hi);
+  color: var(--text-soft);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.2em;
+  line-height: 1.5;
+}
+
+.prose blockquote > * + * {
+  margin-top: 0.6em;
+}
+
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.36em;
+  border-radius: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface) !important;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.prose pre code {
+  font-family: inherit;
+}
+
+.prose hr {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin-block: 2.75em;
+}
+
+.prose img {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.prose table {
+  max-width: 100%;
+}
+
+.prose table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.prose th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom-color: var(--brand);
+}
+
+/* ---------- Publication body: numbered sections ("01 ──") ----------
+   The number is decorative (alt text "" where supported); on wide screens it hangs
+   in the margin column, flush right against the gutter, on the h2's first line. */
+.pub-body {
+  counter-reset: sec;
+}
+
+.pub-body h2 {
+  counter-increment: sec;
+  position: relative;
+}
+
+.pub-body h2::before {
+  content: counter(sec, decimal-leading-zero);
+  content: counter(sec, decimal-leading-zero) / '';
+  display: block;
+  width: max-content;
+  margin-bottom: 0.45rem;
+  padding-right: 2.1rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  color: var(--accent-2);
+  background: linear-gradient(var(--brand-hi), var(--brand-hi)) right center / 1.5rem 1px no-repeat;
+}
+
+@media (min-width: 64rem) {
+  .pub-body h2::before {
+    position: absolute;
+    top: 0;
+    right: calc(100% + var(--cg));
+    margin: 0;
+    line-height: calc(var(--h2-size) * 1.2); /* = the h2's first line box, so the number sits on that line */
+  }
+}
+
+/* ---------- Publication entries (lists on home / section pages) ----------
+   A ledger, not a card grid: hairline rows, metadata in the margin column,
+   serif title, summary and tags in the main column. Whole row is the link. */
+.entries {
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.entries > li + li {
+  border-top: 1px solid var(--border);
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0.4rem;
+  padding-block: 1.5rem 1.75rem;
+}
+
+/* first row right under a section's violet rule: drop the row padding, as .focus-list / .skill-row do */
+.section-head + .entries > li:first-child > .entry {
+  padding-top: 0.25rem;
+}
+
+/* (.entry-meta in the selector: outranks PubMeta's own scoped flex rules) */
+.entry .entry-meta .pub-meta,
+.entry .entry-meta .pub-meta .v {
+  color: var(--muted);
+}
+
+.entry-title {
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2.15rem);
+  font-weight: 450;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.entry-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.entry-link:hover {
+  color: var(--accent);
+}
+
+/* Focus: the whole row gets the ring when :has() is supported; otherwise the link
+   keeps the global 2px --accent outline (fallback for browsers without :has()). */
+@supports selector(:has(*)) {
+  .entry-link:focus-visible {
+    outline: none;
+  }
+
+  .entry:has(.entry-link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+}
+
+/* stretch the title link over the whole row */
+.entry-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.entry-link .arrow {
+  display: inline-block;
+  margin-left: 0.4em;
+  font-family: var(--font-sans);
+  font-size: 0.6em;
+  vertical-align: 0.2em;
+  color: var(--accent-2);
+  transition: transform 140ms ease;
+}
+
+.entry:hover .entry-link {
+  color: var(--accent);
+}
+
+.entry:hover .arrow {
+  transform: translateX(4px);
+}
+
+.entry .summary {
+  margin-top: 0.5rem;
+  max-width: var(--measure);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.entry .tags {
+  margin-top: 0.85rem;
+}
+
+@media (min-width: 64rem) {
+  .entry {
+    grid-template-columns: var(--mc) minmax(0, 1fr);
+    column-gap: var(--cg);
+    align-items: baseline;
+    padding-block: 2rem 2.25rem;
+  }
+
+  .entry-meta {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .entry-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* metadata stacks in the margin, flush right */
+  .entry .entry-meta .pub-meta {
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* `.pair >` is needed to outrank PubMeta's scoped `.pub-meta .sep` (0,4,0) */
+  .entry .entry-meta .pub-meta .pair > .sep {
+    display: none;
+  }
+
+  .entry .entry-meta .pub-meta {
+    margin-left: 0;
+    clip-path: none;
+  }
+}

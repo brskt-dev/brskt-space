@@ -1,0 +1,74 @@
+---
+/**
+ * <head> contents shared by every page: meta, canonical, hreflang alternates,
+ * Open Graph / Twitter, favicon. All URLs are absolute or base-prefixed.
+ */
+import '../styles/global.css';
+import { assetPath, absoluteUrl } from '../lib/url';
+import { getOgImage } from '../lib/og';
+
+export interface Alternate {
+  hreflang: string;
+  href: string;
+}
+
+interface Props {
+  /** Full <title> text. */
+  title: string;
+  description: string;
+  /** Path (with base) of this page. */
+  path: string;
+  /** e.g. "pt_BR" */
+  locale: string;
+  /** e.g. ["en_US"] */
+  localeAlternates?: string[];
+  alternates?: Alternate[];
+  ogType?: 'website' | 'article' | 'profile';
+  canonical?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  locale,
+  localeAlternates = [],
+  alternates = [],
+  ogType = 'website',
+  canonical = true,
+} = Astro.props;
+
+const site = Astro.site ?? 'https://brskt-dev.github.io';
+const url = absoluteUrl(path, site);
+const og = await getOgImage();
+const ogImage = absoluteUrl(og.src, site);
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#0D0A14" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="author" content="Bruno Anhezini" />
+{canonical && <link rel="canonical" href={url} />}
+{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={absoluteUrl(a.href, site)} />)}
+<link rel="icon" href={assetPath('favicon.svg')} type="image/svg+xml" />
+<link rel="sitemap" href={assetPath('sitemap.xml')} />
+
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={url} />
+<meta property="og:site_name" content="Bruno Anhezini" />
+<meta property="og:locale" content={locale} />
+{localeAlternates.map((l) => <meta property="og:locale:alternate" content={l} />)}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content={String(og.width)} />
+<meta property="og:image:height" content={String(og.height)} />
+<meta property="og:image:alt" content="Bruno Anhezini" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />

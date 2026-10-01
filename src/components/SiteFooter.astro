@@ -1,0 +1,108 @@
+---
+/** Footer on every page: email, LinkedIn, GitHub, site source, © year. No phone here (About only). */
+import ExternalLink from './ExternalLink.astro';
+import { profile } from '../data/profile';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** 404 page: show the source label in both languages. */
+  bilingual?: boolean;
+}
+
+const { lang, bilingual = false } = Astro.props;
+const year = new Date().getFullYear();
+const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'footer.source')}` : t(lang, 'footer.source');
+const contactKey = bilingual
+  ? `${t('pt', 'footer.contact').replace(/:$/, '')} / ${t('en', 'footer.contact')}`
+  : t(lang, 'footer.contact');
+const contactLabel = bilingual
+  ? `${t('pt', 'a11y.contactLinks')} / ${t('en', 'a11y.contactLinks')}`
+  : t(lang, 'a11y.contactLinks');
+const extHint = bilingual
+  ? `${t('pt', 'a11y.external').replace(/\)$/, '')} / ${t('en', 'a11y.external').replace(/^\(/, '')}`
+  : undefined;
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner cols">
+    <div class="footer-contact col-main">
+      <span class="annot footer-k" aria-hidden="true">{contactKey}</span>
+      <ul class="footer-links" aria-label={contactLabel}>
+        <li>
+          <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+        </li>
+        <li><ExternalLink href={profile.contact.linkedin} lang={lang} hint={extHint}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
+        <li><ExternalLink href={profile.contact.github} lang={lang} hint={extHint}>{t(lang, 'footer.github')}</ExternalLink></li>
+        <li><ExternalLink href={profile.siteRepo} lang={lang} hint={extHint}>{sourceLabel}</ExternalLink></li>
+      </ul>
+    </div>
+    <p class="annot copyright col-m">
+      <span aria-hidden="true" class="node"></span>© {year} {profile.name}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-inner {
+    align-items: center;
+    row-gap: 0.25rem;
+    padding-block: 1.25rem 2rem;
+  }
+
+  .footer-contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+  }
+
+  .footer-k {
+    color: var(--muted);
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.6rem;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    font-size: var(--fs-small);
+  }
+
+  .copyright {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--muted);
+  }
+
+  .node {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 1.5px var(--accent-2);
+  }
+
+  @media (min-width: 64rem) {
+    .footer-inner {
+      padding-block: 1.5rem 2.5rem;
+    }
+
+    .copyright {
+      justify-content: flex-end;
+    }
+  }
+</style>

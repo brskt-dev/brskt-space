@@ -1,0 +1,200 @@
+---
+/**
+ * Site header: name (→ home of current language), main nav (sections only when they
+ * have content), and the language switch pointing to the EQUIVALENT page.
+ */
+import Brand from './Brand.astro';
+import {
+  alternateUrl,
+  htmlLang,
+  otherLang,
+  pathFor,
+  sectionForType,
+  t,
+  type Lang,
+  type PageKey,
+  type PageRef,
+} from '../i18n/ui';
+import { getSectionAvailability } from '../lib/publications';
+
+interface Props {
+  lang: Lang;
+  ref: PageRef;
+}
+
+const { lang, ref } = Astro.props;
+const available = await getSectionAvailability();
+
+const items: { key: PageKey; label: string }[] = [
+  { key: 'home', label: t(lang, 'nav.home') },
+  ...(available.projects ? [{ key: 'projects' as const, label: t(lang, 'nav.projects') }] : []),
+  ...(available.articles ? [{ key: 'articles' as const, label: t(lang, 'nav.articles') }] : []),
+  { key: 'about', label: t(lang, 'nav.about') },
+];
+
+// Exact page → aria-current="page"; a publication marks its section with aria-current="true".
+const currentFor = (key: PageKey): 'page' | 'true' | undefined => {
+  if (ref.kind === 'page') return ref.page === key ? 'page' : undefined;
+  const section = sectionForType(ref.type);
+  return section === key ? 'true' : undefined;
+};
+
+const other = otherLang(lang);
+---
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <Brand href={pathFor(lang, 'home')} aria-label={t(lang, 'a11y.homeLink')} />
+
+    <nav class="main-nav" aria-label={t(lang, 'a11y.mainNav')}>
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={pathFor(lang, item.key)} aria-current={currentFor(item.key)}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="lang-switch" href={alternateUrl(lang, ref)} hreflang={htmlLang[other]} lang={htmlLang[other]}>
+      <span>{t(lang, 'a11y.switchLangShort')}</span>
+      <span class="sr-only">, {t(lang, 'a11y.switchLang')}</span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand lang'
+      'nav nav';
+    align-items: center;
+    column-gap: 1rem;
+    padding-block: 0.5rem 0.2rem;
+  }
+
+  .header-inner > :global(.brand) {
+    grid-area: brand;
+    justify-self: start;
+  }
+
+  .main-nav {
+    grid-area: nav;
+    margin-inline: -0.65rem;
+  }
+
+  .main-nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+  }
+
+  .main-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: 0.65rem;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    text-decoration: none;
+  }
+
+  .main-nav a:hover {
+    color: var(--text);
+  }
+
+  .main-nav a[aria-current] {
+    color: var(--text);
+  }
+
+  .main-nav a[aria-current]::after {
+    content: '';
+    position: absolute;
+    left: 0.65rem;
+    right: 0.65rem;
+    top: calc(50% + 0.8em);
+    height: 2px;
+    border-radius: 2px;
+    background: var(--brand-grad);
+  }
+
+  @media (forced-colors: active) {
+    .main-nav a[aria-current]::after {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+
+  /* Boxed control: reads as a switch, not as fine print. 44px hit area. */
+  .lang-switch {
+    grid-area: lang;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--tap);
+    min-height: var(--tap);
+    padding-inline: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-decoration: none;
+    transition:
+      border-color 120ms ease,
+      background-color 120ms ease,
+      color 120ms ease;
+  }
+
+  .lang-switch:hover {
+    background: var(--surface-2);
+    border-color: var(--accent-2);
+    color: var(--text);
+  }
+
+  @media (min-width: 48rem) {
+    .header-inner {
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: 'brand nav lang';
+      column-gap: 1.25rem;
+      padding-block: 0.85rem;
+    }
+
+    .main-nav {
+      position: relative;
+      justify-self: end;
+      margin-inline: 0;
+      padding-right: 1.25rem;
+    }
+
+    /* short vertical divider between the nav and the language box */
+    .main-nav::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      transform: translateY(-50%);
+    }
+  }
+</style>

@@ -1,0 +1,361 @@
+---
+/**
+ * Home: hero (name h1, tagline, intro body, availability, links) → focus areas →
+ * projects (if any) → articles (if any). Copy comes from src/content/pages/home/<lang>.md.
+ */
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import PublicationCard from '../PublicationCard.astro';
+import { profile } from '../../data/profile';
+import { pathFor, t, type Lang } from '../../i18n/ui';
+import { getSection } from '../../lib/publications';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('home', lang);
+if (!entry) throw new Error(`[home] Missing src/content/pages/home/${lang}.md`);
+const { Content } = await render(entry);
+const { title, description, tagline, availability, focus } = entry.data;
+
+const projects = await getSection('projects');
+const articles = await getSection('articles');
+
+// Margin numbering ("01 ──") follows the sections actually rendered.
+const order = [focus.length > 0 && 'focus', projects.length > 0 && 'projects', articles.length > 0 && 'articles'].filter(
+  (x): x is string => Boolean(x),
+);
+const indexOf = (key: string) => order.indexOf(key) + 1;
+---
+
+<BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <h1 id="hero-title">{profile.name}</h1>
+      <p class="annot hero-annot">
+        <span class="nw">{profile.role[lang]}</span><span class="sep" aria-hidden="true">·</span><span class="nw"
+          >{profile.location[lang]}</span
+        >
+      </p>
+      <div class="hero-body">
+        <p class="tagline">{tagline}</p>
+        <div class="intro prose">
+          <Content />
+        </div>
+        <p class="availability">
+          <span class="avail-node" aria-hidden="true"></span>
+          <span>{availability}</span>
+        </p>
+        <ul class="hero-links">
+          <li>
+            <a class="text-link" href={pathFor(lang, 'about')}>
+              {t(lang, 'home.aboutLink')}<span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a class="text-link mail" href={`mailto:${profile.contact.email}`}>
+              <span class="annot mail-k">email:</span>{profile.contact.email}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {
+    focus.length > 0 && (
+      <section class="section" aria-labelledby="focus-title">
+        <div class="wrap">
+          <SectionHeading id="focus-title" index={indexOf('focus')}>
+            {t(lang, 'home.focus')}
+          </SectionHeading>
+          <ol class="focus-list">
+            {focus.map((item, i) => (
+              <li>
+                <span class="annot focus-idx" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div class="focus-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    projects.length > 0 && (
+      <section class="section" aria-labelledby="projects-title">
+        <div class="wrap">
+          <SectionHeading id="projects-title" index={indexOf('projects')}>
+            {t(lang, 'home.projects')}
+          </SectionHeading>
+          <ul class="entries">
+            {projects.map((pub) => (
+              <li>
+                <PublicationCard lang={lang} pub={pub} />
+              </li>
+            ))}
+          </ul>
+          {projects.length > 3 && (
+            <p class="section-more in-main">
+              <a class="text-link" href={pathFor(lang, 'projects')}>
+                {t(lang, 'home.allProjects')}
+                <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    articles.length > 0 && (
+      <section class="section" aria-labelledby="articles-title">
+        <div class="wrap">
+          <SectionHeading id="articles-title" index={indexOf('articles')}>
+            {t(lang, 'home.articles')}
+          </SectionHeading>
+          <ul class="entries">
+            {articles.slice(0, 6).map((pub) => (
+              <li>
+                <PublicationCard lang={lang} pub={pub} />
+              </li>
+            ))}
+          </ul>
+          <p class="section-more in-main">
+            <a class="text-link" href={pathFor(lang, 'articles')}>
+              {t(lang, 'home.allArticles')}
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3.25rem, 9vw, 7.5rem) clamp(0.5rem, 2vw, 1.5rem);
+    overflow: hidden;
+  }
+
+  /* Engineering-notebook grid: only here, fading out toward the reading area. */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 12% 0%, #000 20%, transparent 72%);
+    mask-image: radial-gradient(ellipse 90% 80% at 12% 0%, #000 20%, transparent 72%);
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 1.1rem + 7.4vw, 7.25rem);
+    font-weight: 430;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    margin-left: -0.04em; /* optical alignment of the B with the text edge */
+  }
+
+  .hero-annot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-top: 1.25rem;
+  }
+
+  /* phones: the two facts never fit on one line, so stack them instead of wrapping on the "·" */
+  @media (max-width: 29.99rem) {
+    .hero-annot {
+      flex-direction: column;
+    }
+
+    .hero-annot .sep {
+      display: none;
+    }
+  }
+
+  .tagline {
+    margin-top: 1.75rem;
+    max-width: 30em;
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.95rem);
+    line-height: 1.32;
+    font-weight: 400;
+    letter-spacing: -0.008em;
+    color: var(--text);
+  }
+
+  .intro {
+    margin-top: 1.5rem;
+  }
+
+  .availability {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--brand);
+    font-size: var(--fs-small);
+    color: var(--text);
+  }
+
+  .avail-node {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 2px var(--accent-2);
+    transform: translateY(-1px);
+  }
+
+  .hero-links {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 2rem;
+  }
+
+  .mail {
+    font-weight: 400;
+  }
+
+  .mail-k {
+    display: inline-block; /* not underlined */
+    margin-right: 0.5em;
+    color: var(--muted);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-inner {
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .hero h1 {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    /* byline in the margin, sharing the tagline's first baseline */
+    .hero-annot {
+      grid-column: 1;
+      grid-row: 2;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      margin-top: 0;
+    }
+
+    .hero-annot .sep {
+      display: none;
+    }
+
+    .hero-body {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .tagline {
+      margin-top: 2.5rem;
+    }
+  }
+
+  /* ---------- What I work on: an index, one row per area ---------- */
+  .focus-list {
+    list-style: none;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .focus-list li {
+    padding-block: 1.15rem 1.3rem;
+  }
+
+  .focus-body {
+    display: grid;
+    gap: 0.35rem 2rem;
+  }
+
+  .focus-list li + li {
+    border-top: 1px solid var(--border);
+  }
+
+  .focus-list li:first-child {
+    padding-top: 0;
+  }
+
+  /* sub-index in the margin (wide screens only): no tick, so it doesn't read as a section number */
+  .focus-idx {
+    display: none;
+  }
+
+  .focus-list h3 {
+    font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .focus-list p {
+    max-width: var(--measure);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  @media (min-width: 48rem) {
+    .focus-body {
+      grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+      align-items: baseline;
+    }
+
+    .focus-list li {
+      padding-block: 1.4rem 1.5rem;
+    }
+
+    .focus-list li:first-child {
+      padding-top: 0.25rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .focus-list li {
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .focus-idx {
+      display: block;
+      text-align: right;
+    }
+  }
+
+  .section-more {
+    margin-top: 1rem;
+  }
+</style>

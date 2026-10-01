@@ -1,0 +1,51 @@
+---
+/**
+ * Layout for every localized page (/pt/..., /en/...).
+ * Head (canonical, hreflang pt-BR/en/x-default, OG), skip link, header, main, footer.
+ */
+import BaseHead from '../components/BaseHead.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { htmlLang, LANGS, ogLocale, otherLang, rootUrl, t, urlFor, type Lang, type PageRef } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Page title; " · Bruno Anhezini" is appended unless `rawTitle` is set. */
+  title: string;
+  rawTitle?: boolean;
+  description: string;
+  ref: PageRef;
+  ogType?: 'website' | 'article' | 'profile';
+}
+
+const { lang, title, rawTitle = false, description, ref, ogType = 'website' } = Astro.props;
+const fullTitle = rawTitle ? title : `${title} · Bruno Anhezini`;
+const alternates = [
+  ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
+  { hreflang: 'x-default', href: rootUrl() },
+];
+---
+
+<!doctype html>
+<html lang={htmlLang[lang]} dir="ltr">
+  <head>
+    <BaseHead
+      title={fullTitle}
+      description={description}
+      path={urlFor(lang, ref)}
+      locale={ogLocale[lang]}
+      localeAlternates={[ogLocale[otherLang(lang)]]}
+      alternates={alternates}
+      ogType={ogType}
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t(lang, 'a11y.skip')}</a>
+    <SiteHeader lang={lang} ref={ref} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter lang={lang} />
+  </body>
+</html>
+
