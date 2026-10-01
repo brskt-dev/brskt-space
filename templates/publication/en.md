@@ -28,8 +28,8 @@ date: 2026-10-01
 
 # Current state (same in both languages). Required for product and experiment.
 # For an article, delete this line.
-#   product:    in-development | live | paused | archived
-#   experiment: in-development | live | paused | archived | running | concluded
+#   product:    in-development | demo | live | paused | archived
+#   experiment: in-development | demo | live | paused | archived | running | concluded
 status: in-development
 
 # Optional: short keywords, written in this file's language. E.g. ["B2B SaaS", "Onboarding"]
@@ -43,6 +43,20 @@ links: []
 
 # Optional: cover image saved in this same folder. Only if the image exists.
 # cover: ./cover.png
+
+# Optional: highlight numbers (tiles under the title). Real numbers only.
+#   stats:
+#     - { value: "489", label: "unit tests" }
+stats: []
+
+# Optional: tech stack, shown as chips at the end of the page.
+#   stack: ["Next.js 16", "NestJS 11", "PostgreSQL 16"]
+stack: []
+
+# Optional: screenshot gallery (files in this folder). orientation: landscape (default) or portrait.
+#   gallery:
+#     - { src: ./screen.webp, alt: "What the screen shows", caption: "Short caption" }
+gallery: []
 
 # true  → draft: the publication is left out of the site (in both languages).
 # false → published. Must be the same in pt.md and en.md.

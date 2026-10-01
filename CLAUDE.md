@@ -29,7 +29,9 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 - **No invented facts.** Only facts the owner provided (CV, profile.ts, existing copy). No invented metrics,
   results, clients, stack, testimonials or links; no placeholder links. No seniority labels, emoji, hype,
   or cliches ("apaixonado por tecnologia", "soluções inovadoras", "entregar valor"). First person, short
-  sentences. Phone/WhatsApp only on the About page, never in the footer. Conta Comigo: no stack, no links.
+  sentences. Phone/WhatsApp only on the About page, never in the footer. Conta Comigo: content comes from the owner's
+  demo overview and the demo's own landing page; screenshots in its `media/` folder are the product's official
+  ones (fictional data).
 - **Base path.** The site lives under `/brskt-space/`. Never hand-write `/pt/...`, `/en/...` or `/favicon.svg`;
   build every href/src with the helpers (`pathFor`, `publicationUrl`, `alternateUrl`, `urlFor` in
   `src/i18n/ui.ts`; `joinBase`, `assetPath`, `absoluteUrl` in `src/lib/url.ts`). Routes end with `/`.
