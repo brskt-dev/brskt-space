@@ -152,6 +152,16 @@ node scripts/verify-dist.mjs --external
 2. Em **Actions**, abra a última execução que falhou e clique em **Re-run all jobs** (ou rode
    **Deploy to GitHub Pages → Run workflow** na `main`).
 
+## Reações e comentários (giscus)
+
+Cada página de projeto e artigo tem um bloco de reações (os 8 emojis do GitHub, com contador) e comentários,
+guardados como **Discussions** deste repositório pelo [giscus](https://giscus.app). PT e EN da mesma
+publicação compartilham a mesma discussão (o slug é a chave). Para reagir, o visitante entra com o GitHub.
+
+- Configuração: `src/data/giscus.ts`. Com `categoryId` vazio o bloco não aparece no site.
+- Visual (tema escuro do site): `public/giscus-theme.css`.
+- Moderação: aba **Discussions** do repositório (editar, ocultar, bloquear, apagar).
+
 ## Mapa de URLs
 
 Os caminhos abaixo vêm depois de `https://brskt-dev.github.io/brskt-space`.

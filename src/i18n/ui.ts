@@ -122,6 +122,16 @@ const strings = {
     en: 'The first articles are coming out of the oven.',
   },
 
+  'reactions.kicker': { pt: '// sinal da tripulação', en: '// signal from the crew' },
+  'reactions.title': { pt: 'Reações e comentários', en: 'Reactions and comments' },
+  'reactions.sub': {
+    pt: 'Deixa um emoji ou um comentário. É só entrar com a sua conta do GitHub.',
+    en: 'Leave an emoji or a comment. Just sign in with your GitHub account.',
+  },
+  'reactions.noscript': {
+    pt: 'As reações precisam de JavaScript. Você também pode participar direto nas Discussions:',
+    en: 'Reactions need JavaScript. You can also join in directly on Discussions:',
+  },
   'about.kicker': { pt: '// ficha da tripulação', en: '// crew file' },
   'about.storyKicker': { pt: '// a versão curta', en: '// the short version' },
   'about.story': { pt: 'Rota até aqui', en: 'The route so far' },
