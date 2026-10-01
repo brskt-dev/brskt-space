@@ -1,0 +1,82 @@
+---
+/**
+ * Reactions + comments (giscus → GitHub Discussions of this repo). One discussion per
+ * publication slug, shared by PT and EN. Renders nothing until src/data/giscus.ts is
+ * configured. The only client JS besides the root language redirect.
+ */
+import Icon from './ui/Icon.astro';
+import ExternalLink from './ExternalLink.astro';
+import SectionHeading from './SectionHeading.astro';
+import { giscus, giscusEnabled } from '../data/giscus';
+import { t, type Lang } from '../i18n/ui';
+import { absoluteUrl, assetPath } from '../lib/url';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+}
+
+const { lang, slug } = Astro.props;
+const theme = absoluteUrl(assetPath('giscus-theme.css'));
+const discussionsUrl = `https://github.com/${giscus.repo}/discussions`;
+---
+
+{
+  giscusEnabled && (
+    <section class="reactions" aria-labelledby="reactions-title">
+      <SectionHeading id="reactions-title" kicker={t(lang, 'reactions.kicker')} icon="message" sub={t(lang, 'reactions.sub')}>
+        {t(lang, 'reactions.title')}
+      </SectionHeading>
+      <div class="card giscus-box">
+        <script
+          is:inline
+          src="https://giscus.app/client.js"
+          data-repo={giscus.repo}
+          data-repo-id={giscus.repoId}
+          data-category={giscus.category}
+          data-category-id={giscus.categoryId}
+          data-mapping="specific"
+          data-term={slug}
+          data-strict="1"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme={theme}
+          data-lang={lang === 'pt' ? 'pt' : 'en'}
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async
+        />
+        <noscript>
+          <p class="noscript">
+            <Icon name="github" size={16} />
+            {t(lang, 'reactions.noscript')} <ExternalLink href={discussionsUrl} lang={lang}>GitHub Discussions</ExternalLink>
+          </p>
+        </noscript>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .reactions {
+    margin-top: clamp(3rem, 7vw, 4.5rem);
+  }
+
+  .giscus-box {
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+  }
+
+  .giscus-box:hover,
+  .giscus-box:focus-within {
+    transform: none;
+  }
+
+  .noscript {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    color: var(--muted);
+  }
+</style>
