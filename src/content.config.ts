@@ -54,6 +54,8 @@ const publications = defineCollection({
           )
           .default([]),
         cover: image().optional(),
+        /** Card image (home, listings). Falls back to `cover`, then to the generated space art. */
+        thumbnail: image().optional(),
         /** Highlight numbers shown as tiles under the title, e.g. { value: "489", label: "unit tests" }. */
         stats: z.array(z.object({ value: z.string().min(1), label: z.string().min(1) })).default([]),
         /** Tech stack, shown as chips at the end of the page. */

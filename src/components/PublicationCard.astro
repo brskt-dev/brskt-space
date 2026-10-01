@@ -19,14 +19,15 @@ const { lang, pub, headingLevel = 3 } = Astro.props;
 const data = pub.entries[lang].data;
 const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = publicationUrl(lang, pub.type, pub.slug);
+const cardImage = data.thumbnail ?? data.cover;
 const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
 ---
 
 <article class="card pub-card reveal">
   <div class="card-media">
     {
-      data.cover ? (
-        <Image src={data.cover} alt="" widths={[400, 640, 800]} sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 45vw, 100vw" />
+      cardImage ? (
+        <Image src={cardImage} alt="" widths={[400, 640, 800]} sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 45vw, 100vw" />
       ) : (
         <Cover seed={pub.slug} kind={pub.type} />
       )

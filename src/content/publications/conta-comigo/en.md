@@ -5,7 +5,8 @@ summary: "A guided checklist for marketing agencies to collect access from their
 date: 2026-10-01
 status: demo
 tags: ["B2B SaaS", "Client onboarding", "Multi-agent", "Public demo"]
-cover: ./media/request-detail-en.webp
+cover: ./media/landing-en.webp
+thumbnail: ./media/thumb-en.webp
 links:
   - { label: "Open the demo", url: "https://contacomigo-demo.vercel.app/en" }
 stats:

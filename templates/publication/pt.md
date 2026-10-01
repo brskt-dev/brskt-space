@@ -43,6 +43,8 @@ links: []
 
 # Opcional: imagem de capa salva nesta mesma pasta. Use só se a imagem existir.
 # cover: ./cover.png
+# Opcional: imagem do card (home e listagens). Sem ela, o card usa a capa.
+# thumbnail: ./thumb.png
 
 # Opcional: números de destaque (cards abaixo do título). Só números reais.
 #   stats:
