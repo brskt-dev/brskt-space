@@ -8,4 +8,4 @@ availability: "Open to 100% remote roles · Brazil and abroad"
 
 This is my corner of the internet. It collects the projects I’m building and, soon, articles about technical problems I’ve solved.
 
-Whether you’re just starting out or have been at it for years, pull up a chair. Questions, ideas or a chat about a role: my inbox is open.
+Whether you’re just starting out or have been at it for years, pull up a chair. Questions, ideas or a chat about a role: find me on LinkedIn.

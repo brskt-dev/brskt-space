@@ -41,5 +41,5 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
   `--text`, `--muted`, `--accent`, ...); no new hard-coded colors. `--brand` (#4900C7) is decorative only, never
   text on dark (1.97:1). Text must keep WCAG AA contrast; links/focus use `--accent`.
 - **Accessibility.** One `h1` per page, semantic landmarks, visible `:focus-visible`, alt text, tap targets
-  >= 44px, no horizontal scroll at 360px, external links with `rel="noopener"`.
+  >= 44px, no horizontal scroll at 360px, external links open in a new tab (`target="_blank" rel="noopener noreferrer"`, via `ExternalLink.astro` or the Markdown plugin).
 - Zero client JS except the tiny language redirect on the root chooser.

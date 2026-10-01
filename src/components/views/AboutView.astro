@@ -221,10 +221,15 @@ const splitItems = (text: string) =>
         {t(lang, 'about.contact')}
       </SectionHeading>
       <ul class="contacts">
+        <li class="card contact-card main-contact">
+          <Icon name="linkedin" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.linkedin')}</span>
+          <ExternalLink class="c-v" href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink>
+        </li>
         <li class="card contact-card">
-          <Icon name="mail" size={22} class="c-icon" />
-          <span class="c-k">{t(lang, 'about.email')}</span>
-          <a class="c-v" href={`mailto:${c.email}`}>{c.email}</a>
+          <Icon name="github" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.github')}</span>
+          <ExternalLink class="c-v" href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink>
         </li>
         <li class="card contact-card">
           <Icon name="phone" size={22} class="c-icon" />
@@ -235,14 +240,9 @@ const splitItems = (text: string) =>
           </span>
         </li>
         <li class="card contact-card">
-          <Icon name="linkedin" size={22} class="c-icon" />
-          <span class="c-k">{t(lang, 'about.linkedin')}</span>
-          <ExternalLink class="c-v" href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink>
-        </li>
-        <li class="card contact-card">
-          <Icon name="github" size={22} class="c-icon" />
-          <span class="c-k">{t(lang, 'about.github')}</span>
-          <ExternalLink class="c-v" href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink>
+          <Icon name="mail" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.email')}</span>
+          <a class="c-v" href={`mailto:${c.email}`}>{c.email}</a>
         </li>
       </ul>
     </div>
@@ -545,6 +545,11 @@ const splitItems = (text: string) =>
   .contact-card {
     gap: 0.35rem;
     padding: 1.15rem 1.25rem;
+  }
+
+  .main-contact {
+    border-color: var(--border-hi);
+    background: linear-gradient(160deg, rgb(73 0 199 / 0.35), var(--surface));
   }
 
   .contact-card :global(.c-icon) {

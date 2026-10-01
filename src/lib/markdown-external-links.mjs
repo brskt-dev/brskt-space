@@ -1,11 +1,11 @@
 /**
  * Sätteri hast plugin (Astro 7's default Markdown processor): external links in
- * markdown bodies get rel="noopener" plus the same arrow icon and screen-reader
+ * markdown bodies open in a new tab (target="_blank", rel="noopener noreferrer") and get the same arrow icon and screen-reader
  * hint as <ExternalLink>. The hint language comes from the file name (pt.md / en.md).
  */
 
 /** Screen-reader hint for links that leave the site (also used by ui.ts 'a11y.external'). */
-export const EXTERNAL_HINT = { pt: '(link externo)', en: '(external link)' };
+export const EXTERNAL_HINT = { pt: '(abre em nova guia)', en: '(opens in a new tab)' };
 /** Path of the external-link arrow icon (also used by ExternalLink.astro). */
 export const EXT_ICON_PATH = 'M4 2h6v6M10 2 2.5 9.5';
 
@@ -44,7 +44,9 @@ export const externalLinks = (siteUrl) => ({
       if (typeof href !== 'string' || !/^https?:\/\//i.test(href) || href.startsWith(siteUrl)) return;
       const rel = new Set([].concat(node.properties.rel || []));
       rel.add('noopener');
+      rel.add('noreferrer');
       ctx.setProperty(node, 'rel', [...rel]);
+      ctx.setProperty(node, 'target', '_blank');
       ctx.appendChild(node, [
         icon(),
         {

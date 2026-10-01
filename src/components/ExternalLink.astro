@@ -1,5 +1,5 @@
 ---
-/** Link that leaves the site: rel="noopener" + visual and screen-reader "external" hint. */
+/** Link that leaves the site: opens in a new tab (rel="noopener noreferrer") + visual and screen-reader hint. */
 import { t, type Lang } from '../i18n/ui';
 import { EXT_ICON_PATH } from '../lib/markdown-external-links.mjs';
 
@@ -15,7 +15,7 @@ interface Props {
 const { href, lang, class: className, hint, ...rest } = Astro.props;
 ---
 
-<a href={href} rel="noopener" class={className} {...rest}
+<a href={href} target="_blank" rel="noopener noreferrer" class={className} {...rest}
   ><slot /><svg class="ext-icon" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
     <path d={EXT_ICON_PATH} fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
   </svg><span class="sr-only"> {hint ?? t(lang, 'a11y.external')}</span></a
