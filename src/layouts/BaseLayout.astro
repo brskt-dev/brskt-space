@@ -10,7 +10,7 @@ import { htmlLang, LANGS, ogLocale, otherLang, rootUrl, t, urlFor, type Lang, ty
 
 interface Props {
   lang: Lang;
-  /** Page title; " · Bruno Anhezini" is appended unless `rawTitle` is set. */
+  /** Page title; " · Brskt Space" is appended unless `rawTitle` is set. */
   title: string;
   rawTitle?: boolean;
   description: string;
@@ -19,7 +19,7 @@ interface Props {
 }
 
 const { lang, title, rawTitle = false, description, ref, ogType = 'website' } = Astro.props;
-const fullTitle = rawTitle ? title : `${title} · Bruno Anhezini`;
+const fullTitle = rawTitle ? title : `${title} · Brskt Space`;
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
   { hreflang: 'x-default', href: rootUrl() },
@@ -40,6 +40,7 @@ const alternates = [
     />
   </head>
   <body>
+    <div class="space" aria-hidden="true"><span class="shooting-star"></span></div>
     <a class="skip-link" href="#main">{t(lang, 'a11y.skip')}</a>
     <SiteHeader lang={lang} ref={ref} />
     <main id="main" tabindex="-1">

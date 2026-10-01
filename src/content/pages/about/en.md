@@ -1,16 +1,25 @@
 ---
 title: "About"
-description: "Career path of Bruno Anhezini, full-stack developer: from accounting and tax systems in Delphi to embedded devices and microservices-based SaaS with .NET."
+description: "Bruno Anhezini’s career as a full-stack developer: from accounting and tax systems in Delphi to embedded devices and microservices SaaS with .NET."
+story:
+  - when: "2016 → 2022"
+    title: "Accounting, tax and legacy"
+    icon: receipt
+    text: "Internal systems in Delphi and SQL Server, full of critical business rules. I gradually modernized that legacy with .NET APIs, integrations and automation."
+  - when: "2022 → 2025"
+    title: "From firmware to SaaS"
+    icon: cpu
+    text: "A facilities management solution: firmware on ESP32 and nRF52, OTA updates and a SaaS platform with .NET APIs and Angular screens."
+  - when: "2025 → now"
+    title: "Microservices in production"
+    icon: server
+    text: "Every layer of a microservices SaaS, with Kafka, Redis, CDC/Debezium and real-time features. Plus the place it all runs: Docker Swarm, Traefik and GitHub Actions."
+  - when: "every day"
+    title: "AI agents in the loop"
+    icon: bot
+    text: "I use Claude Code, Codex and MCP a lot. The agents speed things up; the technical review and validation stay with me."
 ---
 
-I'm a full-stack developer and I work mainly with C#/.NET, Angular and SQL Server. My strengths are backend, infrastructure and production operations.
+I’m a full-stack dev based in Americana, São Paulo, Brazil. I work mainly with C#/.NET, Angular and SQL Server, and I’m strongest in backend, infra and production operations.
 
-From 2016 to 2022, working remotely, I built and maintained internal systems used in accounting and tax processes. They ran on Delphi and SQL Server and handled critical business rules. Little by little, I modernized the legacy environment with .NET APIs, integrations with third-party systems and automation for tax and operational routines. I also took care of data modeling, digitizing internal workflows and supporting the IT infrastructure and networks.
-
-From 2022 to 2025, my work also involved hardware. I developed a facilities management solution end to end, connecting ESP32 and nRF52 embedded devices to a SaaS platform. On the device side, I wrote firmware, implemented OTA updates and the integration with the backend, and took part in hardware decisions and PCB design. On the platform side, I built .NET APIs, modeled the data in SQL Server and developed Angular interfaces. I also set up the Docker Swarm environments and the CI/CD pipelines, with automated deployment, health checks and rollback.
-
-Since 2025, I've been working across every layer of a microservices-based SaaS platform: Angular interfaces, .NET APIs and workers, SQL Server and production infrastructure. I model domains and data, and implement business rules, API contracts, authentication and permissions. I build event-driven integrations and real-time features with Kafka, Redis, CDC/Debezium and Centrifugo.
-
-On the infrastructure side, I set up and run the development, staging and production environments with Docker Swarm, Traefik and Portainer. I create and maintain the build, versioning and deployment pipelines in GitHub Actions. I handle production support, troubleshooting and performance analysis, and I take part in architecture, product and user experience decisions.
-
-I live in Americana, São Paulo, Brazil, and I'm looking for 100% remote opportunities. If you want to discuss a role or just talk shop about any of this, you'll find my contact details at the bottom of the page.
+Here’s the short version of the story. The details of each phase are further down.

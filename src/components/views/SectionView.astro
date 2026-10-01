@@ -1,7 +1,12 @@
 ---
-/** Listing page for a section (projects = product + experiment, articles = article). */
+/**
+ * Listing page for a section (projects = product + experiment, articles = article).
+ * Cards in a 4-column grid; the last row is completed with skeleton slots.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PublicationCard from '../PublicationCard.astro';
+import SkeletonCard from '../SkeletonCard.astro';
+import Icon from '../ui/Icon.astro';
 import { t, type Lang, type SectionKey } from '../../i18n/ui';
 import { getSection } from '../../lib/publications';
 
@@ -12,31 +17,61 @@ interface Props {
 
 const { lang, section } = Astro.props;
 const items = await getSection(section);
-const title = t(lang, section === 'projects' ? 'projects.title' : 'articles.title');
-const description = t(lang, section === 'projects' ? 'projects.description' : 'articles.description');
+const isProjects = section === 'projects';
+const title = t(lang, isProjects ? 'projects.title' : 'articles.title');
+const description = t(lang, isProjects ? 'projects.description' : 'articles.description');
+const slots = Math.max(4, Math.ceil(items.length / 4) * 4);
+const skeletons = slots - items.length;
 ---
 
 <BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: section }}>
   <div class="wrap">
-    <header class="page-head in-main">
+    <header class="page-hero">
+      <p class="kicker">
+        <Icon name={isProjects ? 'rocket' : 'book-open'} size={15} />
+        {t(lang, isProjects ? 'home.projectsKicker' : 'home.articlesKicker')}
+      </p>
       <h1>{title}</h1>
       <p class="lead">{description}</p>
     </header>
-    <span class="rule list-rule" aria-hidden="true"></span>
-    <ul class="entries">
+    <div class="grid-4">
+      {items.map((pub) => <PublicationCard lang={lang} pub={pub} headingLevel={2} />)}
       {
-        items.map((pub) => (
-          <li>
-            <PublicationCard lang={lang} pub={pub} headingLevel={2} />
-          </li>
+        Array.from({ length: skeletons }, (_, i) => (
+          <SkeletonCard lang={lang} kind={isProjects ? 'project' : 'article'} index={i} extra={i >= 1} />
         ))
       }
-    </ul>
+    </div>
+    {skeletons > 0 && <p class="soon-note">{t(lang, isProjects ? 'home.projectsSoon' : 'home.articlesSoon')}</p>}
   </div>
 </BaseLayout>
 
 <style>
-  .list-rule {
-    margin-top: clamp(2rem, 4vw, 2.75rem);
+  .page-hero {
+    padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .page-hero h1 {
+    font-size: clamp(2.6rem, 1.6rem + 4vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .lead {
+    margin-top: 0.75rem;
+    max-width: 36rem;
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+
+  .soon-note {
+    margin-top: 1rem;
+    font: 500 var(--fs-meta) / 1.5 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .soon-note::before {
+    content: '✦ ';
+    color: var(--accent-2);
   }
 </style>

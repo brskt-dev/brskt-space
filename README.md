@@ -31,7 +31,7 @@ site no GitHub Pages.
 | `src/content.config.ts` | Regras do frontmatter: tipos, valores de `status`, formato de data. Um status novo também precisa do rótulo `status.*` em `src/i18n/ui.ts` (sem ele, aparece o valor cru). |
 | `src/pages/[lang]/[...path].astro` e `src/lib/routes.ts` | Geram todas as páginas `/pt/` e `/en/` e o `sitemap.xml`; o conteúdo de cada página fica em `src/components/views/`. Não crie arquivos em `src/pages/pt/` ou `src/pages/en/`: eles ficam fora do sitemap e do menu. |
 | `src/assets/` | Foto (otimizada no build). |
-| `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro) em `src/styles/global.css`. |
+| `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro espacial), fontes, cards, skeletons e animações em `src/styles/global.css`; ícones em `src/components/ui/Icon.astro`. |
 | `public/` | Arquivos copiados sem mudança, como `favicon.svg`. |
 | `templates/publication/` | Modelos para novas publicações. Ficam fora de `src/` e nunca vão para o site. |
 | `scripts/verify-dist.mjs` | Verificação do site gerado: links, prefixo `/brskt-space/`, metadados, idiomas. |
@@ -95,10 +95,18 @@ ganha a primeira publicação; seção sem conteúdo não existe no site.
 Sempre mexa nos dois idiomas juntos.
 
 - **Home:** `src/content/pages/home/{pt,en}.md`. No frontmatter: `title`, `description` (meta description),
-  `tagline`, `availability` (linha de disponibilidade) e `focus` (lista de áreas, cada uma com `title` e
-  `text`). O texto abaixo do frontmatter é o parágrafo de introdução.
-- **Sobre:** `src/content/pages/about/{pt,en}.md`. Frontmatter com `title` e `description`; o texto abaixo é a
-  narrativa.
+  `headline` (a saudação grande), `tagline` e `availability` (selo de disponibilidade). O texto abaixo do
+  frontmatter é a introdução. Os títulos das seções (`// missões em andamento` etc.) ficam em `src/i18n/ui.ts`.
+- **Projetos e artigos na home:** a home mostra uma linha de 4 projetos e um grid 4×2 de artigos. Os espaços
+  sem publicação viram *skeletons* ("em órbita") automaticamente; não há nada para editar. O botão
+  "Ver todos" dos artigos fica desativado ("em breve") até existir o primeiro artigo.
+- **Imagens das publicações:** sem `cover:`, cada publicação ganha uma capa espacial gerada a partir do slug
+  (`src/components/ui/Cover.astro`). Para usar uma imagem real, coloque o arquivo na pasta da publicação e
+  preencha `cover: ./capa.png` nos dois idiomas.
+- **Sobre:** `src/content/pages/about/{pt,en}.md`. Frontmatter com `title`, `description` e `story` (os cards
+  da "versão curta": `when`, `title`, `text` e `icon`, um de `receipt`, `cpu`, `server`, `bot`, `rocket`,
+  `code`, `terminal`, `sparkles`). O texto abaixo é a introdução.
+- **Faixa de ferramentas da home:** lista `stack` em `src/data/profile.ts`.
 - **Currículo** (experiência, competências, formação, idiomas, contatos): `src/data/profile.ts`. Cada texto
   traduzível é um objeto `{ pt: '…', en: '…' }`. Nomes de empresas e tecnologias ficam como estão.
 - **Textos da interface** (menu, rodapé, rótulos de status e tipo, página 404): objeto `strings` em

@@ -4,6 +4,8 @@
  * inline script redirects by navigator.languages (pt* → /pt/, en* → /en/, default /en/).
  */
 import BaseHead from '../components/BaseHead.astro';
+import Brand from '../components/Brand.astro';
+import Icon from '../components/ui/Icon.astro';
 import { htmlLang, LANGS, pathFor, rootUrl, t } from '../i18n/ui';
 import { BASE } from '../lib/url';
 
@@ -35,7 +37,7 @@ const choices = [
       })();
     </script>
     <BaseHead
-      title="Bruno Anhezini"
+      title="Bruno Anhezini · Brskt Space"
       description="Bruno Anhezini — Desenvolvedor Full Stack / Full Stack Developer. Escolha o idioma · Choose a language."
       path={rootUrl()}
       locale="en_US"
@@ -44,8 +46,12 @@ const choices = [
     />
   </head>
   <body>
+    <div class="space" aria-hidden="true"><span class="shooting-star"></span></div>
     <main class="chooser wrap">
-      <p class="annot kicker"><span class="node" aria-hidden="true"></span>brskt-space</p>
+      <Brand href={rootUrl()} />
+      <p class="kicker">
+        <span lang="pt-BR">{t('pt', 'chooser.kicker')}</span>
+      </p>
       <h1>Bruno Anhezini</h1>
       <p class="hint">
         <span lang="pt-BR">{t('pt', 'chooser.title')}</span>
@@ -56,9 +62,10 @@ const choices = [
         {
           choices.map((c) => (
             <li>
-              <a href={pathFor(c.lang, 'home')} hreflang={htmlLang[c.lang]} lang={htmlLang[c.lang]}>
+              <a class="card choice" href={pathFor(c.lang, 'home')} hreflang={htmlLang[c.lang]} lang={htmlLang[c.lang]}>
+                <Icon name="globe" size={20} />
                 <span class="label">{c.label}</span>
-                <span class="annot code" aria-hidden="true">{c.lang}</span>
+                <span class="chip" aria-hidden="true">{c.lang}</span>
               </a>
             </li>
           ))
@@ -80,92 +87,49 @@ const choices = [
   }
 
   .kicker {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .node {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--brand);
-    box-shadow: 0 0 0 2px var(--accent-2);
+    margin-top: 2rem;
   }
 
   h1 {
-    font-size: clamp(2.75rem, 1.8rem + 4vw, 4.25rem);
-    font-weight: 430;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    font-size: clamp(2.6rem, 1.8rem + 4vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
   }
 
   .hint {
-    margin-top: 1rem;
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: 1.25rem;
+    margin-top: 0.5rem;
     color: var(--muted);
   }
 
-  /* each language phrase is one unit: lines break between them, never inside */
-  .hint > span {
-    display: inline-block;
-  }
-
-  .hint .sep {
-    color: var(--muted);
-    padding-inline: 0.5rem;
+  .sep {
+    margin-inline: 0.4rem;
+    color: var(--border-hi);
   }
 
   .choices {
     list-style: none;
-    padding: 0;
-    margin-top: 2.25rem;
-    border-top: 2px solid var(--brand);
-    border-image: var(--brand-grad) 1;
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
   }
 
-  .choices li {
-    border-bottom: 1px solid var(--border);
-  }
-
-  .choices a {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 4rem;
-    padding-block: 1rem;
+  .choice {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.75rem;
+    padding: 0.75rem 1.1rem;
     color: var(--text);
     text-decoration: none;
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: 1.6rem;
-    font-weight: 450;
-    letter-spacing: -0.01em;
+    font-weight: 650;
+    font-size: 1.15rem;
   }
 
-  .choices a:hover {
-    color: var(--accent);
+  .choice :global(.icon) {
+    color: var(--mint);
   }
 
-  .choices .code {
-    font-size: var(--fs-meta);
-    font-weight: 400;
-    color: var(--accent);
-  }
-
-  .choices .code::after {
-    content: '→';
-    display: inline-block;
-    margin-left: 0.6rem;
-    font-family: var(--font-sans);
-    transition: transform 140ms ease;
-  }
-
-  .choices a:hover .code::after {
-    transform: translateX(3px);
+  .choice .chip {
+    margin-left: auto;
   }
 </style>

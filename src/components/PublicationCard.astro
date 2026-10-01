@@ -1,10 +1,12 @@
 ---
 /**
- * A publication in a list, set as an editorial ledger row: type + status as a margin
- * annotation, serif title (the whole row is the link), summary, tags.
+ * A publication as a card: cover (real `cover:` image or generated space art),
+ * type + status chips, title (the whole card is the link), summary, tags.
  */
-import PubMeta from './PubMeta.astro';
-import { publicationUrl, type Lang } from '../i18n/ui';
+import { Image } from 'astro:assets';
+import Cover from './ui/Cover.astro';
+import Icon, { type IconName } from './ui/Icon.astro';
+import { publicationUrl, statusLabel, t, typeLabel, type Lang, type PublicationType } from '../i18n/ui';
 import type { Publication } from '../lib/publications';
 
 interface Props {
@@ -17,25 +19,56 @@ const { lang, pub, headingLevel = 3 } = Astro.props;
 const data = pub.entries[lang].data;
 const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = publicationUrl(lang, pub.type, pub.slug);
+const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
 ---
 
-<article class="entry">
-  <div class="entry-meta">
-    <PubMeta lang={lang} type={pub.type} status={pub.status} keys={false} />
+<article class="card pub-card reveal">
+  <div class="card-media">
+    {
+      data.cover ? (
+        <Image src={data.cover} alt="" widths={[400, 640, 800]} sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 45vw, 100vw" />
+      ) : (
+        <Cover seed={pub.slug} kind={pub.type} />
+      )
+    }
+    <span class="card-go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
   </div>
-  <div class="entry-main">
-    <Heading class="entry-title"
-      ><a class="entry-link" href={href}>{data.title}<span class="arrow" aria-hidden="true">→</span></a></Heading
-    >
-    <p class="summary">{data.summary}</p>
+  <div class="card-body">
+    <p class="badges">
+      <span class="chip chip-accent"><Icon name={typeIcon[pub.type]} size={13} />{typeLabel(lang, pub.type)}</span>
+      {
+        pub.status && (
+          <span class="chip chip-mint">
+            <span class="sr-only">{t(lang, 'meta.status')}: </span>
+            <span class="pulse" aria-hidden="true" />
+            {statusLabel(lang, pub.status)}
+          </span>
+        )
+      }
+    </p>
+    <Heading class="card-title"><a class="card-link" href={href}>{data.title}</a></Heading>
+    <p class="card-summary">{data.summary}</p>
     {
       data.tags.length > 0 && (
-        <ul class="tags" aria-label="Tags">
+        <ul class="tag-list card-foot" aria-label={t(lang, 'pub.tags')}>
           {data.tags.map((tag) => (
-            <li>{tag}</li>
+            <li class="chip">#{tag}</li>
           ))}
         </ul>
       )
     }
   </div>
 </article>
+
+<style>
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .pub-card .chip-mint .pulse {
+    width: 6px;
+    height: 6px;
+  }
+</style>

@@ -87,16 +87,10 @@ const home = defineCollection({
   schema: z.object({
     title: z.string().min(1),
     description: z.string().min(1),
+    /** Big greeting in the hero (the h1). */
+    headline: z.string().min(1),
     tagline: z.string().min(1),
     availability: z.string().min(1),
-    focus: z
-      .array(
-        z.object({
-          title: z.string().min(1),
-          text: z.string().min(1),
-        }),
-      )
-      .default([]),
   }),
 });
 
@@ -109,6 +103,17 @@ const about = defineCollection({
   schema: z.object({
     title: z.string().min(1),
     description: z.string().min(1),
+    /** Short story cards ("blocks") shown before the detailed timeline. */
+    story: z
+      .array(
+        z.object({
+          when: z.string().min(1),
+          title: z.string().min(1),
+          text: z.string().min(1),
+          icon: z.enum(['receipt', 'cpu', 'server', 'bot', 'rocket', 'code', 'terminal', 'sparkles']),
+        }),
+      )
+      .default([]),
   }),
 });
 
