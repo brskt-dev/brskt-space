@@ -1,17 +1,17 @@
 # Builds, verifies and deploys the site to GitHub Pages:
 # https://brskt-dev.github.io/brskt-space/
 #
-# Runs on every push to `dev` and manually (Actions → Deploy to GitHub Pages → Run workflow; the button only appears once `dev` is the default branch).
+# Runs on every push to `main` (the default branch) and manually (Actions → Deploy to GitHub Pages → Run workflow).
 # `npm run verify` = `astro check` + `astro build` + scripts/verify-dist.mjs. If any fails, the deploy job
 # never runs and the live site stays as it was.
 #
-# One-time setup: Settings → General → Default branch: dev; then Settings → Pages → Build and deployment → Source: GitHub Actions.
+# One-time setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
 
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

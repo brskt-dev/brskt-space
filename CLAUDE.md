@@ -1,7 +1,7 @@
 # brskt-space: notes for AI-assisted edits
 
 Bruno Anhezini's bilingual (PT-BR + EN) portfolio. Astro, fully static, deployed to
-https://brskt-dev.github.io/brskt-space/ by `.github/workflows/deploy.yml` on push to `dev`.
+https://brskt-dev.github.io/brskt-space/ by `.github/workflows/deploy.yml` on push to `main` (work happens on `dev`, merged via PR).
 README.md (Portuguese) is the owner's manual; keep it accurate when structure or commands change.
 
 ## Structure

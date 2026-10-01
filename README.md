@@ -5,7 +5,7 @@ Meu espaço pessoal: trajetória, projetos e artigos técnicos, em português e 
 **No ar:** https://brskt-dev.github.io/brskt-space/
 
 Feito com [Astro](https://astro.build), saída 100% estática (sem JavaScript no navegador, fora o
-redirecionamento de idioma da página inicial). Cada push na branch `dev` gera, verifica e publica o
+redirecionamento de idioma da página inicial). Cada push na branch `main` gera, verifica e publica o
 site no GitHub Pages.
 
 - [Estrutura](#estrutura)
@@ -80,7 +80,7 @@ otimiza no build. Sempre escreva a descrição (é o texto alternativo).
 **6. Confira:** `npm run dev` e abra a página. Enquanto `draft: true`, ela não aparece; mude para `false` nos
 dois arquivos para ver. Antes do push, rode `npm run verify`.
 
-**7. Publique:** commit e push na `dev`. A seção (Projetos ou Artigos) aparece sozinha no menu quando
+**7. Publique:** commit e push na `main` (ou trabalhe numa branch como a `dev` e abra um PR para a `main`: o merge publica). A seção (Projetos ou Artigos) aparece sozinha no menu quando
 ganha a primeira publicação; seção sem conteúdo não existe no site.
 
 > **Por que o build recusa publicação sem tradução?** O site é inteiro bilíngue e o botão de idioma sempre leva
@@ -132,19 +132,17 @@ node scripts/verify-dist.mjs --external
 
 ## Deploy
 
-1. Push na branch `dev` (ou, em **Actions → Deploy to GitHub Pages → Run workflow**, para rodar na mão).
+1. Push (ou merge de PR) na branch `main` (ou, em **Actions → Deploy to GitHub Pages → Run workflow**, para rodar na mão).
 2. O GitHub Actions roda `npm ci` e `npm run verify` (checagem de tipos + build + verificação).
 3. Se tudo passar, envia a pasta `dist/` e publica em https://brskt-dev.github.io/brskt-space/.
 4. Se algo falhar, **nada é publicado** e o site continua na versão anterior. O erro aparece na aba
    **Actions**, no passo "Build and verify".
 
-**Só na primeira vez** (no repositório, nesta ordem):
+**Só na primeira vez** (no repositório):
 
-1. **Settings → General → Default branch:** troque `main` por `dev`. O botão *Run workflow* só aparece para
-   workflows que estão na branch padrão, e o ambiente `github-pages` que o GitHub cria só aceita deploy dela.
-2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-3. Em **Actions**, abra a última execução que falhou e clique em **Re-run all jobs** (ou faça um push na `dev`).
-   Se o deploy reclamar de `environment protection rules`, veja [Problemas comuns](#problemas-comuns).
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. Em **Actions**, abra a última execução que falhou e clique em **Re-run all jobs** (ou rode
+   **Deploy to GitHub Pages → Run workflow** na `main`).
 
 ## Mapa de URLs
 
@@ -234,6 +232,6 @@ De onde vem cada parte:
 | Sintoma | O que fazer |
 |---|---|
 | `Get Pages site failed` em "Configure Pages", ou 404 no deploy | Falta a configuração inicial: Settings → Pages → Source: GitHub Actions. |
-| `Branch "dev" is not allowed to deploy to github-pages due to environment protection rules` | Settings → Environments → `github-pages` → libere a branch `dev`. |
+| `Branch "…" is not allowed to deploy to github-pages due to environment protection rules` | O deploy só sai da `main`. Faça merge na `main` em vez de publicar de outra branch. |
 | Site no ar sem estilo, fontes ou imagens | Alguma URL ficou sem o prefixo `/brskt-space/`. Rode `npm run verify` localmente para achar. |
-| A mudança não aparece no ar | Confira se o push foi para a `dev` e se o workflow terminou em verde; o Pages pode levar alguns minutos. Recarregue sem cache. |
+| A mudança não aparece no ar | Confira se o push foi para a `main` e se o workflow terminou em verde; o Pages pode levar alguns minutos. Recarregue sem cache. |
