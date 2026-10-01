@@ -1,24 +1,31 @@
 ---
 /**
- * Section title followed by the CV-style violet rule (full width).
- * Optional `index` renders a mono margin annotation ("01 ──"), decorative only.
+ * Section heading: a mono "// kicker", the h2, an optional subtitle and an optional
+ * action (slot "action", e.g. a "View all" button) aligned to the right.
  */
+import Icon, { type IconName } from './ui/Icon.astro';
+
 interface Props {
   id: string;
-  /** 1-based position of the section on the page; shown as "01", "02", ... in the margin. */
-  index?: number;
+  kicker?: string;
+  icon?: IconName;
+  sub?: string;
 }
-const { id, index } = Astro.props;
+const { id, kicker, icon, sub } = Astro.props;
 ---
 
 <div class="section-head">
-  {
-    typeof index === 'number' && (
-      <span class="annot section-index tick" aria-hidden="true">
-        {String(index).padStart(2, '0')}
-      </span>
-    )
-  }
-  <h2 id={id}><slot /></h2>
-  <span class="rule" aria-hidden="true"></span>
+  <div>
+    {
+      kicker && (
+        <p class="kicker">
+          {icon && <Icon name={icon} size={15} />}
+          {kicker}
+        </p>
+      )
+    }
+    <h2 id={id}><slot /></h2>
+    {sub && <p class="sub">{sub}</p>}
+  </div>
+  <slot name="action" />
 </div>

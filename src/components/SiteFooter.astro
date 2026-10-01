@@ -1,6 +1,7 @@
 ---
-/** Footer on every page: email, LinkedIn, GitHub, site source, © year. No phone here (About only). */
+/** Footer on every page: contact CTA (email, LinkedIn, GitHub), site source, © year. No phone here (About only). */
 import ExternalLink from './ExternalLink.astro';
+import Icon from './ui/Icon.astro';
 import { profile } from '../data/profile';
 import { t, type Lang } from '../i18n/ui';
 
@@ -12,10 +13,8 @@ interface Props {
 
 const { lang, bilingual = false } = Astro.props;
 const year = new Date().getFullYear();
+const L = (key: Parameters<typeof t>[1]) => (bilingual ? `${t('pt', key)} / ${t('en', key)}` : t(lang, key));
 const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'footer.source')}` : t(lang, 'footer.source');
-const contactKey = bilingual
-  ? `${t('pt', 'footer.contact').replace(/:$/, '')} / ${t('en', 'footer.contact')}`
-  : t(lang, 'footer.contact');
 const contactLabel = bilingual
   ? `${t('pt', 'a11y.contactLinks')} / ${t('en', 'a11y.contactLinks')}`
   : t(lang, 'a11y.contactLinks');
@@ -25,84 +24,157 @@ const extHint = bilingual
 ---
 
 <footer class="site-footer">
-  <div class="wrap footer-inner cols">
-    <div class="footer-contact col-main">
-      <span class="annot footer-k" aria-hidden="true">{contactKey}</span>
-      <ul class="footer-links" aria-label={contactLabel}>
+  <div class="wrap">
+    <section class="cta reveal" aria-labelledby="footer-cta">
+      <div class="cta-orbit" aria-hidden="true">
+        <span class="ring r1"></span><span class="ring r2"></span>
+        <span class="sat"><Icon name="satellite" size={22} /></span>
+      </div>
+      <p class="kicker">{L('footer.ctaKicker')}</p>
+      <h2 id="footer-cta">{L('footer.ctaTitle')}</h2>
+      <p class="cta-text">{L('footer.ctaText')}</p>
+      <ul class="cta-links" aria-label={contactLabel}>
         <li>
-          <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+          <a class="btn btn-primary" href={`mailto:${profile.contact.email}`}>
+            <Icon name="mail" />
+            {L('footer.email')}
+          </a>
         </li>
-        <li><ExternalLink href={profile.contact.linkedin} lang={lang} hint={extHint}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
-        <li><ExternalLink href={profile.contact.github} lang={lang} hint={extHint}>{t(lang, 'footer.github')}</ExternalLink></li>
-        <li><ExternalLink href={profile.siteRepo} lang={lang} hint={extHint}>{sourceLabel}</ExternalLink></li>
+        <li>
+          <ExternalLink class="btn" href={profile.contact.linkedin} lang={lang} hint={extHint}>
+            <Icon name="linkedin" />
+            {t(lang, 'footer.linkedin')}
+          </ExternalLink>
+        </li>
+        <li>
+          <ExternalLink class="btn" href={profile.contact.github} lang={lang} hint={extHint}>
+            <Icon name="github" />
+            {t(lang, 'footer.github')}
+          </ExternalLink>
+        </li>
       </ul>
+      <p class="cta-mail mono">{profile.contact.email}</p>
+    </section>
+
+    <div class="footer-bottom">
+      <p class="mono small">© {year} {profile.name} · {L('footer.builtWith')}</p>
+      <ExternalLink class="small src-link" href={profile.siteRepo} lang={lang} hint={extHint}>
+        <Icon name="code" size={15} />
+        {sourceLabel}
+      </ExternalLink>
     </div>
-    <p class="annot copyright col-m">
-      <span aria-hidden="true" class="node"></span>© {year} {profile.name}
-    </p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    margin-top: clamp(4.5rem, 10vw, 7.5rem);
-    border-top: 1px solid var(--border);
+    margin-top: clamp(4.5rem, 10vw, 7rem);
   }
 
-  .footer-inner {
-    align-items: center;
-    row-gap: 0.25rem;
-    padding-block: 1.25rem 2rem;
+  .cta {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(40rem 20rem at 100% 0%, rgb(73 0 199 / 0.45), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
   }
 
-  .footer-contact {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 1.25rem;
+  .cta h2 {
+    font-size: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+    max-width: 14ch;
   }
 
-  .footer-k {
+  .cta-text {
+    margin-top: 0.75rem;
+    max-width: 36rem;
     color: var(--muted);
   }
 
-  .footer-links {
+  .cta-links {
     list-style: none;
-    padding: 0;
     display: flex;
     flex-wrap: wrap;
-    column-gap: 1.6rem;
-  }
-
-  .footer-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-    font-size: var(--fs-small);
-  }
-
-  .copyright {
-    display: inline-flex;
-    align-items: center;
     gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .cta-mail {
+    margin-top: 1rem;
+    font-size: var(--fs-meta);
     color: var(--muted);
   }
 
-  .node {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--brand);
-    box-shadow: 0 0 0 1.5px var(--accent-2);
+  /* a satellite circling in the corner */
+  .cta-orbit {
+    position: absolute;
+    top: -70px;
+    right: -70px;
+    width: 280px;
+    height: 280px;
+    pointer-events: none;
   }
 
-  @media (min-width: 64rem) {
-    .footer-inner {
-      padding-block: 1.5rem 2.5rem;
-    }
+  .ring {
+    position: absolute;
+    border: 1px dashed rgb(179 157 255 / 0.3);
+    border-radius: 50%;
+  }
 
-    .copyright {
-      justify-content: flex-end;
+  .r1 {
+    inset: 0;
+  }
+
+  .r2 {
+    inset: 50px;
+    border-color: rgb(94 234 212 / 0.25);
+  }
+
+  .sat {
+    position: absolute;
+    inset: 0;
+    color: var(--mint);
+    animation: orbit 14s linear infinite;
+  }
+
+  .sat :global(.icon) {
+    position: absolute;
+    top: 50%;
+    left: -11px;
+  }
+
+  @keyframes orbit {
+    to {
+      transform: rotate(360deg);
     }
+  }
+
+  @media (max-width: 40rem) {
+    .cta-orbit {
+      opacity: 0.5;
+    }
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1.5rem 2rem;
+    color: var(--muted);
+  }
+
+  .small {
+    font-size: var(--fs-meta);
+  }
+
+  .src-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: var(--tap);
   }
 </style>

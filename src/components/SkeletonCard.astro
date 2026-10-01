@@ -1,0 +1,57 @@
+---
+/**
+ * A reserved slot for a project/article that doesn't exist yet: a dashed card with
+ * shimmering placeholder bars and an "in orbit" badge. No invented title or text.
+ * Hidden from assistive tech; the section says in words that more is coming.
+ */
+import Icon from './ui/Icon.astro';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  kind?: 'project' | 'article';
+  /** Stagger the shimmer so a row doesn't pulse in lockstep. */
+  index?: number;
+  /** Extra slot: hidden on phones so a single column doesn't turn into a wall of placeholders. */
+  extra?: boolean;
+}
+
+const { lang, kind = 'project', index = 0, extra = false } = Astro.props;
+const delay = `${(index % 4) * -0.35}s`;
+---
+
+<div class:list={['card skeleton reveal', { 'sk-extra': extra }]} aria-hidden="true" style={`--sk-delay:${delay}`}>
+  <div class="sk sk-media">
+    <Icon name={kind === 'project' ? 'rocket' : 'telescope'} size={34} />
+  </div>
+  <span class="chip sk-badge"><Icon name="orbit" size={13} />{t(lang, 'home.slotSoon')}</span>
+  <div class="card-body">
+    <span class="sk sk-line" style="width: 35%"></span>
+    <span class="sk sk-title"></span>
+    <span class="sk sk-line"></span>
+    <span class="sk sk-line" style="width: 80%"></span>
+  </div>
+</div>
+
+<style>
+  @media (max-width: 39.99rem) {
+    .sk-extra {
+      display: none;
+    }
+  }
+
+  .skeleton .sk {
+    animation-delay: var(--sk-delay);
+  }
+
+  .skeleton .sk-media :global(.icon) {
+    animation: float 4s ease-in-out infinite;
+    animation-delay: var(--sk-delay);
+  }
+
+  @keyframes float {
+    50% {
+      transform: translateY(-6px) rotate(-6deg);
+    }
+  }
+</style>

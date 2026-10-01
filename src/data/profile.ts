@@ -63,6 +63,29 @@ export const profile = {
   },
   siteRepo: 'https://github.com/brskt-dev/brskt-space',
 
+  /** Home "onboard gear" strip (all from the CV skills list). Same in both languages. */
+  stack: [
+    'C#',
+    '.NET 8/9',
+    'ASP.NET Core',
+    'Angular',
+    'TypeScript',
+    'SQL Server',
+    'Redis',
+    'Kafka',
+    'Debezium',
+    'WebSockets',
+    'Centrifugo',
+    'Docker Swarm',
+    'Traefik',
+    'GitHub Actions',
+    'ESP32',
+    'nRF52',
+    'Claude Code',
+    'Codex',
+    'MCP',
+  ],
+
   experience: [
     {
       role: { pt: 'Desenvolvedor Full Stack', en: 'Full Stack Developer' },

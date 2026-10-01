@@ -1,5 +1,5 @@
 ---
-/** Site name with the ──● mark; used by SiteHeader and the bilingual 404. */
+/** "Brskt Space" wordmark with a ringed planet that spins its moon; used by SiteHeader and the 404. */
 interface Props {
   href: string;
   'aria-label'?: string;
@@ -9,15 +9,27 @@ const { href, 'aria-label': ariaLabel } = Astro.props;
 ---
 
 <a class="brand" href={href} aria-label={ariaLabel}>
-  <span class="brand-node" aria-hidden="true"></span>
-  <span class="brand-name">Bruno Anhezini</span>
+  <span class="planet" aria-hidden="true">
+    <svg viewBox="0 0 40 40" width="34" height="34" focusable="false">
+      <defs>
+        <radialGradient id="brand-pl" cx="35%" cy="30%" r="75%">
+          <stop offset="0" stop-color="#b39dff" />
+          <stop offset="1" stop-color="#4900c7" />
+        </radialGradient>
+      </defs>
+      <circle cx="20" cy="20" r="10" fill="url(#brand-pl)" />
+      <ellipse cx="20" cy="20" rx="17" ry="5.5" fill="none" stroke="#5eead4" stroke-width="2" transform="rotate(-22 20 20)" />
+    </svg>
+    <span class="moon"></span>
+  </span>
+  <span class="brand-name">brskt<span class="dot">.</span>space</span>
 </a>
 
 <style>
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.55rem;
     min-height: var(--tap);
     color: var(--text);
     text-decoration: none;
@@ -27,23 +39,51 @@ const { href, 'aria-label': ariaLabel } = Astro.props;
     color: var(--text);
   }
 
+  .planet {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    transition: transform 400ms var(--ease-out);
+  }
+
+  .brand:hover .planet {
+    transform: rotate(-18deg) scale(1.08);
+  }
+
+  .moon {
+    position: absolute;
+    inset: 0;
+    animation: spin 8s linear infinite;
+  }
+
+  .moon::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+
   .brand-name {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
+    font-family: var(--font-display);
     font-size: 1.3rem;
-    font-weight: 500;
-    letter-spacing: -0.012em;
+    font-weight: 750;
+    letter-spacing: -0.03em;
     line-height: 1;
   }
 
-  /* ──● mark */
-  .brand-node {
-    position: relative;
-    width: 1.35rem;
-    height: 10px;
-    flex: none;
-    background:
-      radial-gradient(circle at calc(100% - 5px) 50%, var(--brand) 0 3.5px, var(--accent) 3.5px 4.75px, transparent 5.25px),
-      linear-gradient(var(--brand-hi), var(--brand-hi)) left center / calc(100% - 8px) 1.5px no-repeat;
+  .dot {
+    color: var(--mint);
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>

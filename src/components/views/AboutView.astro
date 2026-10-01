@@ -1,13 +1,15 @@
 ---
 /**
- * About: photo + narrative (src/content/pages/about/<lang>.md) → experience timeline →
- * skills → education → languages → contact. Facts come from src/data/profile.ts.
+ * About: photo + intro (src/content/pages/about/<lang>.md body) → story cards
+ * (frontmatter `story`) → experience (cards, details folded) → skills (chip groups)
+ * → education + languages → contact. Facts come from src/data/profile.ts.
  */
 import { getEntry, render } from 'astro:content';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeading from '../SectionHeading.astro';
 import ExternalLink from '../ExternalLink.astro';
+import Icon from '../ui/Icon.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import { formatMonth, l10n, profile } from '../../data/profile';
 import { t, type Lang } from '../../i18n/ui';
@@ -20,80 +22,124 @@ const { lang } = Astro.props;
 const entry = await getEntry('about', lang);
 if (!entry) throw new Error(`[about] Missing src/content/pages/about/${lang}.md`);
 const { Content } = await render(entry);
-const { title, description } = entry.data;
+const { title, description, story } = entry.data;
 const c = profile.contact;
+
+/** "C#, .NET 8/9 e PrimeNG." → ["C#", ".NET 8/9", "PrimeNG"] */
+const splitItems = (text: string) =>
+  text
+    .replace(/\.$/, '')
+    .split(/,\s*|\s+(?:e|and)\s+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
 ---
 
 <BaseLayout lang={lang} title={title} description={description} ref={{ kind: 'page', page: 'about' }} ogType="profile">
   <div class="wrap">
-    <header class="page-head cols about-head">
-      <h1 class="col-main">{title}</h1>
-      <p class="annot annot-margin page-annot col-m">
-        <span class="nw">{profile.name}</span><span class="nw"
-          >{profile.role[lang]}</span
-        >
-      </p>
-    </header>
-
-    <section class="about-intro cols" aria-label={title}>
-      <figure class="photo col-m">
+    <header class="about-hero">
+      <div class="photo">
+        <span class="ring" aria-hidden="true"><span class="moon"></span></span>
         <Picture
           src={photo}
           alt={t(lang, 'about.photoAlt')}
           formats={['avif', 'webp']}
           fallbackFormat="jpg"
-          width={720}
-          height={720}
-          widths={[240, 360, 480, 720]}
-          sizes="(min-width: 80rem) 15rem, (min-width: 64rem) 14.5rem, 9rem"
+          width={480}
+          height={480}
+          widths={[240, 360, 480]}
+          sizes="(min-width: 48rem) 15rem, 11rem"
           loading="eager"
           fetchpriority="high"
         />
-      </figure>
-      <div class="prose narrative col-main">
-        <Content />
       </div>
-    </section>
+      <div>
+        <p class="kicker"><Icon name="user" size={15} />{t(lang, 'about.kicker')}</p>
+        <h1>{title}</h1>
+        <div class="intro">
+          <Content />
+        </div>
+        <p class="chips">
+          <span class="chip"><Icon name="map-pin" size={13} />{profile.location[lang]}</span>
+          <span class="chip chip-mint"><span class="pulse" aria-hidden="true"></span>{profile.lookingFor[lang]}</span>
+        </p>
+      </div>
+    </header>
   </div>
+
+  {
+    story.length > 0 && (
+      <section class="section" aria-labelledby="story-title">
+        <div class="wrap">
+          <SectionHeading id="story-title" kicker={t(lang, 'about.storyKicker')} icon="orbit">
+            {t(lang, 'about.story')}
+          </SectionHeading>
+          <ol class="story">
+            {story.map((s) => (
+              <li class="card story-card reveal">
+                <span class="story-icon" aria-hidden="true">
+                  <Icon name={s.icon} size={22} />
+                </span>
+                <p class="chip chip-accent">{s.when}</p>
+                <h3>{s.title}</h3>
+                <p class="story-text">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
 
   <section class="section" aria-labelledby="experience-title">
     <div class="wrap">
-      <SectionHeading id="experience-title" index={1}>{t(lang, 'about.experience')}</SectionHeading>
-      <ol class="timeline">
+      <SectionHeading id="experience-title" kicker={t(lang, 'about.expKicker')} icon="briefcase">
+        {t(lang, 'about.experience')}
+      </SectionHeading>
+      <ol class="jobs">
         {
           profile.experience.map((job, i) => (
-            <li class:list={['job', { 'is-current': !job.end || i === 0 }]}>
-              <h3 class="job-title">
-                {job.role[lang]}
-                <span class="sr-only">, </span>
-                <span class="at">
-                  <span class="dash" aria-hidden="true">
-                    {' '}—{' '}
-                  </span>
-                  {job.company}
-                </span>
-              </h3>
-              <p class="annot annot-margin job-meta">
-                <span class="v nw">
-                  <time datetime={job.start}>{formatMonth(lang, job.start)}</time> –{' '}
-                  {job.end ? <time datetime={job.end}>{formatMonth(lang, job.end)}</time> : t(lang, 'about.present')}
-                </span>
-                <span class="nw">{job.location[lang]}</span>
-                <span class="nw">{job.mode[lang]}</span>
-              </p>
-              <ul class="node-list highlights">
-                {job.highlights.map((h) => (
-                  <li>{h[lang]}</li>
+            <li class:list={['card', 'job', 'reveal', { 'is-current': !job.end || i === 0 }]}>
+              <div class="job-head">
+                <span class="job-node" aria-hidden="true" />
+                <div>
+                  <h3>
+                    {job.role[lang]}
+                    <span class="at">
+                      <span aria-hidden="true">@</span>
+                      <span class="sr-only">, </span>
+                      {job.company}
+                    </span>
+                  </h3>
+                  <p class="job-meta">
+                    <span class="chip">
+                      <Icon name="clock" size={13} />
+                      <time datetime={job.start}>{formatMonth(lang, job.start)}</time>&nbsp;–&nbsp;
+                      {job.end ? <time datetime={job.end}>{formatMonth(lang, job.end)}</time> : t(lang, 'about.present')}
+                    </span>
+                    <span class="chip">
+                      <Icon name="map-pin" size={13} />
+                      {job.location[lang]}
+                    </span>
+                    <span class="chip">{job.mode[lang]}</span>
+                  </p>
+                </div>
+              </div>
+              <ul class="tag-list" aria-label={t(lang, 'about.tech')}>
+                {job.tech.map((x) => (
+                  <li class="chip chip-accent">{l10n(x, lang)}</li>
                 ))}
               </ul>
-              <div class="job-tech">
-                <span class="annot tech-k">{t(lang, 'about.tech')}</span>
-                <ul class="tags">
-                  {job.tech.map((x) => (
-                    <li>{l10n(x, lang)}</li>
+              <details class="job-details">
+                <summary>
+                  <Icon name="arrow-right" size={15} class="caret-icon" />
+                  {t(lang, 'about.details')}
+                </summary>
+                <ul class="highlights">
+                  {job.highlights.map((h) => (
+                    <li>{h[lang]}</li>
                   ))}
                 </ul>
-              </div>
+              </details>
             </li>
           ))
         }
@@ -103,492 +149,429 @@ const c = profile.contact;
 
   <section class="section" aria-labelledby="skills-title">
     <div class="wrap">
-      <SectionHeading id="skills-title" index={2}>{t(lang, 'about.skills')}</SectionHeading>
-      <dl class="skills">
+      <SectionHeading id="skills-title" kicker={t(lang, 'about.skillsKicker')} icon="layers">
+        {t(lang, 'about.skills')}
+      </SectionHeading>
+      <div class="skills">
         {
           profile.skills.map((g) => (
-            <div class="skill-row">
-              <dt>{g.name[lang]}</dt>
-              <dd>{g.items[lang]}</dd>
+            <section class="card skill-card reveal" aria-label={g.name[lang]}>
+              <h3>{g.name[lang]}</h3>
+              <ul class="tag-list">
+                {splitItems(g.items[lang]).map((x) => (
+                  <li class="chip">{x}</li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="more-title">
+    <div class="wrap">
+      <SectionHeading id="more-title" kicker={t(lang, 'about.moreKicker')} icon="graduation-cap">
+        {t(lang, 'about.education')} & {t(lang, 'about.languages')}
+      </SectionHeading>
+      <div class="two">
+        {
+          profile.education.map((ed) => (
+            <div class="card info-card reveal">
+              <span class="story-icon" aria-hidden="true">
+                <Icon name="graduation-cap" size={22} />
+              </span>
+              <h3>{ed.degree[lang]}</h3>
+              <p class="inst">{ed.institution}</p>
+              <p class="chips">
+                <span class="chip chip-accent">{ed.completed[lang]}</span>
+                <span class="chip">
+                  <Icon name="map-pin" size={13} />
+                  {ed.location[lang]}
+                </span>
+              </p>
+              <p class="note">{ed.note[lang]}</p>
             </div>
           ))
         }
-      </dl>
-      <p class="ai-note in-main">{profile.aiStatement[lang]}</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="education-title">
-    <div class="wrap">
-      <SectionHeading id="education-title" index={3}>{t(lang, 'about.education')}</SectionHeading>
-      {
-        profile.education.map((ed) => (
-          <div class="edu">
-            <h3>{ed.degree[lang]}</h3>
-            <p class="edu-inst">{ed.institution}</p>
-            <p class="annot annot-margin edu-meta">
-              <span class="v nw">{ed.completed[lang]}</span>
-              <span class="nw">{ed.location[lang]}</span>
-            </p>
-            <p class="edu-note">{ed.note[lang]}</p>
-          </div>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="languages-title">
-    <div class="wrap">
-      <SectionHeading id="languages-title" index={4}>{t(lang, 'about.languages')}</SectionHeading>
-      <ul class="langs in-main">
-        {
-          profile.languages.map((l) => (
-            <li>
-              <span class="lang-name">{l.name[lang]}</span>
-              <span class="annot">{l.level[lang]}</span>
-            </li>
-          ))
-        }
-      </ul>
+        <div class="card info-card reveal">
+          <span class="story-icon" aria-hidden="true"><Icon name="languages" size={22} /></span>
+          <h3>{t(lang, 'about.languages')}</h3>
+          <ul class="langs">
+            {
+              profile.languages.map((l, i) => (
+                <li>
+                  <span>{l.name[lang]}</span>
+                  <span class="meter" aria-hidden="true">
+                    <span style={`width:${[100, 66, 33][i] ?? 33}%`} />
+                  </span>
+                  <span class="chip">{l.level[lang]}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="section" aria-labelledby="contact-title">
     <div class="wrap">
-      <SectionHeading id="contact-title" index={5}>{t(lang, 'about.contact')}</SectionHeading>
-      <p class="contact-lead in-main">{profile.lookingFor[lang]}</p>
-      <dl class="contact">
-        <div>
-          <dt class="annot">{t(lang, 'about.email')}</dt>
-          <dd><a href={`mailto:${c.email}`}>{c.email}</a></dd>
-        </div>
-        <div>
-          <dt class="annot">{t(lang, 'about.phone')}</dt>
-          <dd>
+      <SectionHeading id="contact-title" kicker={t(lang, 'about.contactKicker')} icon="message">
+        {t(lang, 'about.contact')}
+      </SectionHeading>
+      <ul class="contacts">
+        <li class="card contact-card">
+          <Icon name="mail" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.email')}</span>
+          <a class="c-v" href={`mailto:${c.email}`}>{c.email}</a>
+        </li>
+        <li class="card contact-card">
+          <Icon name="phone" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.phone')}</span>
+          <span class="c-v">
             <a href={`tel:${c.phoneE164}`}>{c.phoneDisplay}</a>
             <ExternalLink href={c.whatsapp} lang={lang}>WhatsApp</ExternalLink>
-          </dd>
-        </div>
-        <div>
-          <dt class="annot">{t(lang, 'about.linkedin')}</dt>
-          <dd><ExternalLink href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink></dd>
-        </div>
-        <div>
-          <dt class="annot">{t(lang, 'about.github')}</dt>
-          <dd><ExternalLink href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink></dd>
-        </div>
-        <div>
-          <dt class="annot">{t(lang, 'about.location')}</dt>
-          <dd>{profile.location[lang]}</dd>
-        </div>
-      </dl>
+          </span>
+        </li>
+        <li class="card contact-card">
+          <Icon name="linkedin" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.linkedin')}</span>
+          <ExternalLink class="c-v" href={c.linkedin} lang={lang}>linkedin.com/{c.linkedinHandle}</ExternalLink>
+        </li>
+        <li class="card contact-card">
+          <Icon name="github" size={22} class="c-icon" />
+          <span class="c-k">{t(lang, 'about.github')}</span>
+          <ExternalLink class="c-v" href={c.github} lang={lang}>github.com/{c.githubHandle}</ExternalLink>
+        </li>
+      </ul>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ---------- Head + intro ---------- */
-  .about-head {
-    align-items: baseline;
-  }
-
-  .about-intro {
-    row-gap: 1.75rem;
-    margin-top: clamp(2rem, 5vw, 3.5rem);
-  }
-
-  .photo {
-    margin: 0;
-    width: 9rem;
-  }
-
-  .photo :global(img) {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .photo::after {
-    /* brand tick under the photo, like a figure annotation */
-    content: '';
-    display: block;
-    width: 2.5rem;
-    height: 2px;
-    margin-top: 0.75rem;
-    background: var(--brand-grad);
-    border-radius: 2px;
-  }
-
-  /* first paragraph of the narrative reads as a standfirst */
-  .narrative > :global(p:first-child) {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: clamp(1.3rem, 1.12rem + 0.7vw, 1.6rem);
-    line-height: 1.4;
-    letter-spacing: -0.006em;
-    color: var(--text);
-    margin-bottom: 1.6rem;
-  }
-
-  @media (min-width: 64rem) {
-    .photo {
-      width: 100%;
-      margin-top: 0.4rem;
-    }
-
-    .photo::after {
-      margin-left: auto;
-    }
-  }
-
-  /* ---------- Timeline: dates in the margin, ──● nodes on the gutter ---------- */
-  .timeline {
-    --job-gap: 3.25rem;
-    list-style: none;
-    padding: 0;
+  /* ---------- Hero ---------- */
+  .about-hero {
     display: grid;
-    gap: var(--job-gap);
-  }
-
-  .job {
-    --spine-x: 5px;
-    position: relative;
-    min-width: 0;
-    padding-left: 2.25rem;
-  }
-
-  /* vertical spine segment for each job, continuing to the next */
-  .job::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--spine-x) - 1px);
-    top: 1.1rem;
-    bottom: calc(-1 * var(--job-gap));
-    width: 2px;
-    background: linear-gradient(180deg, var(--brand), rgb(73 0 199 / 0.3));
-  }
-
-  .job:last-child::before {
-    bottom: 0;
-    background: linear-gradient(180deg, var(--brand), transparent);
-  }
-
-  /* node + short connector "●──" */
-  .job::after {
-    content: '';
-    position: absolute;
-    left: calc(var(--spine-x) - 6px);
-    top: 0.5rem;
-    width: 1.75rem;
-    height: 12px;
-    background:
-      radial-gradient(circle at 6px 50%, var(--brand) 0 4px, var(--accent) 4px 5.5px, transparent 6px),
-      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
-  }
-
-  /* past jobs: hollow node (decorative); the current job keeps the filled one above */
-  .job:not(.is-current)::after {
-    background:
-      radial-gradient(circle at 6px 50%, var(--bg) 0 4px, var(--brand-hi) 4px 5.5px, transparent 6px),
-      linear-gradient(var(--brand-hi), var(--brand-hi)) right center / calc(100% - 14px) 1.5px no-repeat;
-  }
-
-  .job-title {
-    font-size: clamp(1.3rem, 1.15rem + 0.55vw, 1.6rem);
-    font-weight: 500;
-    line-height: 1.25;
-  }
-
-  .job-title .at {
-    display: block;
-    margin-top: 0.1rem;
-    font-weight: 450;
-    color: var(--accent);
-  }
-
-  .job-title .dash {
-    display: none;
-  }
-
-  .job-meta {
-    margin-top: 0.35rem;
-  }
-
-  .highlights {
-    margin-top: 1.1rem;
-    max-width: var(--measure);
-    font-size: var(--fs-small);
-    line-height: 1.65;
-    color: var(--text-soft);
-  }
-
-  .job-tech {
-    margin-top: 1.1rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.15rem 0.9rem;
-  }
-
-  .tech-k {
-    color: var(--muted);
+    gap: 1.75rem;
+    align-items: center;
+    padding-top: clamp(2.5rem, 7vw, 4.5rem);
   }
 
   @media (min-width: 48rem) {
-    .job-title .at {
-      display: inline;
-      margin-top: 0;
-    }
-
-    .job-title .dash {
-      display: inline;
+    .about-hero {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 3rem;
     }
   }
 
-  @media (min-width: 64rem) {
-    .job {
-      --spine-x: calc(var(--mc) + var(--cg) / 2);
-      padding-left: 0;
-      display: grid;
-      grid-template-columns: var(--mc) minmax(0, 1fr);
-      column-gap: var(--cg);
-      align-items: baseline;
-    }
+  .photo {
+    position: relative;
+    width: 11rem;
+    aspect-ratio: 1;
+  }
 
-    .job::after {
-      top: 0.55rem;
-      width: calc(var(--cg) / 2 - 0.5rem + 6px);
-    }
-
-    .job-title {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .job-meta {
-      grid-column: 1;
-      grid-row: 1 / span 2;
-      align-self: start;
-      margin-top: 0;
-      padding-top: 0.35rem;
-    }
-
-    .highlights {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    .job-tech {
-      display: contents;
-    }
-
-    .tech-k {
-      grid-column: 1;
-      grid-row: 3;
-      text-align: right;
-      margin-top: 1.1rem;
-    }
-
-    .job-tech .tags {
-      grid-column: 2;
-      grid-row: 3;
-      margin-top: 1.1rem;
-      margin-left: calc(-1 * var(--tag-sep));
+  @media (min-width: 48rem) {
+    .photo {
+      width: 15rem;
     }
   }
 
-  /* ---------- Skills: a glossary, group name in the margin ---------- */
-  /* no top hairline: the violet section rule already opens the list */
-  .skills {
-    margin: 0;
-    display: grid;
-    border-bottom: 1px solid var(--border);
+  .photo :global(img) {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--bg);
+    box-shadow:
+      0 0 0 2px var(--brand-hi),
+      0 0 60px -10px rgb(124 77 255 / 0.7);
   }
 
-  .skill-row {
-    display: grid;
-    gap: 0.3rem var(--cg);
-    padding-block: 1rem 1.1rem;
+  .ring {
+    position: absolute;
+    inset: -14px;
+    border: 1px dashed rgb(94 234 212 / 0.4);
+    border-radius: 50%;
+    animation: spin 18s linear infinite;
   }
 
-  .skill-row:first-child {
-    padding-top: 0.25rem;
+  .moon {
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--sun);
+    box-shadow: 0 0 12px var(--sun);
   }
 
-  .skill-row + .skill-row {
-    border-top: 1px solid var(--border);
+  .about-hero h1 {
+    font-size: clamp(2.6rem, 1.6rem + 4vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
   }
 
-  .skill-row dt {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: 1.2rem;
-    font-weight: 500;
-    line-height: 1.3;
+  .intro {
+    margin-top: 0.9rem;
+    max-width: 40rem;
+    color: var(--muted);
+  }
+
+  .intro :global(p:first-child) {
     color: var(--text);
+    font-size: 1.15em;
   }
 
-  .skill-row dd {
-    margin: 0;
-    max-width: var(--measure);
-    color: var(--text-soft);
+  .intro :global(p + p) {
+    margin-top: 0.6rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.1rem;
+  }
+
+  .chips .chip {
+    white-space: normal;
+  }
+
+  /* ---------- Story cards ---------- */
+  .story {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .story-card,
+  .info-card,
+  .skill-card {
+    gap: 0.6rem;
+    padding: 1.25rem;
+  }
+
+  .story-icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0.35rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: #fff;
+    transition: transform 300ms var(--ease-out);
+  }
+
+  .card:hover .story-icon {
+    transform: rotate(-10deg) scale(1.08);
+  }
+
+  .story-card .chip {
+    align-self: flex-start;
+  }
+
+  .story-card h3,
+  .info-card h3,
+  .skill-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .story-text {
+    color: var(--muted);
     font-size: var(--fs-small);
-    line-height: 1.65;
+    line-height: 1.6;
   }
 
-  @media (min-width: 64rem) {
-    .skill-row {
-      grid-template-columns: var(--mc) minmax(0, 1fr);
-      align-items: baseline;
-      padding-block: 1.1rem 1.2rem;
-    }
-
-    .skill-row dt {
-      text-align: right;
-      font-size: 1.15rem;
-    }
+  /* ---------- Jobs ---------- */
+  .jobs {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
   }
 
-  /* pull quote */
-  .ai-note {
-    margin-top: 2rem;
-    max-width: 34em;
-    padding-left: 1.25rem;
-    border-left: 2px solid var(--brand-hi);
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(1.2rem, 1.08rem + 0.5vw, 1.45rem);
-    line-height: 1.45;
-    color: var(--text-soft);
+  .job {
+    gap: 1rem;
+    padding: 1.25rem 1.35rem;
   }
 
-  /* ---------- Education ---------- */
-  .edu h3 {
-    font-size: clamp(1.3rem, 1.15rem + 0.55vw, 1.6rem);
-    font-weight: 500;
-    line-height: 1.25;
+  .job:hover {
+    transform: translateY(-3px);
   }
 
-  .edu-inst {
-    margin-top: 0.2rem;
-    font-weight: 500;
+  .job-head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+  }
+
+  .job-node {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-top: 0.45rem;
+    border-radius: 50%;
+    border: 2px solid var(--accent-2);
+    background: var(--bg);
+  }
+
+  .is-current .job-node {
+    background: var(--mint);
+    border-color: var(--mint);
+    box-shadow: 0 0 0 4px rgb(94 234 212 / 0.18);
+  }
+
+  .job h3 {
+    font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.45rem);
+  }
+
+  .at {
+    margin-left: 0.3em;
     color: var(--accent);
   }
 
-  .edu-meta {
-    margin-top: 0.35rem;
+  .skill-card .chip {
+    white-space: normal;
   }
 
-  .edu-note {
-    margin-top: 0.8rem;
-    max-width: var(--measure);
+  .job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+  }
+
+  .job-details summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: var(--tap);
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    font-size: var(--fs-small);
+    color: var(--accent);
+  }
+
+  .job-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .job-details summary :global(.caret-icon) {
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .job-details[open] summary :global(.caret-icon) {
+    transform: rotate(90deg);
+  }
+
+  .highlights {
+    display: grid;
+    gap: 0.5rem;
+    padding-left: 1.2rem;
+    color: #dcd7ea;
+    font-size: var(--fs-small);
+  }
+
+  .highlights li::marker {
+    content: '✦  ';
+    color: var(--accent-2);
+  }
+
+  /* ---------- Skills ---------- */
+  .skills {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  }
+
+  /* ---------- Education + languages ---------- */
+  .two {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .inst {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .note {
     color: var(--muted);
     font-size: var(--fs-small);
   }
 
-  @media (min-width: 64rem) {
-    .edu {
-      display: grid;
-      grid-template-columns: var(--mc) minmax(0, 1fr);
-      column-gap: var(--cg);
-      align-items: baseline;
-    }
-
-    .edu h3,
-    .edu-inst,
-    .edu-note {
-      grid-column: 2;
-    }
-
-    .edu-meta {
-      grid-column: 1;
-      grid-row: 1 / span 2;
-      align-self: start;
-      margin-top: 0;
-      padding-top: 0.35rem;
-    }
-  }
-
-  /* ---------- Languages ---------- */
   .langs {
     list-style: none;
-    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
-    gap: 0 2rem;
-    max-width: 44rem;
+    gap: 0.75rem;
   }
 
   .langs li {
-    display: flex;
-    flex-direction: column;
-    padding-block: 0.8rem;
-    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
   }
 
-  .lang-name {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: 1.3rem;
-    font-weight: 500;
-    line-height: 1.3;
+  .meter {
+    height: 6px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .meter span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand-hi), var(--mint));
   }
 
   /* ---------- Contact ---------- */
-  .contact-lead {
-    max-width: 30em;
-    margin-bottom: 1.75rem;
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.55rem);
-    line-height: 1.4;
-    color: var(--text);
-  }
-
-  .contact {
-    margin: 0;
+  .contacts {
+    list-style: none;
     display: grid;
-    border-top: 1px solid var(--border);
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
   }
 
-  .contact > div {
-    display: grid;
-    gap: 0 var(--cg);
-    align-items: center;
-    padding-block: 0.3rem;
-    border-bottom: 1px solid var(--border);
+  .contact-card {
+    gap: 0.35rem;
+    padding: 1.15rem 1.25rem;
   }
 
-  .contact dt {
-    padding-top: 0.6rem;
+  .contact-card :global(.c-icon) {
+    color: var(--mint);
+    margin-bottom: 0.35rem;
   }
 
-  .contact dd {
-    margin: 0;
+  .c-k {
+    font: 500 var(--fs-meta) / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .c-v,
+  .c-v :global(a) {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .c-v {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    column-gap: 1.25rem;
-    min-height: var(--tap);
+    gap: 0.25rem 0.9rem;
   }
 
-  .contact dd a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-  }
-
-  @media (min-width: 64rem) {
-    .contact > div {
-      grid-template-columns: var(--mc) minmax(0, 1fr);
-    }
-
-    .contact dt {
-      padding-top: 0;
-      text-align: right;
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
     }
   }
 </style>

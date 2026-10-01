@@ -1,20 +1,24 @@
 ---
 type: product
 title: "Conta Comigo"
-summary: "SaaS B2B para simplificar a solicitação e a concessão de acessos entre agências de marketing e clientes, com um checklist compartilhado por link."
+summary: "SaaS B2B que simplifica o pedido e a liberação de acessos entre agências de marketing e clientes, com um checklist compartilhado por link."
 date: 2026-10-01
 status: in-development
 tags: ["SaaS B2B", "Onboarding de clientes", "Checklists dinâmicos", "Acesso sem login"]
 ---
 
-## O problema
+## O perrengue
 
-Para começar a atender um cliente, a agência de marketing precisa que ele conceda acessos. Sem um lugar central, as instruções de cada acesso e o acompanhamento do que já foi liberado ficam espalhados. E as solicitações mudam ao longo da parceria.
+Para começar a atender um cliente, a agência de marketing precisa que ele libere uma série de acessos. Sem um lugar central, as instruções e o acompanhamento do que já foi liberado ficam espalhados. E as solicitações mudam ao longo da parceria.
 
-## Como funciona
+## A ideia
 
-O Conta Comigo centraliza as instruções e o acompanhamento em um checklist compartilhado por link. O cliente acessa pelo link, sem precisar fazer cadastro. As solicitações podem ser atualizadas ao longo da parceria.
+Um checklist compartilhado por link, que centraliza as instruções e o acompanhamento de cada acesso.
 
-## Status
+- O cliente abre o link e pronto: não precisa criar conta.
+- A agência acompanha o que já foi liberado.
+- As solicitações podem ser atualizadas ao longo da parceria.
 
-Em desenvolvimento, ainda sem versão pública nem demonstração. Quando houver, atualizo esta página.
+## Status da missão
+
+Em desenvolvimento, ainda sem versão pública nem demonstração. Quando houver, esta página ganha os links.
