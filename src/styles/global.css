@@ -53,9 +53,8 @@
   /* Layout */
   --wrap: 70rem;
   --gutter: 1rem; /* 16px on phones */
-  --mc: 13rem; /* margin (annotation) column, ≥ 64rem only */
+  --mc: 14.5rem; /* margin (annotation) column, ≥ 64rem only; fits the longest note, 'Concluído em dezembro de 2024' (~230px) */
   --cg: 3rem; /* gap between margin and main column */
-  --radius: 10px;
   --radius-sm: 6px;
   --tap: 44px;
 }
@@ -269,16 +268,6 @@ a:hover {
   color: var(--muted);
 }
 
-.annot-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-}
-
-.annot-row > * {
-  white-space: nowrap;
-}
-
 .annot .k {
   color: var(--muted);
 }
@@ -324,15 +313,31 @@ a:hover {
   align-items: baseline;
 }
 
+/* Below 64rem each fact carries a leading "·" of fixed width; the line is shifted left
+   by that width and clipped, so no line starts or ends on a "·" (same trick as PubMeta).
+   Non-interactive content only. */
+@media (max-width: 63.99rem) {
+  .annot-margin {
+    --am-sep: 1.6em;
+    margin-left: calc(-1 * var(--am-sep));
+    clip-path: inset(-0.5em 0 -0.5em var(--am-sep));
+  }
+
+  .annot-margin > .nw::before {
+    content: '·';
+    content: '·' / '';
+    display: inline-block;
+    width: var(--am-sep);
+    text-align: center;
+    color: var(--muted);
+  }
+}
+
 @media (min-width: 64rem) {
   .annot-margin {
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-  }
-
-  .annot-margin .sep {
-    display: none;
   }
 }
 
@@ -664,7 +669,6 @@ a:hover {
   border: 1px solid var(--border);
 }
 
-.prose .table-scroll,
 .prose table {
   max-width: 100%;
 }
@@ -749,6 +753,11 @@ a:hover {
   grid-template-columns: minmax(0, 1fr);
   row-gap: 0.4rem;
   padding-block: 1.5rem 1.75rem;
+}
+
+/* first row right under a section's violet rule: drop the row padding, as .focus-list / .skill-row do */
+.section-head + .entries > li:first-child > .entry {
+  padding-top: 0.25rem;
 }
 
 /* (.entry-meta in the selector: outranks PubMeta's own scoped flex rules) */
@@ -848,7 +857,8 @@ a:hover {
     text-align: right;
   }
 
-  .entry .entry-meta .pub-meta .sep {
+  /* `.pair >` is needed to outrank PubMeta's scoped `.pub-meta .sep` (0,4,0) */
+  .entry .entry-meta .pub-meta .pair > .sep {
     display: none;
   }
 

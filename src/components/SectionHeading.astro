@@ -5,12 +5,10 @@
  */
 interface Props {
   id: string;
-  level?: 2 | 3;
   /** 1-based position of the section on the page; shown as "01", "02", ... in the margin. */
   index?: number;
 }
-const { id, level = 2, index } = Astro.props;
-const Tag = level === 2 ? 'h2' : 'h3';
+const { id, index } = Astro.props;
 ---
 
 <div class="section-head">
@@ -21,6 +19,6 @@ const Tag = level === 2 ? 'h2' : 'h3';
       </span>
     )
   }
-  <Tag id={id}><slot /></Tag>
+  <h2 id={id}><slot /></h2>
   <span class="rule" aria-hidden="true"></span>
 </div>

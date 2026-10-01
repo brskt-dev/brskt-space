@@ -16,10 +16,9 @@ interface Props {
   description: string;
   ref: PageRef;
   ogType?: 'website' | 'article' | 'profile';
-  bodyClass?: string;
 }
 
-const { lang, title, rawTitle = false, description, ref, ogType = 'website', bodyClass } = Astro.props;
+const { lang, title, rawTitle = false, description, ref, ogType = 'website' } = Astro.props;
 const fullTitle = rawTitle ? title : `${title} · Bruno Anhezini`;
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
@@ -40,7 +39,7 @@ const alternates = [
       ogType={ogType}
     />
   </head>
-  <body class={bodyClass}>
+  <body>
     <a class="skip-link" href="#main">{t(lang, 'a11y.skip')}</a>
     <SiteHeader lang={lang} ref={ref} />
     <main id="main" tabindex="-1">

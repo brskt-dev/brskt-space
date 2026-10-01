@@ -36,25 +36,15 @@ export interface EducationEntry {
 export interface SpokenLanguage {
   name: L10n;
   level: L10n;
-  /** BCP 47 code of the language itself. */
-  code: string;
 }
 
 export const profile = {
   name: 'Bruno Anhezini',
   role: { pt: 'Desenvolvedor Full Stack', en: 'Full Stack Developer' } satisfies L10n,
-  headline: {
-    pt: 'Desenvolvedor Full Stack com foco em C#/.NET, Angular e SQL Server.',
-    en: 'Full Stack Developer focused on C#/.NET, Angular and SQL Server.',
-  } satisfies L10n,
   location: { pt: 'Americana, São Paulo, Brasil', en: 'Americana, São Paulo, Brazil' } satisfies L10n,
   lookingFor: {
     pt: 'Em busca de oportunidades 100% remotas, nacionais e internacionais, trabalhando a partir do Brasil.',
     en: 'Looking for 100% remote opportunities, in Brazil and abroad, working from Brazil.',
-  } satisfies L10n,
-  summary: {
-    pt: 'Desenvolvedor Full Stack com experiência no desenvolvimento e sustentação de produtos SaaS em produção, atuando com C#/.NET, Angular, SQL Server e APIs REST. Possuo experiência prática com Docker, CI/CD, Kafka, Redis e ambientes distribuídos. Combino desenvolvimento de software, conhecimento de infraestrutura e visão de produto para construir sistemas estáveis, escaláveis e fáceis de evoluir.',
-    en: 'Full Stack Developer with experience building and maintaining SaaS products in production, working with C#/.NET, Angular, SQL Server and REST APIs. Hands-on experience with Docker, CI/CD, Kafka, Redis and distributed environments. I combine software development, infrastructure knowledge and product thinking to build systems that are stable, scalable and easy to evolve.',
   } satisfies L10n,
   aiStatement: {
     pt: 'Uso Claude Code, Codex, MCP e agentes de IA de forma intensa, com revisão e validação técnica do que eles entregam.',
@@ -84,27 +74,27 @@ export const profile = {
       highlights: [
         {
           pt: 'Atuação ponta a ponta na Comunidade On, plataforma SaaS baseada em microsserviços, participando de todas as camadas do produto: interfaces Angular, APIs e workers .NET, SQL Server e infraestrutura de produção.',
-          en: 'End-to-end work on Comunidade On, a microservices-based SaaS platform, across every layer of the product: Angular interfaces, .NET APIs and workers, SQL Server and production infrastructure.',
+          en: 'Work end to end on Comunidade On, a microservices-based SaaS platform, across every layer of the product: Angular interfaces, .NET APIs and workers, SQL Server and production infrastructure.',
         },
         {
           pt: 'Modelagem de domínios e dados, implementação de regras de negócio, contratos de API, autenticação e permissões para diferentes perfis e aplicações da plataforma.',
-          en: 'Domain and data modeling, business rules, API contracts, authentication and permissions for the platform’s different user profiles and applications.',
+          en: 'Model domains and data, and implement business rules, API contracts, authentication and permissions for the platform’s different user roles and applications.',
         },
         {
           pt: 'Desenvolvimento de integrações orientadas a eventos e funcionalidades em tempo real utilizando Kafka, Redis, CDC/Debezium, Centrifugo e Infobip.',
-          en: 'Event-driven integrations and real-time features using Kafka, Redis, CDC/Debezium, Centrifugo and Infobip.',
+          en: 'Build event-driven integrations and real-time features with Kafka, Redis, CDC/Debezium, Centrifugo and Infobip.',
         },
         {
           pt: 'Estruturação e operação dos ambientes de desenvolvimento, homologação e produção com Docker Swarm, Traefik e Portainer, incluindo redes, secrets, réplicas, health checks e rollback.',
-          en: 'Set up and ran the development, staging and production environments with Docker Swarm, Traefik and Portainer, including networks, secrets, replicas, health checks and rollback.',
+          en: 'Set up and run the development, staging and production environments with Docker Swarm, Traefik and Portainer, including networks, secrets, replicas, health checks and rollback.',
         },
         {
           pt: 'Criação e manutenção de pipelines no GitHub Actions para build, versionamento e deploy automatizado de múltiplas aplicações e serviços.',
-          en: 'Built and maintained GitHub Actions pipelines for building, versioning and automatically deploying multiple applications and services.',
+          en: 'Create and maintain GitHub Actions pipelines that build, version and automatically deploy multiple applications and services.',
         },
         {
           pt: 'Sustentação de produção, troubleshooting, análise de desempenho, segurança, documentação técnica e participação nas decisões de arquitetura, produto e experiência do usuário.',
-          en: 'Production support, troubleshooting, performance analysis, security and technical documentation, plus a part in architecture, product and user experience decisions.',
+          en: 'Handle production support, troubleshooting, performance analysis, security and technical documentation, and take part in architecture, product and user experience decisions.',
         },
       ],
       tech: [
@@ -133,11 +123,11 @@ export const profile = {
       highlights: [
         {
           pt: 'Desenvolvimento ponta a ponta de uma solução de gestão de facilities que conectava dispositivos embarcados ESP32 e nRF52 a uma plataforma SaaS.',
-          en: 'End-to-end development of a facilities management solution that connected ESP32 and nRF52 embedded devices to a SaaS platform.',
+          en: 'Developed, end to end, a facilities management solution that connected ESP32 and nRF52 embedded devices to a SaaS platform.',
         },
         {
           pt: 'Desenvolvimento de firmware, atualizações OTA e integração dos dispositivos com serviços backend, participando também de decisões de hardware e desenho de PCB.',
-          en: 'Firmware development, OTA updates and device integration with backend services, also taking part in hardware decisions and PCB design.',
+          en: 'Wrote firmware, implemented OTA updates and integrated the devices with backend services, and also took part in hardware decisions and PCB design.',
         },
         {
           pt: 'Construção de APIs em .NET, modelagem de dados no SQL Server e desenvolvimento de interfaces Angular, abrangendo coleta de dados, regras de negócio e operação web.',
@@ -168,7 +158,7 @@ export const profile = {
         },
         {
           pt: 'Modelagem de dados, digitalização de fluxos internos e suporte à infraestrutura de TI, redes e rotinas essenciais da operação.',
-          en: 'Data modeling, digitization of internal workflows and support for IT infrastructure, networks and essential operational routines.',
+          en: 'Handled data modeling, digitized internal workflows and supported the IT infrastructure, networks and essential operational routines.',
         },
       ],
       tech: [
@@ -260,13 +250,11 @@ export const profile = {
   ] satisfies EducationEntry[],
 
   languages: [
-    { name: { pt: 'Português', en: 'Portuguese' }, level: { pt: 'nativo', en: 'native' }, code: 'pt' },
-    { name: { pt: 'Inglês', en: 'English' }, level: { pt: 'intermediário', en: 'intermediate' }, code: 'en' },
-    { name: { pt: 'Espanhol', en: 'Spanish' }, level: { pt: 'básico', en: 'basic' }, code: 'es' },
+    { name: { pt: 'Português', en: 'Portuguese' }, level: { pt: 'nativo', en: 'native' } },
+    { name: { pt: 'Inglês', en: 'English' }, level: { pt: 'intermediário', en: 'intermediate' } },
+    { name: { pt: 'Espanhol', en: 'Spanish' }, level: { pt: 'básico', en: 'basic' } },
   ] satisfies SpokenLanguage[],
 };
-
-export type Profile = typeof profile;
 
 /** Resolve a string-or-{pt,en} value. */
 export const l10n = (value: string | L10n, lang: Lang): string => (typeof value === 'string' ? value : value[lang]);

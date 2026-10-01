@@ -8,7 +8,7 @@
  *
  * Rules (non-draft publications):
  *   - src/content/publications/<slug>/ must contain exactly pt.md AND en.md;
- *   - `type`, `date` and `status` must match between pt and en;
+ *   - `type`, `date`, `updated` and `status` must match between pt and en;
  *   - `status` is required for product / experiment (also enforced by the schema);
  *   - `draft` must match between pt and en; draft: true on both → excluded entirely.
  */
@@ -94,6 +94,10 @@ async function loadAndValidate(): Promise<Publication[]> {
       mismatches.push(`date (pt: ${iso(pt.data.date)}, en: ${iso(en.data.date)})`);
     if (pt.data.status !== en.data.status)
       mismatches.push(`status (pt: "${pt.data.status ?? '—'}", en: "${en.data.status ?? '—'}")`);
+    if (pt.data.updated?.getTime() !== en.data.updated?.getTime())
+      mismatches.push(
+        `updated (pt: ${pt.data.updated ? iso(pt.data.updated) : '—'}, en: ${en.data.updated ? iso(en.data.updated) : '—'})`,
+      );
     if (mismatches.length) {
       throw new PublicationIntegrityError(
         `Publication "${slug}": pt.md and en.md disagree on ${mismatches.join('; ')}. These fields must be identical in both languages.`,

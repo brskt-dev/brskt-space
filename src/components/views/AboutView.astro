@@ -29,7 +29,7 @@ const c = profile.contact;
     <header class="page-head cols about-head">
       <h1 class="col-main">{title}</h1>
       <p class="annot annot-margin page-annot col-m">
-        <span class="nw">{profile.name}</span><span class="sep" aria-hidden="true">·</span><span class="nw"
+        <span class="nw">{profile.name}</span><span class="nw"
           >{profile.role[lang]}</span
         >
       </p>
@@ -45,7 +45,7 @@ const c = profile.contact;
           width={720}
           height={720}
           widths={[240, 360, 480, 720]}
-          sizes="(min-width: 80rem) 15rem, (min-width: 64rem) 13rem, 9rem"
+          sizes="(min-width: 80rem) 15rem, (min-width: 64rem) 14.5rem, 9rem"
           loading="eager"
           fetchpriority="high"
         />
@@ -78,9 +78,7 @@ const c = profile.contact;
                   <time datetime={job.start}>{formatMonth(lang, job.start)}</time> –{' '}
                   {job.end ? <time datetime={job.end}>{formatMonth(lang, job.end)}</time> : t(lang, 'about.present')}
                 </span>
-                <span class="sep" aria-hidden="true">·</span>
                 <span class="nw">{job.location[lang]}</span>
-                <span class="sep" aria-hidden="true">·</span>
                 <span class="nw">{job.mode[lang]}</span>
               </p>
               <ul class="node-list highlights">
@@ -130,7 +128,6 @@ const c = profile.contact;
             <p class="edu-inst">{ed.institution}</p>
             <p class="annot annot-margin edu-meta">
               <span class="v nw">{ed.completed[lang]}</span>
-              <span class="sep" aria-hidden="true">·</span>
               <span class="nw">{ed.location[lang]}</span>
             </p>
             <p class="edu-note">{ed.note[lang]}</p>
@@ -169,7 +166,6 @@ const c = profile.contact;
           <dt class="annot">{t(lang, 'about.phone')}</dt>
           <dd>
             <a href={`tel:${c.phoneE164}`}>{c.phoneDisplay}</a>
-            <span class="sep" aria-hidden="true">·</span>
             <ExternalLink href={c.whatsapp} lang={lang}>WhatsApp</ExternalLink>
           </dd>
         </div>
@@ -575,7 +571,7 @@ const c = profile.contact;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 0.25rem;
+    column-gap: 1.25rem;
     min-height: var(--tap);
   }
 
@@ -583,11 +579,6 @@ const c = profile.contact;
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
-  }
-
-  .contact .sep {
-    color: var(--muted);
-    padding-inline: 0.5rem;
   }
 
   @media (min-width: 64rem) {

@@ -1,9 +1,9 @@
 ---
 title: "About"
-description: "Career path of Bruno Anhezini, Full Stack developer: from accounting and tax systems in Delphi to embedded devices and microservices-based SaaS with .NET."
+description: "Career path of Bruno Anhezini, full-stack developer: from accounting and tax systems in Delphi to embedded devices and microservices-based SaaS with .NET."
 ---
 
-I'm a Full Stack developer and I work mainly with C#/.NET, Angular and SQL Server. My strengths are backend, infrastructure and production operations.
+I'm a full-stack developer and I work mainly with C#/.NET, Angular and SQL Server. My strengths are backend, infrastructure and production operations.
 
 From 2016 to 2022, working remotely, I built and maintained internal systems used in accounting and tax processes. They ran on Delphi and SQL Server and handled critical business rules. Little by little, I modernized the legacy environment with .NET APIs, integrations with third-party systems and automation for tax and operational routines. I also took care of data modeling, digitizing internal workflows and supporting the IT infrastructure and networks.
 

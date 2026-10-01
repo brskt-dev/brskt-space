@@ -3,7 +3,18 @@
  * Site header: name (→ home of current language), main nav (sections only when they
  * have content), and the language switch pointing to the EQUIVALENT page.
  */
-import { alternateUrl, htmlLang, otherLang, pathFor, t, type Lang, type PageKey, type PageRef } from '../i18n/ui';
+import Brand from './Brand.astro';
+import {
+  alternateUrl,
+  htmlLang,
+  otherLang,
+  pathFor,
+  sectionForType,
+  t,
+  type Lang,
+  type PageKey,
+  type PageRef,
+} from '../i18n/ui';
 import { getSectionAvailability } from '../lib/publications';
 
 interface Props {
@@ -24,7 +35,7 @@ const items: { key: PageKey; label: string }[] = [
 // Exact page → aria-current="page"; a publication marks its section with aria-current="true".
 const currentFor = (key: PageKey): 'page' | 'true' | undefined => {
   if (ref.kind === 'page') return ref.page === key ? 'page' : undefined;
-  const section = ref.type === 'article' ? 'articles' : 'projects';
+  const section = sectionForType(ref.type);
   return section === key ? 'true' : undefined;
 };
 
@@ -33,10 +44,7 @@ const other = otherLang(lang);
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href={pathFor(lang, 'home')} aria-label={t(lang, 'a11y.homeLink')}>
-      <span class="brand-node" aria-hidden="true"></span>
-      <span class="brand-name">Bruno Anhezini</span>
-    </a>
+    <Brand href={pathFor(lang, 'home')} aria-label={t(lang, 'a11y.homeLink')} />
 
     <nav class="main-nav" aria-label={t(lang, 'a11y.mainNav')}>
       <ul>
@@ -53,8 +61,8 @@ const other = otherLang(lang);
     </nav>
 
     <a class="lang-switch" href={alternateUrl(lang, ref)} hreflang={htmlLang[other]} lang={htmlLang[other]}>
-      <span aria-hidden="true">{t(lang, 'a11y.switchLangShort')}</span>
-      <span class="sr-only">{t(lang, 'a11y.switchLang')}</span>
+      <span>{t(lang, 'a11y.switchLangShort')}</span>
+      <span class="sr-only">, {t(lang, 'a11y.switchLang')}</span>
     </a>
   </div>
 </header>
@@ -77,39 +85,9 @@ const other = otherLang(lang);
     padding-block: 0.5rem 0.2rem;
   }
 
-  .brand {
+  .header-inner > :global(.brand) {
     grid-area: brand;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    min-height: var(--tap);
     justify-self: start;
-    color: var(--text);
-    text-decoration: none;
-  }
-
-  .brand:hover {
-    color: var(--text);
-  }
-
-  .brand-name {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-size: 1.3rem;
-    font-weight: 500;
-    letter-spacing: -0.012em;
-    line-height: 1;
-  }
-
-  /* ──● mark */
-  .brand-node {
-    position: relative;
-    width: 1.35rem;
-    height: 10px;
-    flex: none;
-    background:
-      radial-gradient(circle at calc(100% - 5px) 50%, var(--brand) 0 3.5px, var(--accent) 3.5px 4.75px, transparent 5.25px),
-      linear-gradient(var(--brand-hi), var(--brand-hi)) left center / calc(100% - 8px) 1.5px no-repeat;
   }
 
   .main-nav {
@@ -150,10 +128,17 @@ const other = otherLang(lang);
     position: absolute;
     left: 0.65rem;
     right: 0.65rem;
-    bottom: 0.5rem;
+    top: calc(50% + 0.8em);
     height: 2px;
     border-radius: 2px;
     background: var(--brand-grad);
+  }
+
+  @media (forced-colors: active) {
+    .main-nav a[aria-current]::after {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
   }
 
   /* Boxed control: reads as a switch, not as fine print. 44px hit area. */

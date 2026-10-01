@@ -5,7 +5,7 @@
 #   1. Copie pt.md e en.md para src/content/publications/<slug>/
 #      O nome da pasta é o slug: entra na URL dos dois idiomas, por exemplo
 #      /pt/projetos/<slug>/ e /en/projects/<slug>/. Use só letras minúsculas, números e hífens.
-#   2. Preencha os dois arquivos. type, date, status e draft precisam ser IGUAIS em pt.md e en.md.
+#   2. Preencha os dois arquivos. type, date, updated, status e draft precisam ser IGUAIS em pt.md e en.md.
 #   3. Quando os dois idiomas estiverem prontos, mude draft para false nos dois.
 #
 # Tipo (igual nos dois idiomas):
@@ -15,15 +15,15 @@
 type: product
 
 # Título da página, dos cards e da aba do navegador.
-title: "Nome da publicação"
+title: "TODO: nome da publicação"
 
 # Uma ou duas frases. Aparece nos cards e vira a meta description (busca e prévia de links).
-summary: "Uma ou duas frases sobre o que é e para quem é."
+summary: "TODO: uma ou duas frases sobre o que é e para quem é."
 
 # Dia em que a publicação entra no site, no formato AAAA-MM-DD (igual nos dois idiomas).
 date: 2026-10-01
 
-# Opcional: dia da última atualização relevante (AAAA-MM-DD). Tire o # para usar.
+# Opcional: dia da última atualização relevante (AAAA-MM-DD). Tire o # para usar (igual nos dois idiomas).
 # updated: 2026-10-15
 
 # Estado atual (igual nos dois idiomas). Obrigatório em product e experiment.

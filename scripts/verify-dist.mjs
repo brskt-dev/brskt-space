@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // verify-dist.mjs: checks the built site in dist/ before it is deployed.
-// Zero dependencies, Node >= 22. `npm run verify` runs `astro build` and then this script.
+// Zero dependencies, Node >= 22. `npm run verify` runs `astro check`, `astro build` and then this script.
 //
 //   node scripts/verify-dist.mjs                 check ../dist (relative to this file)
 //   node scripts/verify-dist.mjs --dist <path>   check another folder

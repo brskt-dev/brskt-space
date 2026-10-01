@@ -5,14 +5,10 @@
  * module re-exports). Components must never hand-write "/pt/..." strings.
  */
 import { joinBase } from '../lib/url';
+import { EXTERNAL_HINT } from '../lib/markdown-external-links.mjs';
 
 export const LANGS = ['pt', 'en'] as const;
 export type Lang = (typeof LANGS)[number];
-export const DEFAULT_LANG: Lang = 'en';
-
-export const isLang = (value: unknown): value is Lang =>
-  typeof value === 'string' && (LANGS as readonly string[]).includes(value);
-
 export const otherLang = (lang: Lang): Lang => (lang === 'pt' ? 'en' : 'pt');
 
 /** BCP 47 tag used in <html lang>, hreflang and lang="" attributes. */
@@ -74,11 +70,10 @@ export const rootUrl = (): string => joinBase();
 /* -------------------------------------------------------------------------- */
 
 const strings = {
-  'site.name': { pt: 'Bruno Anhezini', en: 'Bruno Anhezini' },
   'a11y.skip': { pt: 'Pular para o conteúdo', en: 'Skip to content' },
   'a11y.mainNav': { pt: 'Navegação principal', en: 'Main navigation' },
   'a11y.homeLink': { pt: 'Bruno Anhezini, página inicial', en: 'Bruno Anhezini, home page' },
-  'a11y.external': { pt: '(link externo)', en: '(external link)' },
+  'a11y.external': EXTERNAL_HINT,
   'a11y.switchLang': { pt: 'Read in English', en: 'Ler em português' },
   'a11y.switchLangShort': { pt: 'EN', en: 'PT' },
   'a11y.contactLinks': { pt: 'Contato', en: 'Contact' },
@@ -88,18 +83,15 @@ const strings = {
   'nav.articles': { pt: 'Artigos', en: 'Articles' },
   'nav.about': { pt: 'Sobre', en: 'About' },
 
-  'footer.email': { pt: 'E-mail', en: 'Email' },
   'footer.contact': { pt: 'contato:', en: 'contact:' },
   'footer.linkedin': { pt: 'LinkedIn', en: 'LinkedIn' },
   'footer.github': { pt: 'GitHub', en: 'GitHub' },
   'footer.source': { pt: 'Código do site', en: 'Site source' },
-  'footer.rights': { pt: 'Bruno Anhezini', en: 'Bruno Anhezini' },
 
   'home.focus': { pt: 'O que eu faço', en: 'What I work on' },
   'home.projects': { pt: 'Projetos', en: 'Projects' },
   'home.articles': { pt: 'Artigos', en: 'Articles' },
   'home.aboutLink': { pt: 'Mais sobre mim', en: 'More about me' },
-  'home.emailLink': { pt: 'Me mande um e-mail', en: 'Send me an email' },
   'home.allProjects': { pt: 'Todos os projetos', en: 'All projects' },
   'home.allArticles': { pt: 'Todos os artigos', en: 'All articles' },
 
@@ -113,16 +105,12 @@ const strings = {
   'about.present': { pt: 'atual', en: 'present' },
   'about.email': { pt: 'E-mail', en: 'Email' },
   'about.phone': { pt: 'Telefone / WhatsApp', en: 'Phone / WhatsApp' },
-  'about.whatsapp': { pt: 'Abrir conversa no WhatsApp', en: 'Open a WhatsApp chat' },
   'about.linkedin': { pt: 'LinkedIn', en: 'LinkedIn' },
   'about.github': { pt: 'GitHub', en: 'GitHub' },
   'about.location': { pt: 'Localização', en: 'Location' },
 
   'projects.title': { pt: 'Projetos', en: 'Projects' },
-  'projects.description': {
-    pt: 'Produtos e experimentos em que estou trabalhando.',
-    en: 'Products and experiments I am working on.',
-  },
+  'projects.description': { pt: 'Projetos em que estou trabalhando.', en: 'Projects I’m working on.' },
   'articles.title': { pt: 'Artigos', en: 'Articles' },
   'articles.description': {
     pt: 'Artigos técnicos.',
@@ -151,7 +139,7 @@ const strings = {
   'notfound.title': { pt: 'Página não encontrada', en: 'Page not found' },
   'notfound.text': {
     pt: 'O endereço que você abriu não existe aqui. Talvez tenha mudado de lugar.',
-    en: 'The address you opened does not exist here. It may have moved.',
+    en: 'There’s no page at this address. It may have moved.',
   },
   'notfound.cta': { pt: 'Ir para o início em português', en: 'Go to the English home page' },
 
@@ -169,9 +157,6 @@ export const statusLabel = (lang: Lang, status: string) => {
   const key = `status.${status}` as UiKey;
   return key in strings ? t(lang, key) : status;
 };
-
-/** Pick the right language from a `{ pt, en }` object. */
-export const tr = <T>(value: Record<Lang, T>, lang: Lang): T => value[lang];
 
 /** Localized "1 out. 2026" / "Oct 1, 2026" (UTC; content dates have no time component). */
 export function formatDate(lang: Lang, date: Date): string {

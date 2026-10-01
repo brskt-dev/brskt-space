@@ -28,8 +28,10 @@ site no GitHub Pages.
 | `src/i18n/ui.ts` | Textos da interface (menu, rodapé, rótulos de status e tipo), nomes das rotas e funções de URL. |
 | `src/lib/url.ts` | Montagem de URLs com o prefixo `/brskt-space/`. |
 | `src/lib/publications.ts` | Validação das publicações no build (par pt/en, campos iguais). |
+| `src/content.config.ts` | Regras do frontmatter: tipos, valores de `status`, formato de data. Um status novo também precisa do rótulo `status.*` em `src/i18n/ui.ts` (sem ele, aparece o valor cru). |
+| `src/pages/[lang]/[...path].astro` e `src/lib/routes.ts` | Geram todas as páginas `/pt/` e `/en/` e o `sitemap.xml`; o conteúdo de cada página fica em `src/components/views/`. Não crie arquivos em `src/pages/pt/` ou `src/pages/en/`: eles ficam fora do sitemap e do menu. |
 | `src/assets/` | Foto (otimizada no build). |
-| `src/components/`, `src/layouts/`, `src/styles/` | Visual. Cores (tema escuro) em `src/styles/global.css`. |
+| `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro) em `src/styles/global.css`. |
 | `public/` | Arquivos copiados sem mudança, como `favicon.svg`. |
 | `templates/publication/` | Modelos para novas publicações. Ficam fora de `src/` e nunca vão para o site. |
 | `scripts/verify-dist.mjs` | Verificação do site gerado: links, prefixo `/brskt-space/`, metadados, idiomas. |
@@ -50,7 +52,7 @@ cp templates/publication/pt.md templates/publication/en.md src/content/publicati
 ```
 
 **3. Preencha o frontmatter** (o bloco entre `---` no topo) dos dois arquivos. Os modelos já explicam cada
-campo em comentários:
+campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o deploy) falha enquanto sobrar algum.
 
 | Campo | Obrigatório | O que é |
 |---|---|---|
@@ -63,9 +65,9 @@ campo em comentários:
 | `tags` | não | Palavras-chave curtas, no idioma de cada arquivo. |
 | `links` | não | Só links reais (site no ar, repositório, demo). Nunca link provisório. |
 | `cover` | não | Imagem de capa na mesma pasta, por exemplo `./cover.png`. Só se a imagem existir. |
-| `draft` | sim | `true` = rascunho, fica fora do site. `false` = publicada. Os modelos começam em `true`. |
+| `draft` | não (padrão: `false`) | `true` = rascunho, fica fora do site. `false` ou sem a linha = publicada. Os modelos começam em `true`, então apagar a linha publica. |
 
-`type`, `date`, `status` e `draft` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
+`type`, `date`, `updated`, `status` e `draft` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
 são traduzidos.
 
 **4. Escreva o texto** em Markdown, abaixo do frontmatter. O modelo traz um roteiro de seções para cada tipo:
@@ -106,12 +108,13 @@ Sempre mexa nos dois idiomas juntos.
 
 ## Rodar localmente
 
-Precisa de Node.js 22 ou mais novo.
+Precisa de Node.js 22.12 ou mais novo (exigência do Astro 7).
 
 ```sh
 npm ci            # instala as dependências exatas do package-lock.json
 npm run dev       # servidor local em http://localhost:4321/brskt-space/
-npm run verify    # build de produção + verificação (o mesmo que o deploy roda)
+npm run check     # checagem de tipos: acusa texto sem tradução em src/i18n/ui.ts e src/data/profile.ts
+npm run verify    # checagem de tipos + build de produção + verificação (o mesmo que o deploy roda)
 npm run preview   # serve o build da pasta dist/ em http://localhost:4321/brskt-space/
 ```
 
@@ -130,12 +133,18 @@ node scripts/verify-dist.mjs --external
 ## Deploy
 
 1. Push na branch `dev` (ou, em **Actions → Deploy to GitHub Pages → Run workflow**, para rodar na mão).
-2. O GitHub Actions roda `npm ci` e `npm run verify` (build + verificação).
+2. O GitHub Actions roda `npm ci` e `npm run verify` (checagem de tipos + build + verificação).
 3. Se tudo passar, envia a pasta `dist/` e publica em https://brskt-dev.github.io/brskt-space/.
 4. Se algo falhar, **nada é publicado** e o site continua na versão anterior. O erro aparece na aba
    **Actions**, no passo "Build and verify".
 
-**Só na primeira vez:** no repositório, **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+**Só na primeira vez** (no repositório, nesta ordem):
+
+1. **Settings → General → Default branch:** troque `main` por `dev`. O botão *Run workflow* só aparece para
+   workflows que estão na branch padrão, e o ambiente `github-pages` que o GitHub cria só aceita deploy dela.
+2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+3. Em **Actions**, abra a última execução que falhou e clique em **Re-run all jobs** (ou faça um push na `dev`).
+   Se o deploy reclamar de `environment protection rules`, veja [Problemas comuns](#problemas-comuns).
 
 ## Mapa de URLs
 
@@ -153,9 +162,14 @@ Os caminhos abaixo vêm depois de `https://brskt-dev.github.io/brskt-space`.
 | Página não encontrada | `/404.html` (bilíngue) | (mesma) |
 | Sitemap e robots | `/sitemap.xml`, `/robots.txt` | (mesmos) |
 
+Os buscadores só leem o `robots.txt` da raiz do domínio (`https://brskt-dev.github.io/robots.txt`), então o
+`/brskt-space/robots.txt` (e a linha `Sitemap:` dele) só passa a valer com domínio próprio. Até lá, para os
+buscadores acharem o sitemap, envie `https://brskt-dev.github.io/brskt-space/sitemap.xml` no Google Search
+Console, numa propriedade do tipo "Prefixo do URL" com `https://brskt-dev.github.io/brskt-space/`.
+
 De onde vem cada parte:
 
-- `brskt-dev.github.io` e `/brskt-space`: `site` e `base` em `astro.config.mjs`.
+- `brskt-dev.github.io` e `/brskt-space`: constantes `SITE` e `BASE` no topo de `astro.config.mjs`.
 - `pt` / `en`: os dois idiomas do site.
 - `sobre`, `projetos`, `artigos` (e os nomes em inglês): `segments` em `src/i18n/ui.ts`. Trocar um nome
   muda a URL de todas as páginas daquela seção.
@@ -173,13 +187,15 @@ De onde vem cada parte:
      `2606:50c0:8001::153`, `2606:50c0:8002::153` e `2606:50c0:8003::153`).
    - A propagação pode levar até 24 h. Depois, marque **Enforce HTTPS**.
 3. **No código:**
-   - `astro.config.mjs`: `site: 'https://seudominio.com'` e `base: '/'`;
+   - `astro.config.mjs`: constantes `SITE` e `BASE` no topo, `SITE = 'https://seudominio.com'` e `BASE = '/'`
+     (elas valem para `site`, `base` e o plugin que marca links externos no Markdown);
    - `scripts/verify-dist.mjs`: constantes `SITE` e `BASE` no topo, com os mesmos valores;
-   - procure o endereço antigo e troque onde aparecer: `grep -rn "brskt-dev.github.io" src scripts astro.config.mjs`
-     (por exemplo `SITE_ORIGIN` em `src/lib/url.ts`);
+   - troque os valores reserva que sobram com o endereço antigo: `grep -rn "brskt-dev.github.io" src`
+     (`SITE_ORIGIN` em `src/lib/url.ts` e os `?? '…'` em `BaseHead.astro`, `robots.txt.ts` e `sitemap.xml.ts`);
    - `public/CNAME` com uma linha só, o domínio. É opcional: com deploy por GitHub Actions, o GitHub usa o
      domínio salvo em Settings e ignora esse arquivo, mas ele deixa o domínio registrado no repositório.
-4. Rode `npm run verify` e faça o push. As URLs passam a ser `https://seudominio.com/pt/…`, sem `/brskt-space`.
+4. Apague `node_modules/.astro` (depois de mudar o plugin ou o domínio, esse cache guarda o Markdown já
+   renderizado com o endereço antigo), rode `npm run verify` e faça o push. As URLs passam a ser `https://seudominio.com/pt/…`, sem `/brskt-space`.
 
 ## Problemas comuns
 
@@ -188,15 +204,17 @@ De onde vem cada parte:
 | Mensagem (trecho) | O que fazer |
 |---|---|
 | `[publications] Publication "x" is missing …/x/en.md` | Falta a tradução. Crie o arquivo ou deixe `draft: true` no que existe. |
-| `pt.md and en.md disagree on type / date / status` | Deixe esses campos iguais nos dois arquivos. |
+| `pt.md and en.md disagree on type / date / updated / status` | Deixe esses campos iguais nos dois arquivos. |
 | `"draft" differs between pt.md … and en.md` | `draft` precisa ser igual nos dois. |
 | `"status" is required for type "product"` | Adicione `status` (veja os valores na tabela acima). |
 | `status "running" is not allowed for type "product"` | `running` e `concluded` são só para experimentos. |
 | `Invalid slug "Meu Projeto"` | Renomeie a pasta: minúsculas, números e hífens. |
-| `Unexpected file …/x/notas.md` | Na pasta da publicação só podem existir `pt.md` e `en.md` (imagens podem). |
+| `publications → x/notas data does not match collection schema` (arquivo que não é `pt` nem `en`) | Todo `.md` na pasta da publicação é lido como publicação. Tire anotações e rascunhos da pasta; imagens podem ficar. |
+| `Unexpected file …/x/PT.md` (ou `pt-br.md`, cópia de `pt.md`) | Só `pt.md` e `en.md`, em minúsculas. Renomeie ou apague a cópia. |
 | `date: Use the YYYY-MM-DD format` | Escreva a data como `AAAA-MM-DD`, por exemplo `2026-10-01`. |
 | Erro de schema citando `links.0.url`, `type`… | Campo com formato errado: URL completa com `https://`, `type` com um dos três valores. |
 | Imagem não encontrada | O caminho é relativo ao `.md`: `./nome.png`, com a imagem na mesma pasta. |
+| `Property 'en' is missing in type …` (ou `'pt'`) | Falta a versão em inglês (ou português) de um texto em `src/i18n/ui.ts` ou `src/data/profile.ts`; o erro mostra arquivo:linha. |
 | `npm ci` reclama que `package.json` e `package-lock.json` não batem | Rode `npm install` e faça commit do `package-lock.json`. |
 
 **Na verificação (`scripts/verify-dist.mjs`):**
@@ -207,7 +225,7 @@ De onde vem cada parte:
 | `not found in dist` | Link quebrado: slug renomeado, página removida ou arquivo que não existe. |
 | `missing <link rel="alternate" hreflang=…>` | A página não tem o par no outro idioma, ou o par está em outra URL. |
 | `"STUB"` / `"TODO"` / `"lorem"` … | Texto provisório esquecido no conteúdo. |
-| `"undefined"` / `"NaN"` / `"[object Object]"` | Falta um campo ou uma chave de tradução (`src/i18n/ui.ts`, `src/data/profile.ts`, frontmatter). |
+| `"undefined"` / `"NaN"` / `"[object Object]"` | Um valor ausente foi interpolado num texto (ex.: título da 404) ou falta um campo no frontmatter. |
 | `no element with id=…` | Link `#âncora` para uma seção que não existe (ou mudou de nome). |
 | `phone/WhatsApp links belong only on …` | Telefone e WhatsApp aparecem só na página Sobre. |
 

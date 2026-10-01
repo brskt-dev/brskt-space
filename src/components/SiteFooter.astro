@@ -16,19 +16,25 @@ const sourceLabel = bilingual ? `${t('pt', 'footer.source')} · ${t('en', 'foote
 const contactKey = bilingual
   ? `${t('pt', 'footer.contact').replace(/:$/, '')} / ${t('en', 'footer.contact')}`
   : t(lang, 'footer.contact');
+const contactLabel = bilingual
+  ? `${t('pt', 'a11y.contactLinks')} / ${t('en', 'a11y.contactLinks')}`
+  : t(lang, 'a11y.contactLinks');
+const extHint = bilingual
+  ? `${t('pt', 'a11y.external').replace(/\)$/, '')} / ${t('en', 'a11y.external').replace(/^\(/, '')}`
+  : undefined;
 ---
 
 <footer class="site-footer">
   <div class="wrap footer-inner cols">
     <div class="footer-contact col-main">
       <span class="annot footer-k" aria-hidden="true">{contactKey}</span>
-      <ul class="footer-links" aria-label={t(lang, 'a11y.contactLinks')}>
+      <ul class="footer-links" aria-label={contactLabel}>
         <li>
           <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
         </li>
-        <li><ExternalLink href={profile.contact.linkedin} lang={lang}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
-        <li><ExternalLink href={profile.contact.github} lang={lang}>{t(lang, 'footer.github')}</ExternalLink></li>
-        <li><ExternalLink href={profile.siteRepo} lang={lang}>{sourceLabel}</ExternalLink></li>
+        <li><ExternalLink href={profile.contact.linkedin} lang={lang} hint={extHint}>{t(lang, 'footer.linkedin')}</ExternalLink></li>
+        <li><ExternalLink href={profile.contact.github} lang={lang} hint={extHint}>{t(lang, 'footer.github')}</ExternalLink></li>
+        <li><ExternalLink href={profile.siteRepo} lang={lang} hint={extHint}>{sourceLabel}</ExternalLink></li>
       </ul>
     </div>
     <p class="annot copyright col-m">

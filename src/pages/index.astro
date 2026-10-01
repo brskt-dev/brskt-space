@@ -109,6 +109,11 @@ const choices = [
     color: var(--muted);
   }
 
+  /* each language phrase is one unit: lines break between them, never inside */
+  .hint > span {
+    display: inline-block;
+  }
+
   .hint .sep {
     color: var(--muted);
     padding-inline: 0.5rem;

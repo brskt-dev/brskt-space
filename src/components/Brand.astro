@@ -1,0 +1,49 @@
+---
+/** Site name with the ──● mark; used by SiteHeader and the bilingual 404. */
+interface Props {
+  href: string;
+  'aria-label'?: string;
+}
+
+const { href, 'aria-label': ariaLabel } = Astro.props;
+---
+
+<a class="brand" href={href} aria-label={ariaLabel}>
+  <span class="brand-node" aria-hidden="true"></span>
+  <span class="brand-name">Bruno Anhezini</span>
+</a>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: var(--tap);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand:hover {
+    color: var(--text);
+  }
+
+  .brand-name {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 1.3rem;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1;
+  }
+
+  /* ──● mark */
+  .brand-node {
+    position: relative;
+    width: 1.35rem;
+    height: 10px;
+    flex: none;
+    background:
+      radial-gradient(circle at calc(100% - 5px) 50%, var(--brand) 0 3.5px, var(--accent) 3.5px 4.75px, transparent 5.25px),
+      linear-gradient(var(--brand-hi), var(--brand-hi)) left center / calc(100% - 8px) 1.5px no-repeat;
+  }
+</style>

@@ -5,7 +5,7 @@
 #   1. Copy pt.md and en.md to src/content/publications/<slug>/
 #      The folder name is the slug: it goes into the URL in both languages, e.g.
 #      /pt/projetos/<slug>/ and /en/projects/<slug>/. Lowercase letters, digits and hyphens only.
-#   2. Fill in both files. type, date, status and draft must be IDENTICAL in pt.md and en.md.
+#   2. Fill in both files. type, date, updated, status and draft must be IDENTICAL in pt.md and en.md.
 #   3. When both languages are ready, set draft to false in both.
 #
 # Type (same in both languages):
@@ -15,15 +15,15 @@
 type: product
 
 # Title of the page, the cards and the browser tab.
-title: "Publication name"
+title: "TODO: publication name"
 
 # One or two sentences. Shown on cards and used as the meta description (search and link previews).
-summary: "One or two sentences on what it is and who it is for."
+summary: "TODO: one or two sentences on what it is and who it is for."
 
 # Day the publication goes live on the site, as YYYY-MM-DD (same in both languages).
 date: 2026-10-01
 
-# Optional: day of the last meaningful update (YYYY-MM-DD). Remove the # to use it.
+# Optional: day of the last meaningful update (YYYY-MM-DD). Remove the # to use it (same in both languages).
 # updated: 2026-10-15
 
 # Current state (same in both languages). Required for product and experiment.
