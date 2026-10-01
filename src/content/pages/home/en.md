@@ -1,6 +1,6 @@
 ---
 title: "Bruno Anhezini"
-description: "Bruno Anhezini, full-stack developer focused on C#/.NET, Angular and SQL Server. Career, projects and technical writing."
+description: "Bruno Anhezini, full-stack developer focused on C#/.NET, Angular and SQL Server. Career and projects."
 tagline: "I build and maintain SaaS products with C#/.NET, Angular and SQL Server. I’m strongest in backend, infrastructure and production operations."
 availability: "I’m looking for 100% remote opportunities, in Brazil or abroad, working from Brazil."
 focus:
