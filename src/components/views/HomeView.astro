@@ -23,39 +23,46 @@ const { title, description, tagline, availability, focus } = entry.data;
 
 const projects = await getSection('projects');
 const articles = await getSection('articles');
-const pad = (n: number) => String(n + 1).padStart(2, '0');
+
+// Margin numbering ("01 ──") follows the sections actually rendered.
+const order = [focus.length > 0 && 'focus', projects.length > 0 && 'projects', articles.length > 0 && 'articles'].filter(
+  (x): x is string => Boolean(x),
+);
+const indexOf = (key: string) => order.indexOf(key) + 1;
 ---
 
 <BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-grid" aria-hidden="true"></div>
     <div class="wrap hero-inner">
-      <p class="annot annot-row hero-annot">
-        <span class="k nw">{profile.role[lang]}</span><span class="sep" aria-hidden="true">·</span><span class="k nw"
+      <h1 id="hero-title">{profile.name}</h1>
+      <p class="annot hero-annot">
+        <span class="nw">{profile.role[lang]}</span><span class="sep" aria-hidden="true">·</span><span class="nw"
           >{profile.location[lang]}</span
         >
       </p>
-      <h1 id="hero-title">{profile.name}</h1>
-      <p class="tagline">{tagline}</p>
-      <div class="intro prose">
-        <Content />
+      <div class="hero-body">
+        <p class="tagline">{tagline}</p>
+        <div class="intro prose">
+          <Content />
+        </div>
+        <p class="availability">
+          <span class="avail-node" aria-hidden="true"></span>
+          <span>{availability}</span>
+        </p>
+        <ul class="hero-links">
+          <li>
+            <a class="text-link" href={pathFor(lang, 'about')}>
+              {t(lang, 'home.aboutLink')}<span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a class="text-link mail" href={`mailto:${profile.contact.email}`}>
+              <span class="annot mail-k" aria-hidden="true">email:</span>{profile.contact.email}
+            </a>
+          </li>
+        </ul>
       </div>
-      <p class="availability">
-        <span class="avail-node" aria-hidden="true"></span>
-        <span>{availability}</span>
-      </p>
-      <ul class="hero-links">
-        <li>
-          <a class="text-link" href={pathFor(lang, 'about')}>
-            {t(lang, 'home.aboutLink')}<span class="arrow" aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li>
-          <a class="text-link mail" href={`mailto:${profile.contact.email}`}>
-            <span class="annot mail-k" aria-hidden="true">email:</span>{profile.contact.email}
-          </a>
-        </li>
-      </ul>
     </div>
   </section>
 
@@ -63,13 +70,12 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
     focus.length > 0 && (
       <section class="section" aria-labelledby="focus-title">
         <div class="wrap">
-          <SectionHeading id="focus-title">{t(lang, 'home.focus')}</SectionHeading>
-          <ol class="focus-list">
-            {focus.map((item, i) => (
+          <SectionHeading id="focus-title" index={indexOf('focus')}>
+            {t(lang, 'home.focus')}
+          </SectionHeading>
+          <ol class="focus-list in-main">
+            {focus.map((item) => (
               <li>
-                <span class="annot focus-index" aria-hidden="true">
-                  {pad(i)}
-                </span>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </li>
@@ -84,8 +90,10 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
     projects.length > 0 && (
       <section class="section" aria-labelledby="projects-title">
         <div class="wrap">
-          <SectionHeading id="projects-title">{t(lang, 'home.projects')}</SectionHeading>
-          <ul class="card-grid">
+          <SectionHeading id="projects-title" index={indexOf('projects')}>
+            {t(lang, 'home.projects')}
+          </SectionHeading>
+          <ul class="entries">
             {projects.map((pub) => (
               <li>
                 <PublicationCard lang={lang} pub={pub} />
@@ -93,7 +101,7 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
             ))}
           </ul>
           {projects.length > 3 && (
-            <p class="section-more">
+            <p class="section-more in-main">
               <a class="text-link" href={pathFor(lang, 'projects')}>
                 {t(lang, 'home.allProjects')}
                 <span class="arrow" aria-hidden="true">→</span>
@@ -109,15 +117,17 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
     articles.length > 0 && (
       <section class="section" aria-labelledby="articles-title">
         <div class="wrap">
-          <SectionHeading id="articles-title">{t(lang, 'home.articles')}</SectionHeading>
-          <ul class="card-grid">
+          <SectionHeading id="articles-title" index={indexOf('articles')}>
+            {t(lang, 'home.articles')}
+          </SectionHeading>
+          <ul class="entries">
             {articles.slice(0, 6).map((pub) => (
               <li>
                 <PublicationCard lang={lang} pub={pub} />
               </li>
             ))}
           </ul>
-          <p class="section-more">
+          <p class="section-more in-main">
             <a class="text-link" href={pathFor(lang, 'articles')}>
               {t(lang, 'home.allArticles')}
               <span class="arrow" aria-hidden="true">→</span>
@@ -133,11 +143,11 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
   .hero {
     position: relative;
     isolation: isolate;
-    padding-block: clamp(3rem, 9vw, 7rem) clamp(0.5rem, 2vw, 1.5rem);
+    padding-block: clamp(3.25rem, 9vw, 7.5rem) clamp(0.5rem, 2vw, 1.5rem);
     overflow: hidden;
   }
 
-  /* Engineering-notebook grid, only here, fading out. */
+  /* Engineering-notebook grid: only here, fading out toward the reading area. */
   .hero-grid {
     position: absolute;
     inset: 0;
@@ -147,49 +157,57 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
       linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
     background-size: 32px 32px;
     background-position: -1px -1px;
-    -webkit-mask-image: radial-gradient(ellipse 85% 90% at 20% 0%, #000 25%, transparent 75%);
-    mask-image: radial-gradient(ellipse 85% 90% at 20% 0%, #000 25%, transparent 75%);
-  }
-
-  .hero-inner > * {
-    max-width: var(--measure);
-  }
-
-  .hero-annot {
-    margin-bottom: 1.1rem;
-  }
-
-  .nw {
-    white-space: nowrap;
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 12% 0%, #000 20%, transparent 72%);
+    mask-image: radial-gradient(ellipse 90% 80% at 12% 0%, #000 20%, transparent 72%);
   }
 
   .hero h1 {
-    font-size: clamp(2.75rem, 1.6rem + 5vw, 5rem);
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.02;
+    font-size: clamp(3rem, 1.1rem + 7.4vw, 7.25rem);
+    font-weight: 430;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    margin-left: -0.04em; /* optical alignment of the B with the text edge */
+  }
+
+  .hero-annot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-top: 1.25rem;
+  }
+
+  /* phones: the two facts never fit on one line, so stack them instead of wrapping on the "·" */
+  @media (max-width: 29.99rem) {
+    .hero-annot {
+      flex-direction: column;
+    }
+
+    .hero-annot .sep {
+      display: none;
+    }
   }
 
   .tagline {
-    margin-top: 1rem;
+    margin-top: 1.75rem;
+    max-width: 30em;
     font-family: var(--font-serif);
-    font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.75rem);
-    line-height: 1.35;
+    font-optical-sizing: auto;
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.95rem);
+    line-height: 1.32;
     font-weight: 400;
-    color: var(--accent);
-    max-width: 34ch;
+    letter-spacing: -0.008em;
+    color: var(--text);
   }
 
   .intro {
     margin-top: 1.5rem;
-    color: var(--text);
   }
 
   .availability {
     margin-top: 1.5rem;
     display: flex;
     align-items: baseline;
-    gap: 0.7rem;
+    gap: 0.75rem;
     font-size: var(--fs-small);
     color: var(--muted);
   }
@@ -207,10 +225,10 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
   .hero-links {
     list-style: none;
     padding: 0;
-    margin-top: 1.25rem;
+    margin-top: 1.1rem;
     display: flex;
     flex-wrap: wrap;
-    column-gap: 1.75rem;
+    column-gap: 2rem;
   }
 
   .mail {
@@ -220,41 +238,89 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
   .mail-k {
     display: inline-block; /* not underlined */
     margin-right: 0.5em;
-    font-size: var(--fs-meta);
+    color: var(--faint);
   }
 
+  @media (min-width: 64rem) {
+    .hero-inner {
+      display: grid;
+      grid-template-columns: var(--mc) minmax(0, 1fr);
+      column-gap: var(--cg);
+      align-items: baseline;
+    }
+
+    .hero h1 {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    /* byline in the margin, sharing the tagline's first baseline */
+    .hero-annot {
+      grid-column: 1;
+      grid-row: 2;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      margin-top: 0;
+    }
+
+    .hero-annot .sep {
+      display: none;
+    }
+
+    .hero-body {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .tagline {
+      margin-top: 2.5rem;
+    }
+  }
+
+  /* ---------- What I work on: an index, one row per area ---------- */
   .focus-list {
     list-style: none;
     padding: 0;
-    display: grid;
-    gap: 1.75rem 2.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    border-bottom: 1px solid var(--border);
   }
 
   .focus-list li {
-    position: relative;
-    padding-top: 1.1rem;
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding-block: 1.15rem 1.3rem;
+  }
+
+  .focus-list li + li {
     border-top: 1px solid var(--border);
   }
 
-  .focus-index {
-    position: absolute;
-    top: -0.75rem;
-    left: 0;
-    padding-right: 0.6rem;
-    background: var(--bg);
-    color: var(--accent-2);
+  .focus-list li:first-child {
+    padding-top: 0;
   }
 
   .focus-list h3 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
+    font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.25;
   }
 
   .focus-list p {
+    max-width: var(--measure);
     color: var(--muted);
-    font-size: var(--fs-small);
     line-height: 1.6;
+  }
+
+  @media (min-width: 48rem) {
+    .focus-list li {
+      grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+      align-items: baseline;
+      padding-block: 1.4rem 1.5rem;
+    }
+
+    .focus-list li:first-child {
+      padding-top: 0.25rem;
+    }
   }
 
   .section-more {

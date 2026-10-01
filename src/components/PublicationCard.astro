@@ -1,5 +1,8 @@
 ---
-/** Card for a publication in a list: type + status, title (whole card is the link), summary, tags. */
+/**
+ * A publication in a list, set as an editorial ledger row: type + status as a margin
+ * annotation, serif title (the whole row is the link), summary, tags.
+ */
 import PubMeta from './PubMeta.astro';
 import { publicationUrl, type Lang } from '../i18n/ui';
 import type { Publication } from '../lib/publications';
@@ -16,17 +19,23 @@ const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = publicationUrl(lang, pub.type, pub.slug);
 ---
 
-<article class="card">
-  <PubMeta lang={lang} type={pub.type} status={pub.status} keys={false} />
-  <Heading><a class="card-link" href={href}>{data.title}</a></Heading>
-  <p class="summary">{data.summary}</p>
-  {
-    data.tags.length > 0 && (
-      <ul class="tags" aria-label="Tags">
-        {data.tags.map((tag) => (
-          <li>{tag}</li>
-        ))}
-      </ul>
-    )
-  }
+<article class="entry">
+  <div class="entry-meta">
+    <PubMeta lang={lang} type={pub.type} status={pub.status} keys={false} />
+  </div>
+  <div class="entry-main">
+    <Heading class="entry-title"
+      ><a class="entry-link" href={href}>{data.title}<span class="arrow" aria-hidden="true">→</span></a></Heading
+    >
+    <p class="summary">{data.summary}</p>
+    {
+      data.tags.length > 0 && (
+        <ul class="tags" aria-label="Tags">
+          {data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
 </article>
