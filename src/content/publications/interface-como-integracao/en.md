@@ -1,14 +1,14 @@
 ---
 type: article
 title: "When the UI becomes the integration: from recorded routines to AI agents"
-summary: "A desktop agent that books shared accounts, opens isolated sessions and runs routines on third-party systems with no API. The hard decisions behind it, the limits that remain, and how I'd take the idea toward AI agents without handing the wheel to the model."
+summary: "A desktop agent that reserves shared accounts, opens isolated sessions and runs routines on third-party systems with no API. The hard decisions behind it, the limits that remain, and how I’d take the idea toward AI agents without handing the wheel to the model."
 date: 2026-10-05
 tags: ["Architecture", ".NET", "WebView2", "SQL Server", "Automation", "AI agents"]
 ---
 
-Picture someone handling a support case who, to solve a single request, has to sign in to three or four third-party systems. Each one has its own account, its own login screen and its own way of doing things. Some are web apps with no API at all. The accounts are shared and limited, so someone has to know which one is free, what the password is and how to do that procedure only people who sat through the training remember.
+Picture someone handling a support case who, to solve a single request, has to sign in to several third-party systems. Each one has its own account, its own login screen and its own way of doing things. Some are web apps with no API at all. The accounts are shared and limited, so someone has to know which one is free, what the password is and how to do that procedure only people who sat through the training remember.
 
-I developed a design for this scenario: a desktop agent that opens those platforms inside controlled sessions, signs in on its own and runs routines stored as data. This post covers the idea, the decisions that took the most work, what it does **not** solve, and where I'd take the concept with AI.
+I built a solution for this scenario: a desktop agent that opens those platforms inside controlled sessions, signs in on its own and runs routines stored as data. This post covers the idea, the decisions that took the most work, what it does **not** solve, and where I'd take the concept with AI.
 
 To keep things honest, the post has three layers: **what was implemented**, **an analysis of its limits** and **expansions I'm proposing that don't exist in the system**.
 
@@ -17,11 +17,11 @@ To keep things honest, the post has three layers: **what was implemented**, **an
 At first glance it looks like a password problem. It isn't. There were four symptoms:
 
 - **Shared, limited accounts.** Many people, few accounts, no clear picture of who is using what.
-- **Repeated manual logins.** Typing a username and password on every access, with the password travelling through more places than it should.
+- **Repeated manual logins.** Typing a username and password on every access, which means everyone has to know the password.
 - **Hard attribution.** When a shared account is used, it's hard to say who used it and for which case.
 - **Procedures living in people's heads.** Each system's step-by-step lived in training sessions, notes and old messages.
 
-The obvious path would be integrating through an API. And when a proper API exists, that's still the best route: an explicit contract, versioning, errors that tell you what happened. The catch is that several of these systems simply don't have one. Waiting for a third party's roadmap can mean never integrating at all.
+The obvious path would be integrating through an API. And when a proper API exists, that's still the best route: an explicit contract, versioning, errors that tell you what happened. The catch is that some of these systems simply don't have one. Waiting for a third party's roadmap can mean never integrating at all.
 
 ## The idea: the UI as an integration surface
 
@@ -41,7 +41,7 @@ Because the browser's same-origin policy keeps a regular script in my app from r
 
 A desktop agent with embedded browsers (WebView2, in a WPF app on .NET) delivered all three. The price is real: an install on every machine, distributed updates, Windows only, one more component to support and different versions running at the same time. Many of the decisions below exist precisely to pay that price.
 
-## The architecture that exists today
+## The implemented architecture
 
 There are five pieces:
 
@@ -57,10 +57,10 @@ IMPLEMENTED
 ┌───────────────────┐   protocol    ┌──────────────────────────┐
 │  Web application  │──────────────▶│  Desktop agent (WPF)     │
 │                   │◀── presence ──│  · WebView2 tabs         │
-└─────────┬─────────┘  (local HTTP) │  · profile per booking   │
+└─────────┬─────────┘  (local HTTP) │  · clean profile per use │
           │                         │  · routine executor      │
           │ case                    └─────┬──────────────┬─────┘
-          ▼                               │ book/return  │ authenticated
+          ▼                               │ reserve      │ authenticated
 ┌───────────────────┐   returns     ┌─────▼──────────┐   │ session
 │ Support service   │──────────────▶│ Control API    │   ▼
 │                   │               │ accounts,      │  External
@@ -74,7 +74,7 @@ In practice, the flow goes like this:
 
 1. During a case, the person asks to open a platform.
 2. The web app triggers the agent through the protocol.
-3. The agent asks for an account booking, for that person and that case.
+3. The agent asks for an account reservation. The reservation is tied to whoever asked for it and to the case.
 4. It opens a tab with a clean profile and the platform's navigation rules, and runs the login script.
 5. The person works, and can trigger stored routines.
 6. When the case ends, the account is returned and the profile goes away.
@@ -89,17 +89,17 @@ The web app triggers the agent through a protocol registered in Windows, even wh
 - **No admin rights.** Install and registration are per user. In an operation with many machines, needing elevated privileges for every install or update stalls everything.
 - **The browser doesn't know if it worked.** Triggering a protocol is a shot in the dark: the page gets no answer back. That's why there's a local HTTP service the web app checks to know whether the agent is present and available before promising anything to the person.
 
-One thing this design demands: a registered protocol can be triggered by any page. An activation is a request, not an order. Whether the person may use that platform is decided by the control API, which holds the permissions.
+One thing this design demands: a registered protocol can be triggered by any page. An activation is a request, not an order. Whether the person may use that platform is decided by the control API, which holds the permissions. That stops access to platforms the person isn't allowed to use, but it doesn't stop an arbitrary page from triggering an opening the person *would* be allowed to do. The same goes for the local HTTP service: any page open in the browser can query it.
 
-### Accounts as bookable resources
+### Accounts as reservable resources
 
-Each shared account became a resource you book and return, through atomic, idempotent operations in the database. Atomic so two people can't take the same account at the same time. Idempotent because, in the real world, there are double clicks, retries after timeouts and messages that arrive twice. Repeating a booking or a return must not corrupt the state.
+Each shared account became a resource you reserve and return, through atomic, idempotent operations in the database. Atomic so two people can't take the same account at the same time. Idempotent because, in the real world, there are double clicks, retries after timeouts and messages that arrive twice. Repeating a reservation or a return must not corrupt the state.
 
-An important limit: the booking being atomic does **not** make what happens in the external system idempotent. If a routine submitted a form and the response got lost, running the routine again may submit it again. The guarantee covers who holds the account, not the effects out there.
+An important limit: the reservation being atomic and idempotent does **not** make what happens in the external system idempotent. If a routine submitted a form and the response got lost, running the routine again may submit it again. The guarantee covers who holds the account, not the effects out there.
 
-### A clean profile on every booking
+### A clean profile on every reservation
 
-Each platform has its own authentication profile and its own allowed-navigation rules. A new booking starts with a clean profile, and returning the account deletes it. The idea is simple: the next person doesn't inherit cookies, sessions or data from whoever used the account before.
+Each platform has its own authentication profile and its own allowed-navigation rules. A new reservation starts with a clean profile, and returning the account deletes it. The idea is simple: the next person doesn't inherit cookies, sessions or data from whoever used the account before.
 
 Isolated profiles and navigation allowlists go a long way toward reducing accidental leaks between sessions and keeping people from wandering where they shouldn't. But they do **not** turn the browser into an unbreakable sandbox. A malicious page, a flaw in the browser engine or a compromised machine are risks of a different order.
 
@@ -107,7 +107,7 @@ Isolated profiles and navigation allowlists go a long way toward reducing accide
 
 The agent fills in the login. The person doesn't need to see, copy or type the password. That cuts a lot of everyday exposure: less chance of the password ending up on a sticky note, in a text file or in a chat, and fewer people who need to know it.
 
-Reducing exposure is not the same as guaranteeing secrecy. To fill in the form, the credential passes through the agent's process and the machine. Someone with control of the machine or debugging tools could, in principle, extract it. And once signed in, the person operates the session normally.
+Reducing exposure is not the same as guaranteeing secrecy. To fill in the form, the credential passes through the agent's process and the machine. Once filled in, it sits in the page's field. Someone with control of the machine, debugging tools or access to the filled-in field (a "show password" button, for instance) can extract it. And once signed in, the person operates the session normally.
 
 ### Login and procedures are the same thing
 
@@ -126,7 +126,7 @@ steps:
   - confirm: "Is this the right order before we continue?"
 ```
 
-An administrator can **record** interactions to register a procedure, without writing a specific integration for each system. Recording the login script has its own restriction: it's limited to the username and password values of the account being made available.
+An administrator can **record** interactions to register a procedure, without writing a specific integration for each system. Recording the login script has its own restriction: it's limited to the username and password values of the account being provided.
 
 Recording cuts a lot of system-specific programming. It doesn't remove maintenance. The UI changes, a field moves, a wait that used to work becomes too short. Validating a recorded routine and understanding why it broke still takes technical knowledge.
 
@@ -138,7 +138,7 @@ It's a heuristic, and I treat it as one. If the platform redesigns its login scr
 
 ### "I don't know" is not "revoked"
 
-The agent periodically checks which bookings are still valid. When that check fails because of the network or authentication, the result is an **unknown state**, not confirmation that the booking was revoked. It sounds like a detail, but treating a network failure as revocation would close the tabs of people who are working every time the Wi-Fi blinked. The opposite is also bad: treating failure as "all good" forever. Unknown needs to be a first-class state.
+The agent periodically checks which reservations are still valid. When that check fails because of the network or authentication, the result is an **unknown state**, not confirmation that the reservation was revoked. It sounds like a detail, but treating a network failure as revocation would close the tabs of people who are working every time the Wi-Fi dropped for a second. The opposite is also bad: treating failure as "all good" forever. Unknown needs to be a first-class state. What to do when unknown drags on is a policy decision, not a network one.
 
 Along the same lines, when a routine is mid-run, the **operational** closing of the tab can wait for it to finish. Cutting it off halfway can leave the external system in a worse state than either end.
 
@@ -146,15 +146,15 @@ That's not a universal security rule. A planned closure, like the end of a case,
 
 ### Updating without kicking anyone out
 
-Updating a desktop app with open sessions is a great way to ruin someone's day. So updates wait for a window with no platforms open. If that window takes too long to come, there's a request asking for it to be freed up.
+Updating a desktop app with open sessions is a great way to ruin someone's day. So updates wait for a window with no platforms open. If no such window comes up for a while, a request goes out to free one up.
 
-The update package has its hash checked, and an external helper process waits for the agent to close, installs the update and reopens the agent. The hash checks **integrity** against the expected value: the downloaded file is what the manifest said it would be. **Authenticity** depends on trusting where that manifest comes from. Code signing would be the natural next step to strengthen that part.
+The update package has its hash checked, and an external helper process waits for the agent to close, installs the update and reopens the agent. The hash checks **integrity** against an expected value: the downloaded file is what was expected. **Authenticity** is a separate question: it depends on that expected value coming from a trusted source, separate from the package. Code signing would be the natural next step to strengthen that part.
 
-Rounding it out: confirmations before closing tabs and the agent, a run history for routines and failure details, so support doesn't depend only on what the person at the screen remembers.
+Rounding it out: confirmations before closing, a run history for routines and failure details, so support doesn't depend only on what the person at the screen remembers.
 
 ## What this solves, and what it doesn't
 
-**Access traceability is not action auditing.** The design makes it clear who had which account, for which case and when. It does **not** prove each action taken inside the external system. As far as that system knows, the shared account did it. The routine history helps with whatever went through the executor, but manual actions inside the session aren't audited one by one.
+**Access traceability is not action auditing.** The design lets you tell who had which account for which case. It does **not** prove each action taken inside the external system. As far as that system knows, the shared account did it. The routine history helps with whatever went through the executor, but manual actions inside the session aren't audited one by one.
 
 **The UI is still fragile.** A layout change can break the login or a routine without warning. The system helps you notice and fix it, but it doesn't prevent it.
 
@@ -166,30 +166,31 @@ Rounding it out: confirmations before closing tabs and the agent, a run history 
 - **Individual accounts with SSO or delegated access:** if the platform supports it and licensing allows, this solves sharing at the root.
 - **A password vault with sharing:** solves distributing the credential, but not the link to the case or the procedures.
 - **A browser extension:** less friction than an installed app, less control over profiles and lifecycle.
-- **RPA or an automated browser on a server:** good for work with nobody at the screen. For assisted operations, they move the session away from the person handling the case.
+- **An automated browser or RPA on a server:** good for work with nobody at the screen, but it moves the session away from the person handling the case.
+- **Attended RPA on the desktop:** stays next to the person, at the cost of one more tool and less control over profiles and reservations.
 
 ## The pattern beyond this case
 
-Strip the names away and the shape is common. Authorized operations on third-party systems, with shared access and repeatable procedures, show up in:
+The shape isn't unique to this case. I'd expect authorized operations on third-party systems, with shared access and repeatable procedures, to show up in places like:
 
 - **BPO and back office**, operating portals for many clients;
-- **accounting**, with portals from agencies and institutions;
+- **accounting**, with government and institutional portals;
 - **insurance**, with insurer portals for quotes and follow-ups;
 - **collections**, with creditor and bank portals;
 - **logistics**, with carrier and marketplace portals.
 
-In all of them the questions are the same: whose account is it right now, how does a procedure stop depending on someone's memory, and what happens when the screen changes.
+In all of them, I'd expect the questions to be similar: whose account is it right now, how does a procedure stop depending on someone's memory, and what happens when the screen changes.
 
 ## And where does AI come in?
 
 From here on, **nothing is implemented**. These are proposals.
 
-The principle I'd keep throughout: **the model proposes, the application decides.** Permissions, validation and execution stay in deterministic code, which already exists today in the routine executor.
+The principle I'd keep throughout: **the model proposes, the application decides.** Permissions, validation and execution stay in deterministic code. Part of that already exists: permissions in the control API and execution in the routine executor. Validating a model's proposals would be new.
 
-1. **Intent in natural language.** The person describes the task, and a model proposes a plan made of actions the system already knows, not invented commands.
-2. **Routines from a demonstration or description.** The model turns a recording or a text into a candidate routine, which someone reviews before it's used.
-3. **Contextual choice.** Faced with a page, the model chooses among the observed elements and the operations allowed for that platform. Choosing is very different from inventing a selector.
-4. **UI changes.** When a step breaks, the model suggests the most likely match, and the routine is only replaced after it's validated.
+1. **Intent in natural language.** The person would describe the task, and a model would propose a plan made of actions the system already knows, not invented commands.
+2. **Routines from a demonstration or description.** The model would turn a recording or a text into a candidate routine, which someone would review before it's used.
+3. **Contextual choice.** Faced with a page, the model would choose among the observed elements and the operations allowed for that platform. Choosing is very different from inventing a selector.
+4. **UI changes.** When a step broke, the model would suggest the most likely match, and the routine would only be replaced after it's validated.
 5. **Outcome verification.** Compare the observed state with the goal and separate three answers: done, failed and don't know.
 6. **Assisted diagnosis.** Interpret the failure and propose a recovery, without blindly repeating an action that may already have had an effect.
 7. **Assisted execution.** Automate what's predictable and ask for confirmation on the decisions that matter.
@@ -197,13 +198,13 @@ The principle I'd keep throughout: **the model proposes, the application decides
 
 ### Where a model like Jev fits
 
-TypeSafe's [Jev](https://docs.typesafe.ai/introduction) is an interesting example for items 3 and 5. According to its official docs (checked in October 2026), it's a model for structured decisions, not a desktop controller:
+TypeSafe's [Jev](https://docs.typesafe.ai/introduction) is an interesting example for items 3 and 5. According to its official docs (checked in October 2026), it's described as a "System One" model, built for structured decisions. It's not a desktop controller:
 
-- **it takes text:** strings, JSON objects and lists of text; images aren't supported;
-- **it answers with types:** pick an option from a list, score on a defined scale, or say whether a statement is true, with probabilities;
+- **it takes text:** strings, JSON objects and lists of text; images, audio and video aren't supported;
+- **it answers with types:** Choice picks an option from a list and returns the choice, probabilities and confidence; Score scores against a rubric, with probabilities and confidence; Noul says whether a statement is true, as a value from 0 to 1;
 - **it doesn't generate text or code,** and it doesn't click anything.
 
-That fits bounded choices. Instead of sending a screenshot, the agent would build a **text representation of the page**, a slice of the DOM or the accessibility tree, with the role, name and state of each relevant element. Along with it goes the list of candidate targets the code has already enumerated. The model would answer something like "the likely target is candidate 7", with a confidence, or "the page shows a submission confirmation", with a probability. The values depend on the case; no number here comes from a test.
+That fits bounded choices. Instead of sending a screenshot, the agent would build a **text representation of the page**, a slice of the DOM or the accessibility tree, with the role, name and state of each relevant element. Along with it goes the list of candidate targets the code has already enumerated. With a Choice, the model would return the pick (candidate 7, say) with probabilities and a confidence. With a Noul, the code would ask "does the page show a submission confirmation?" and the model would return a value between 0 and 1. No number here comes from a test.
 
 The architecture I'd test is hybrid:
 
@@ -258,13 +259,16 @@ Execute(step.Action, decision.Target);
 var outcome = Verify(Observe(tab), step.Goal); // Done | Failed | Uncertain
 ```
 
-**Observe → propose → validate → confirm when needed → execute → verify.** A collections example: the person asks for a copy of a document to be reissued. The model proposes the path using known actions. The code checks that the action is allowed on that platform. Issuing asks for confirmation. The executor clicks, and verification looks for the document on the screen before saying "done".
+**Observe → propose → validate → confirm when needed → execute → verify.** In a hypothetical collections example, the person would ask for a copy of a document to be reissued. The model would propose the path using known actions. The code would check that the action is allowed on that platform. Issuing would ask for confirmation. The executor would click, and verification would look for the document on the screen before saying "done".
 
-Three things I wouldn't compromise on:
+The things I wouldn't compromise on:
 
 - **Confidence is neither authorization nor a guarantee of being right.** Jev's own docs say calibration is measured across groups of predictions and doesn't guarantee that an individual answer is correct. The threshold decides when to ask for help. Whether the action may happen at all is decided by permissions.
-- **Observed content is data, not instructions.** A page can contain text designed to manipulate the model ("ignore your instructions and..."). Nothing that comes from the screen becomes a command. The possible actions come from the allowed list, never from the page content.
-- **Credentials never go to the model.** Sensitive data should be minimized or masked before any call, execution needs limits on steps, time and scope, and irreversible actions always go through a person.
+- **Observed content is data, not instructions.** A page can contain text designed to manipulate the model ("ignore your instructions and..."). Nothing that comes from the screen becomes a command. The possible actions come from the allowed list, never from the page content. That limits the damage but doesn't remove it: content can still pull the choice toward the wrong candidate among the allowed ones. That's why validation, confirmation and verification stay in the loop.
+- **Credentials never go to the model.**
+- **Sensitive data is minimized or masked before any call.** These screens belong to third parties and may hold personal data.
+- **Execution has limits** on steps, time and scope.
+- **Irreversible actions always go through a person.**
 
 As for the gains: lower latency, lower cost and less dependence on rigid scripts are **hypotheses**. They need to be measured on real routines before they become arguments. I don't have numbers, and I'm not going to pretend I do.
 

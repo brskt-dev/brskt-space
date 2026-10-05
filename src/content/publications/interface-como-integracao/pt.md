@@ -6,9 +6,9 @@ date: 2026-10-05
 tags: ["Arquitetura", ".NET", "WebView2", "SQL Server", "Automação", "Agentes de IA"]
 ---
 
-Imagine uma pessoa em atendimento que, para resolver uma única demanda, precisa entrar em três ou quatro sistemas de terceiros. Cada um tem a sua conta, a sua tela de login e o seu jeito de fazer as coisas. Alguns são aplicações web que não oferecem API nenhuma. As contas são compartilhadas e em número limitado, então alguém precisa saber qual está livre, qual é a senha e como se faz aquele procedimento que só quem passou pelo treinamento lembra.
+Imagine uma pessoa em atendimento que, para resolver uma única demanda, precisa entrar em vários sistemas de terceiros. Cada um tem a sua conta, a sua tela de login e o seu jeito de fazer as coisas. Alguns são aplicações web que não oferecem API nenhuma. As contas são compartilhadas e em número limitado, então alguém precisa saber qual está livre, qual é a senha e como se faz aquele procedimento que só quem passou pelo treinamento lembra.
 
-Desenvolvi um desenho para esse cenário: um agente desktop que abre essas plataformas dentro de sessões controladas, faz o login sozinho e executa rotinas cadastradas como dados. Este texto conta a ideia, as decisões que mais deram trabalho, o que ela **não** resolve e para onde eu levaria esse conceito com IA.
+Desenvolvi uma solução para esse cenário: um agente desktop que abre essas plataformas dentro de sessões controladas, faz o login sozinho e executa rotinas cadastradas como dados. Este texto conta a ideia, as decisões que mais deram trabalho, o que ela **não** resolve e para onde eu levaria esse conceito com IA.
 
 Para não misturar as coisas, separei o artigo em três camadas: **o que foi implementado**, **a análise dos limites** e **as expansões que proponho e que não existem no sistema**.
 
@@ -17,11 +17,11 @@ Para não misturar as coisas, separei o artigo em três camadas: **o que foi imp
 À primeira vista, parece um problema de senha. Não é. Os sintomas eram quatro:
 
 - **Contas compartilhadas e limitadas.** Várias pessoas, poucas contas, nenhuma noção clara de quem está usando o quê.
-- **Login manual repetido.** Digitar usuário e senha a cada acesso, com a senha circulando por mais lugares do que deveria.
+- **Login manual repetido.** Digitar usuário e senha a cada acesso, o que exige que cada pessoa conheça a senha.
 - **Atribuição difícil.** Quando uma conta compartilhada é usada, fica complicado dizer quem a usou e em qual atendimento.
 - **Procedimento na memória.** O passo a passo de cada sistema vivia em treinamento, anotação e mensagem antiga.
 
-O caminho óbvio seria integrar por API. E, quando existe uma API adequada, ele continua sendo o melhor: contrato explícito, versionamento, erros que dizem o que aconteceu. O problema é que vários desses sistemas simplesmente não têm API. Ficar esperando o roadmap de um terceiro pode significar nunca integrar.
+O caminho óbvio seria integrar por API. E, quando existe uma API adequada, ele continua sendo o melhor: contrato explícito, versionamento, erros que dizem o que aconteceu. O problema é que alguns desses sistemas simplesmente não têm API. Ficar esperando o roadmap de um terceiro pode significar nunca integrar.
 
 ## A ideia: a interface como superfície de integração
 
@@ -41,7 +41,7 @@ Porque a política de mesma origem dos navegadores impede que um script comum da
 
 Um agente desktop com navegadores embarcados (WebView2, num app WPF em .NET) entregava as três. O preço é real: instalação em cada máquina, atualização distribuída, só Windows, mais um componente para suportar e versões diferentes rodando ao mesmo tempo. Boa parte das decisões abaixo existe justamente para pagar esse preço.
 
-## A arquitetura que existe hoje
+## A arquitetura implementada
 
 São cinco peças:
 
@@ -60,7 +60,7 @@ IMPLEMENTADO
 └─────────┬─────────┘  (HTTP local) │  · perfil por reserva    │
           │                         │  · executor de rotinas   │
           │ atendimento             └─────┬──────────────┬─────┘
-          ▼                               │ reserva,     │ sessão
+          ▼                               │ reserva      │ sessão
 ┌───────────────────┐   devolução   ┌─────▼──────────┐   │ autenticada
 │ Serviço de        │──────────────▶│ API de controle│   ▼
 │ atendimento       │               │ contas, regras,│  Plataformas
@@ -74,7 +74,7 @@ Na prática, o fluxo é este:
 
 1. Durante um atendimento, a pessoa pede para abrir uma plataforma.
 2. A aplicação web aciona o agente pelo protocolo.
-3. O agente pede uma reserva de conta, para aquela pessoa e aquele atendimento.
+3. O agente pede uma reserva de conta. A reserva fica associada a quem pediu e ao atendimento.
 4. Abre uma aba com um perfil limpo e as regras de navegação da plataforma, e roda o roteiro de login.
 5. A pessoa trabalha, e pode disparar rotinas cadastradas.
 6. Quando o atendimento termina, a conta é devolvida e o perfil vai embora.
@@ -89,13 +89,13 @@ A aplicação web aciona o agente por um protocolo registrado no Windows, mesmo 
 - **Sem pedir administrador.** Instalação e registro são por usuário. Numa operação com muitas máquinas, depender de privilégio elevado para cada instalação ou atualização trava tudo.
 - **O navegador não sabe se deu certo.** Acionar um protocolo é um tiro no escuro: a página não recebe resposta. Por isso existe um serviço HTTP local, que a aplicação web consulta para saber se o agente está presente e disponível antes de prometer alguma coisa para a pessoa.
 
-Um cuidado que esse desenho exige: um protocolo registrado pode ser acionado por qualquer página. A ativação é um pedido, não uma ordem. Quem decide se a pessoa pode usar aquela plataforma é a API de controle, que mantém as permissões.
+Um cuidado que esse desenho exige: um protocolo registrado pode ser acionado por qualquer página. A ativação é um pedido, não uma ordem. Quem decide se a pessoa pode usar aquela plataforma é a API de controle, que mantém as permissões. Isso impede o acesso a plataformas não autorizadas, mas não impede que uma página qualquer dispare uma abertura que a pessoa teria permissão de fazer. O mesmo vale para o serviço HTTP local: qualquer página aberta no navegador consegue consultá-lo.
 
 ### Conta como recurso reservável
 
 Cada conta compartilhada virou um recurso que se reserva e se devolve, com operações atômicas e idempotentes no banco. Atômicas para que duas pessoas não peguem a mesma conta ao mesmo tempo. Idempotentes porque, no mundo real, existe clique duplo, retentativa depois de timeout e mensagem que chega duas vezes. Repetir uma reserva ou uma devolução não pode bagunçar o estado.
 
-Um limite importante: a reserva ser atômica **não** torna idempotente o que acontece no sistema externo. Se uma rotina enviou um formulário e a resposta se perdeu, repetir a rotina pode enviar de novo. A garantia vale para quem está com a conta, não para os efeitos lá fora.
+Um limite importante: a reserva ser atômica e idempotente **não** torna idempotente o que acontece no sistema externo. Se uma rotina enviou um formulário e a resposta se perdeu, repetir a rotina pode enviar de novo. A garantia vale para quem está com a conta, não para os efeitos lá fora.
 
 ### Perfil limpo a cada reserva
 
@@ -107,7 +107,7 @@ Perfis isolados e listas de navegação permitida reduzem bastante o risco de va
 
 O agente preenche o login. A pessoa não precisa ver, copiar ou digitar a senha. Isso reduz bastante a exposição do dia a dia: menos chance de a senha parar num papel, num bloco de notas ou numa conversa, e menos gente precisando conhecê-la.
 
-Reduzir exposição não é o mesmo que garantir segredo. Para preencher o formulário, a credencial passa pelo processo do agente e pela máquina. Alguém com controle da máquina ou ferramentas de depuração pode, em tese, extraí-la. E, uma vez logada, a pessoa opera a sessão normalmente.
+Reduzir exposição não é o mesmo que garantir segredo. Para preencher o formulário, a credencial passa pelo processo do agente e pela máquina. Depois de preenchida, ela está no campo da página. Alguém com controle da máquina, ferramentas de depuração ou acesso ao campo preenchido (um botão de "mostrar senha", por exemplo) consegue extraí-la. E, uma vez logada, a pessoa opera a sessão normalmente.
 
 ### Login e procedimentos são a mesma coisa
 
@@ -138,7 +138,7 @@ Para perceber que uma sessão caiu, o agente usa uma pista: depois de um login b
 
 ### "Não sei" não é "revogado"
 
-O agente consulta de tempos em tempos quais reservas continuam válidas. Quando essa consulta falha por rede ou autenticação, o resultado é **estado desconhecido**, não a confirmação de que a reserva foi revogada. Parece detalhe, mas tratar falha de rede como revogação fecharia abas de quem está trabalhando sempre que o Wi-Fi piscasse. O oposto também é ruim: tratar falha como "tudo certo" para sempre. Desconhecido precisa ser um estado de primeira classe.
+O agente consulta de tempos em tempos quais reservas continuam válidas. Quando essa consulta falha por rede ou autenticação, o resultado é **estado desconhecido**, não a confirmação de que a reserva foi revogada. Parece detalhe, mas tratar falha de rede como revogação fecharia abas de quem está trabalhando sempre que o Wi-Fi piscasse. O oposto também é ruim: tratar falha como "tudo certo" para sempre. Desconhecido precisa ser um estado de primeira classe. O que fazer quando o desconhecido se prolonga é uma decisão de política, não de rede.
 
 Na mesma linha, quando uma rotina está no meio da execução, o encerramento **operacional** da aba pode esperar ela terminar. Interromper no meio pode deixar o sistema externo num estado pior do que qualquer um dos dois extremos.
 
@@ -148,13 +148,13 @@ Isso não é uma regra universal de segurança. Encerramento planejado, como o f
 
 Atualizar um app desktop com sessões abertas é pedir para estragar o dia de alguém. Por isso as atualizações esperam uma janela sem plataformas abertas. Se essa janela demora a aparecer, existe uma solicitação para que ela seja liberada.
 
-O pacote de atualização tem o hash verificado, e um processo auxiliar externo espera o agente encerrar, instala a atualização e reabre o agente. O hash confere a **integridade** em relação ao valor esperado: o arquivo baixado é o que o manifesto disse que seria. **Autenticidade** depende de confiar na origem desse manifesto. Assinatura de código seria o passo natural para fortalecer essa parte.
+O pacote de atualização tem o hash verificado, e um processo auxiliar externo espera o agente encerrar, instala a atualização e reabre o agente. O hash confere a **integridade** em relação a um valor esperado: o arquivo baixado é o que se esperava receber. **Autenticidade** é outra questão: depende de o valor esperado vir de uma fonte confiável, separada do pacote. Assinatura de código seria o passo natural para fortalecer essa parte.
 
-Completam o pacote: confirmações para fechar abas e o agente, histórico de execução das rotinas e informações sobre falhas, para que o suporte não dependa só do relato de quem estava na tela.
+Completam o pacote: confirmações antes de fechar, histórico de execução das rotinas e informações sobre falhas, para que o suporte não dependa só do relato de quem estava na tela.
 
 ## O que isso resolve, e o que não resolve
 
-**Rastreabilidade de acesso não é auditoria de ações.** O desenho deixa claro quem estava com qual conta, em qual atendimento e quando. Ele **não** comprova cada ação feita dentro do sistema externo. Para esse sistema, quem agiu foi a conta compartilhada. O histórico das rotinas ajuda no que passou pelo executor, mas as ações manuais dentro da sessão não ficam auditadas uma a uma.
+**Rastreabilidade de acesso não é auditoria de ações.** O desenho permite dizer quem estava com qual conta em qual atendimento. Ele **não** comprova cada ação feita dentro do sistema externo. Para esse sistema, quem agiu foi a conta compartilhada. O histórico das rotinas ajuda no que passou pelo executor, mas as ações manuais dentro da sessão não ficam auditadas uma a uma.
 
 **A interface continua frágil.** Uma mudança de layout pode quebrar o login ou uma rotina sem aviso. O sistema ajuda a perceber e corrigir, mas não impede.
 
@@ -166,11 +166,12 @@ Completam o pacote: confirmações para fechar abas e o agente, histórico de ex
 - **Contas individuais com SSO ou acesso delegado:** se a plataforma permite e o licenciamento cabe, isso resolve o compartilhamento na raiz.
 - **Cofre de senhas com compartilhamento:** resolve a distribuição da credencial, mas não o vínculo com o atendimento nem os procedimentos.
 - **Extensão de navegador:** menos atrito que um app instalado, menos controle sobre perfis e ciclo de vida.
-- **RPA ou navegador automatizado no servidor:** bons para trabalho sem pessoa na frente. Para operação assistida, levam a sessão para longe de quem está atendendo.
+- **Navegador automatizado ou RPA no servidor:** bons para trabalho sem pessoa na frente, mas levam a sessão para longe de quem está atendendo.
+- **RPA assistido na máquina:** fica perto da pessoa, ao custo de uma ferramenta a mais e de menos controle sobre perfis e reservas.
 
 ## O padrão fora daqui
 
-Tirando os nomes, o formato é comum. Operações autorizadas sobre sistemas de terceiros, com acessos compartilhados e procedimentos repetíveis, aparecem em:
+O formato não é exclusivo deste caso. Imagino que operações autorizadas sobre sistemas de terceiros, com acessos compartilhados e procedimentos repetíveis, apareçam também em lugares como:
 
 - **BPO e backoffice**, operando portais de vários clientes;
 - **contabilidade**, com portais de órgãos e instituições;
@@ -178,32 +179,32 @@ Tirando os nomes, o formato é comum. Operações autorizadas sobre sistemas de 
 - **cobrança**, com portais de credores e bancos;
 - **logística**, com portais de transportadoras e marketplaces.
 
-Em todos, as perguntas são as mesmas: de quem é a conta agora, como o procedimento deixa de depender da memória de alguém e o que acontece quando a tela muda.
+Em todos, imagino que as perguntas seriam parecidas: de quem é a conta agora, como o procedimento deixa de depender da memória de alguém e o que acontece quando a tela muda.
 
 ## E a IA nessa história?
 
 Daqui para baixo, **nada está implementado**. São propostas de evolução.
 
-O princípio que eu manteria em todas: **o modelo propõe, o aplicativo decide.** Permissão, validação e execução continuam em código determinístico, que já existe hoje no executor de rotinas.
+O princípio que eu manteria em todas: **o modelo propõe, o aplicativo decide.** Permissão, validação e execução ficam em código determinístico. Parte disso já existe: as permissões na API de controle e a execução no executor de rotinas. A validação de propostas de um modelo seria nova.
 
-1. **Intenção em linguagem natural.** A pessoa descreve a tarefa, e um modelo propõe um plano feito de ações que o sistema já conhece, não de comandos inventados.
-2. **Rotinas a partir de demonstração ou descrição.** O modelo transforma uma gravação ou um texto numa rotina candidata, que alguém revisa antes de usar.
-3. **Escolha contextual.** Diante de uma página, o modelo escolhe entre os elementos observados e as operações permitidas para aquela plataforma. Escolher é bem diferente de inventar seletor.
-4. **Mudanças de interface.** Quando um passo quebra, o modelo sugere a correspondência mais provável, e a rotina só é substituída depois de validada.
+1. **Intenção em linguagem natural.** A pessoa descreveria a tarefa, e um modelo proporia um plano feito de ações que o sistema já conhece, não de comandos inventados.
+2. **Rotinas a partir de demonstração ou descrição.** O modelo transformaria uma gravação ou um texto numa rotina candidata, que alguém revisaria antes de usar.
+3. **Escolha contextual.** Diante de uma página, o modelo escolheria entre os elementos observados e as operações permitidas para aquela plataforma. Escolher é bem diferente de inventar seletor.
+4. **Mudanças de interface.** Quando um passo quebrasse, o modelo sugeriria a correspondência mais provável, e a rotina só seria substituída depois de validada.
 5. **Verificação de resultado.** Comparar o estado observado com o objetivo e separar três respostas: concluído, falhou e não sei.
-6. **Diagnóstico assistido.** Interpretar a falha e propor recuperação, sem repetir às cegas uma ação que pode já ter produzido efeito.
+6. **Diagnóstico assistido.** Interpretar a falha e propor uma recuperação, sem repetir às cegas uma ação que pode já ter produzido efeito.
 7. **Execução assistida.** Automatizar o que é previsível e pedir confirmação nas decisões que importam.
-8. **Uma interface de ferramentas para agentes.** Expor operações limitadas via MCP ou contrato equivalente, com autorização e execução sob controle do aplicativo, e não do agente que chama.
+8. **Uma interface de ferramentas para agentes.** Expor operações limitadas via MCP ou um contrato equivalente, com autorização e execução sob controle do aplicativo, e não do agente que chama.
 
 ### Onde um modelo como o Jev se encaixa
 
-O [Jev](https://docs.typesafe.ai/introduction), da TypeSafe, é um exemplo interessante para os itens 3 e 5. Pela documentação oficial (consultada em outubro de 2026), ele é um modelo de decisão estruturada, não um controlador de desktop:
+O [Jev](https://docs.typesafe.ai/introduction), da TypeSafe, é um exemplo interessante para os itens 3 e 5. Pela documentação oficial (consultada em outubro de 2026), ele é descrito como um modelo "System One", feito para decisões estruturadas. Não é um controlador de desktop:
 
-- **recebe texto:** strings, objetos JSON e listas de texto; imagem não é suportada;
-- **responde com tipos:** escolher uma opção de uma lista, dar uma nota numa escala definida ou dizer se uma afirmação é verdadeira, com probabilidades;
+- **recebe texto:** strings, objetos JSON e listas de texto; imagem, áudio e vídeo não são suportados;
+- **responde com tipos:** Choice escolhe uma opção de uma lista e devolve a escolha, probabilidades e confiança; Score dá uma nota numa rubrica, com probabilidades e confiança; Noul diz se uma afirmação é verdadeira, com um valor de 0 a 1;
 - **não gera texto nem código,** e não clica em nada.
 
-Isso combina com escolhas delimitadas. Em vez de mandar um print, o agente montaria uma **representação textual da página**, um recorte do DOM ou da árvore de acessibilidade, com papel, nome e estado de cada elemento relevante. Junto vai a lista dos alvos candidatos já enumerados pelo código. O modelo responderia algo como "o alvo provável é o candidato 7", com uma confiança, ou "a página mostra uma confirmação de envio", com uma probabilidade. Os valores dependem do caso; nenhum número aqui vem de teste.
+Isso combina com escolhas delimitadas. Em vez de mandar um print, o agente montaria uma **representação textual da página**, um recorte do DOM ou da árvore de acessibilidade, com papel, nome e estado de cada elemento relevante. Junto vai a lista dos alvos candidatos já enumerados pelo código. Numa Choice, o modelo devolveria a escolha (o candidato 7, por exemplo) com probabilidades e uma confiança. Numa Noul, o código perguntaria "a página mostra uma confirmação de envio?" e o modelo devolveria um valor entre 0 e 1. Nenhum número aqui vem de teste.
 
 A arquitetura que eu testaria é híbrida:
 
@@ -258,13 +259,16 @@ Executar(passo.Acao, decisao.Alvo);
 var resultado = Verificar(Observar(aba), passo.Objetivo); // Concluido | Falhou | Incerto
 ```
 
-**Observar → propor → validar → confirmar quando necessário → executar → verificar.** Num exemplo de cobrança: a pessoa pede a segunda via de um documento. O modelo propõe o caminho com ações conhecidas. O código confere se aquela ação é permitida na plataforma. A emissão pede confirmação. O executor clica, e a verificação procura o documento na tela antes de dizer "concluído".
+**Observar → propor → validar → confirmar quando necessário → executar → verificar.** Num exemplo hipotético de cobrança, a pessoa pediria a segunda via de um documento. O modelo proporia o caminho com ações conhecidas. O código conferiria se aquela ação é permitida na plataforma. A emissão pediria confirmação. O executor clicaria, e a verificação procuraria o documento na tela antes de dizer "concluído".
 
-Três cuidados que eu não negociaria:
+Os cuidados que eu não negociaria:
 
 - **Confiança não é autorização nem garantia de acerto.** A própria documentação do Jev diz que a calibração é medida sobre grupos de previsões e não garante que uma resposta individual esteja certa. O limiar decide quando pedir ajuda. Quem decide se a ação pode acontecer é a permissão.
-- **Conteúdo observado é dado, não instrução.** Uma página pode conter texto feito para manipular o modelo ("ignore as instruções e..."). Nada que venha da tela vira comando. As ações possíveis vêm da lista permitida, nunca do conteúdo da página.
-- **Credenciais nunca vão para o modelo.** Dados sensíveis devem ser minimizados ou mascarados antes de qualquer chamada, a execução precisa de limites de passos, tempo e escopo, e ações irreversíveis sempre passam por uma pessoa.
+- **Conteúdo observado é dado, não instrução.** Uma página pode conter texto feito para manipular o modelo ("ignore as instruções e..."). Nada que venha da tela vira comando. As ações possíveis vêm da lista permitida, nunca do conteúdo da página. Isso limita o estrago, mas não elimina: o conteúdo ainda pode puxar a escolha para o candidato errado entre os permitidos. Por isso validação, confirmação e verificação continuam no fluxo.
+- **Credenciais nunca vão para o modelo.**
+- **Dados sensíveis são minimizados ou mascarados antes de qualquer chamada.** O conteúdo dessas telas é de terceiros e pode ter dados pessoais.
+- **A execução tem limites** de passos, tempo e escopo.
+- **Ações irreversíveis sempre passam por uma pessoa.**
 
 Sobre os ganhos: menos latência, menos custo e menos dependência de roteiros rígidos são **hipóteses**. Elas precisam ser medidas com rotinas reais antes de virar argumento. Não tenho números, e não vou fingir que tenho.
 
