@@ -1,0 +1,444 @@
+---
+/**
+ * Article "interface-como-integracao": the implemented architecture as an animated
+ * diagram (nodes + flowing wires). Generic names only: no company or product names.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import DNode from './DNode.astro';
+import Wire from './Wire.astro';
+import Icon from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  title: { pt: 'Como o acesso é emprestado', en: 'How access gets lent out' },
+  caption: {
+    pt: 'A pessoa pede para abrir um sistema; o agente reserva uma conta livre, abre uma aba com perfil limpo e faz o login. No fim do uso, a conta volta para o pool.',
+    en: 'The person asks to open a system; the agent reserves a free account, opens a tab with a clean profile and signs in. When the use ends, the account goes back to the pool.',
+  },
+  web: { pt: 'Aplicação web', en: 'Web application' },
+  webSub: { pt: 'onde o trabalho acontece', en: 'where the work happens' },
+  agent: { pt: 'Agente desktop', en: 'Desktop agent' },
+  agentSub: { pt: 'WPF + WebView2', en: 'WPF + WebView2' },
+  ext: { pt: 'Sistemas externos', en: 'External systems' },
+  extSub: { pt: 'legados, sem API ou com conta cara', en: 'legacy, no API or costly accounts' },
+  life: { pt: 'Ciclo de uso', en: 'Usage lifecycle' },
+  lifeSub: { pt: 'decide quando a conta volta', en: 'decides when the account returns' },
+  api: { pt: 'API de controle', en: 'Control API' },
+  apiSub: { pt: 'contas, permissões e rotinas', en: 'accounts, permissions, routines' },
+  db: { pt: 'SQL Server', en: 'SQL Server' },
+  dbSub: { pt: 'reserva atômica e idempotente', en: 'atomic, idempotent reservations' },
+  protocol: { pt: 'protocolo', en: 'protocol' },
+  presence: { pt: 'presença · HTTP', en: 'presence · HTTP' },
+  session: { pt: 'sessão autenticada', en: 'authenticated session' },
+  reserve: { pt: 'reserva', en: 'reserve' },
+  giveBack: { pt: 'devolução', en: 'return' },
+  start: { pt: 'início do uso', en: 'start of use' },
+  free: { pt: 'livre', en: 'free' },
+  inUse: { pt: 'em uso', en: 'in use' },
+  autoLogin: { pt: 'login automático', en: 'auto sign-in' },
+  cleanProfile: { pt: 'perfil limpo', en: 'clean profile' },
+  routines: { pt: 'executor de rotinas', en: 'routine executor' },
+  system: { pt: 'Sistema', en: 'System' },
+  noApi: { pt: 'sem API', en: 'no API' },
+  pool: { pt: 'pool de contas genéricas', en: 'pool of generic accounts' },
+  backstage: { pt: 'nos bastidores', en: 'behind the scenes' },
+  srPool: {
+    pt: 'Contas genéricas conta1, conta2 e conta3, reservadas e devolvidas pelo protótipo.',
+    en: 'Generic accounts account1, account2 and account3, reserved and returned by the prototype.',
+  },
+} as const;
+const t = (k: keyof typeof T) => T[k][lang];
+const acc = lang === 'pt' ? 'conta' : 'account';
+---
+
+<DiagramFrame lang={lang} id="dg-arch" title={t('title')} status="implemented" caption={t('caption')}>
+  <div class="arch">
+    <DNode area="web" icon="app-window" title={t('web')} sub={t('webSub')} />
+
+    <Wire area="w-proto" dir="right" label={t('protocol')} back={t('presence')} />
+
+    <DNode area="agent" icon="monitor" title={t('agent')} sub={t('agentSub')} big>
+      <div class="browser" aria-hidden="true">
+        <div class="tabs">
+          <span class="tab on"><Icon name="lock" size={11} />{t('system')} A</span>
+          <span class="tab"><Icon name="lock" size={11} />{t('system')} B</span>
+        </div>
+        <div class="page">
+          <span class="bar"></span>
+          <span class="field"><Icon name="key-round" size={11} />{t('autoLogin')}</span>
+          <span class="sk"></span>
+          <span class="sk short"></span>
+        </div>
+      </div>
+      <p class="tags">
+        <span class="chip"><Icon name="refresh" size={12} />{t('cleanProfile')}</span>
+        <span class="chip"><Icon name="play" size={12} />{t('routines')}</span>
+      </p>
+    </DNode>
+
+    <Wire area="w-sess" dir="right" label={t('session')} delay={0.6} />
+
+    <DNode area="ext" icon="globe" title={t('ext')} sub={t('extSub')}>
+      <div class="stack" aria-hidden="true">
+        {['A', 'B', 'C'].map((s, i) => (
+          <span class="win" style={`--i:${i}`}>
+            <span class="win-bar"><i></i><i></i><i></i></span>
+            <span class="win-body">
+              {t('system')} {s}
+              <em>{acc}{i + 1}</em>
+            </span>
+          </span>
+        ))}
+      </div>
+      <p class="tags">
+        <span class="chip chip-accent">{t('noApi')}</span>
+      </p>
+    </DNode>
+
+    <Wire area="w-start" dir="down" label={t('start')} hideMobile delay={0.3} />
+
+    <Wire area="w-res" dir="down" label={t('reserve')} back={t('giveBack')} hideMobile delay={0.9} />
+
+    <p class="m-sep" aria-hidden="true"><span>{t('backstage')}</span></p>
+
+    <DNode area="life" icon="timer" title={t('life')} sub={t('lifeSub')} />
+
+    <Wire area="w-ret" dir="right" dirMobile="down" label={t('giveBack')} delay={1.2} />
+
+    <DNode area="api" icon="server" title={t('api')} sub={t('apiSub')} big>
+      <p class="pool-k">{t('pool')}</p>
+      <ul class="pool" aria-hidden="true">
+        {[1, 2, 3].map((n) => (
+          <li style={`--n:${n - 1}`}>
+            <span class="acc">{acc}{n}</span>
+            <span class="state">
+              <span class="s-free">{t('free')}</span>
+              <span class="s-use">{t('inUse')}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="sr-only">{t('srPool')}</p>
+    </DNode>
+
+    <Wire area="w-db" dir="down" delay={1.5} />
+
+    <DNode area="db" icon="database" title={t('db')} sub={t('dbSub')} />
+  </div>
+</DiagramFrame>
+
+<style>
+  .arch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'web'
+      'w-proto'
+      'agent'
+      'w-sess'
+      'ext'
+      'm-sep'
+      'life'
+      'w-ret'
+      'api'
+      'w-db'
+      'db';
+  }
+
+  /* phones: the person's path first, then what happens behind the scenes */
+  .m-sep {
+    grid-area: m-sep;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0.75rem;
+    font: 500 0.72rem / 1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .m-sep::before,
+  .m-sep::after {
+    content: '';
+    flex: 1;
+    border-top: 1px dashed var(--border-hi);
+  }
+
+  @media (min-width: 52rem) {
+    .arch {
+      grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1.35fr) 7.5rem minmax(0, 1fr);
+      grid-template-rows: auto 4.5rem auto 3rem auto;
+      grid-template-areas:
+        'web    w-proto agent  w-sess ext'
+        'w-start .      w-res  .      ext'
+        'life   w-ret   api    .      ext'
+        '.      .       w-db   .      .'
+        '.      .       db     .      .';
+      align-items: center;
+    }
+
+    .m-sep {
+      display: none;
+    }
+
+    .arch :global(.dn[style*='grid-area:ext']) {
+      align-self: start;
+    }
+
+    .arch :global(.dn[style*='grid-area:db']) {
+      justify-self: center;
+      min-width: 15rem;
+    }
+  }
+
+  /* ---------- mini browser inside the agent ---------- */
+  .browser {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-2);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.35rem 0.4rem 0;
+    background: var(--surface-2);
+  }
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 7px 7px 0 0;
+    font: 500 0.66rem / 1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .tab.on {
+    background: var(--bg-2);
+    color: var(--text);
+  }
+
+  .tab :global(.icon) {
+    color: var(--mint);
+  }
+
+  .page {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.6rem 0.65rem 0.7rem;
+  }
+
+  .bar {
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--mint), var(--accent-2));
+    transform-origin: left;
+    animation: load 3.2s ease-in-out infinite;
+  }
+
+  .field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    padding: 0.28rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--mint) 40%, transparent);
+    border-radius: 6px;
+    font: 500 0.68rem / 1 var(--font-mono);
+    color: var(--mint);
+  }
+
+  .sk {
+    height: 0.45rem;
+    border-radius: 4px;
+    background: var(--surface-2);
+  }
+
+  .sk.short {
+    width: 60%;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+  }
+
+  .tags .chip {
+    font-size: 0.68rem;
+  }
+
+  /* ---------- stacked external windows ---------- */
+  .stack {
+    position: relative;
+    height: 7.1rem;
+  }
+
+  .win {
+    position: absolute;
+    left: calc(var(--i) * 0.7rem);
+    top: calc(var(--i) * 2.3rem);
+    width: calc(100% - 1.4rem);
+    overflow: hidden;
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    background: var(--surface-2);
+    box-shadow: 0 8px 18px -10px rgb(0 0 0 / 0.8);
+    animation: bob 6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -2s);
+  }
+
+  .win-bar {
+    display: flex;
+    gap: 3px;
+    padding: 0.25rem 0.35rem;
+    background: var(--bg-2);
+  }
+
+  .win-bar i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border-hi);
+  }
+
+  .win-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    font: 500 0.68rem / 1.2 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .win-body em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  /* ---------- account pool: one account at a time goes "in use" ---------- */
+  .pool-k {
+    margin: 0;
+    font: 500 0.68rem / 1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .pool {
+    list-style: none;
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pool li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-2);
+    font: 500 0.72rem / 1.2 var(--font-mono);
+    animation: row 9s infinite;
+    animation-delay: calc(var(--n) * 3s);
+  }
+
+  .acc {
+    color: var(--text);
+  }
+
+  .state {
+    display: grid;
+  }
+
+  .state > span {
+    grid-area: 1 / 1;
+    text-align: right;
+  }
+
+  .s-free {
+    color: var(--mint);
+    animation: show-free 9s infinite;
+    animation-delay: calc(var(--n) * 3s);
+  }
+
+  .s-use {
+    color: var(--sun);
+    opacity: 0;
+    animation: show-use 9s infinite;
+    animation-delay: calc(var(--n) * 3s);
+  }
+
+  @keyframes row {
+    0%,
+    33% {
+      border-color: color-mix(in srgb, var(--sun) 55%, transparent);
+      box-shadow: 0 0 14px -4px color-mix(in srgb, var(--sun) 60%, transparent);
+    }
+    38%,
+    100% {
+      border-color: var(--border);
+      box-shadow: none;
+    }
+  }
+
+  @keyframes show-use {
+    0%,
+    33% {
+      opacity: 1;
+    }
+    38%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes show-free {
+    0%,
+    33% {
+      opacity: 0;
+    }
+    38%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes load {
+    0% {
+      transform: scaleX(0.05);
+    }
+    60%,
+    100% {
+      transform: scaleX(1);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes bob {
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  /* reduced motion: show a static, readable state (account1 in use) */
+  @media (prefers-reduced-motion: reduce) {
+    .pool li:first-child .s-use {
+      opacity: 1;
+    }
+
+    .pool li:first-child .s-free {
+      opacity: 0;
+    }
+  }
+</style>

@@ -1,0 +1,229 @@
+---
+/**
+ * Article "interface-como-integracao": the PROPOSED (not implemented) AI loop.
+ * Four actors (dashed = proposed, solid = already exists) and the six-step cycle
+ * with a pulse travelling through it.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import DNode from './DNode.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const title = pt ? 'O modelo propõe, o aplicativo decide' : 'The model proposes, the application decides';
+const caption = pt
+  ? 'Nada disso está implementado. A confiança do modelo não autoriza nada: quem decide é a permissão, e as decisões que importam passam por uma pessoa.'
+  : 'None of this is implemented. The model’s confidence authorizes nothing: permissions decide, and the decisions that matter go through a person.';
+
+const actors: { icon: IconName; title: string; sub: string; proposed: boolean; tag: string }[] = [
+  {
+    icon: 'sparkles',
+    title: pt ? 'Modelo generativo' : 'Generative model',
+    sub: pt ? 'entende a intenção e planeja, só quando precisa' : 'understands intent and plans, only when needed',
+    proposed: true,
+    tag: 'A',
+  },
+  {
+    icon: 'list-checks',
+    title: pt ? 'Modelo de decisão' : 'Decision model',
+    sub: pt ? 'ex.: Jev · escolhas delimitadas, com confiança' : 'e.g. Jev · bounded choices, with confidence',
+    proposed: true,
+    tag: 'B',
+  },
+  {
+    icon: 'shield-check',
+    title: pt ? 'Código determinístico' : 'Deterministic code',
+    sub: pt ? 'permissões, validação, limites · o executor já existe' : 'permissions, validation, limits · the executor exists',
+    proposed: false,
+    tag: 'C',
+  },
+  {
+    icon: 'user-check',
+    title: pt ? 'Pessoa' : 'Person',
+    sub: pt ? 'confirma o que importa e trata exceções' : 'confirms what matters and handles exceptions',
+    proposed: false,
+    tag: 'D',
+  },
+];
+
+const steps: { icon: IconName; label: string; who: string }[] = [
+  { icon: 'eye', label: pt ? 'observar' : 'observe', who: 'C' },
+  { icon: 'sparkles', label: pt ? 'propor' : 'propose', who: 'A · B' },
+  { icon: 'shield-check', label: pt ? 'validar' : 'validate', who: 'C' },
+  { icon: 'user-check', label: pt ? 'confirmar?' : 'confirm?', who: 'D' },
+  { icon: 'click', label: pt ? 'executar' : 'execute', who: 'C' },
+  { icon: 'circle-check', label: pt ? 'verificar' : 'verify', who: 'B · C' },
+];
+const again = pt ? 'repete até concluir, falhar ou pedir ajuda' : 'repeats until done, failed or asking for help';
+---
+
+<DiagramFrame lang={lang} id="dg-ai" title={title} status="proposed" caption={caption} legend>
+  <div class="actors">
+    {
+      actors.map((a) => (
+        <DNode icon={a.icon} title={a.title} sub={a.sub} proposed={a.proposed}>
+          <span class="who" aria-hidden="true">{a.tag}</span>
+        </DNode>
+      ))
+    }
+  </div>
+
+  <ol class="loop">
+    {
+      steps.map((s, i) => (
+        <li style={`--i:${i}`}>
+          <span class="step-icon" aria-hidden="true">
+            <Icon name={s.icon} size={18} />
+          </span>
+          <span class="step-label">{s.label}</span>
+          <span class="step-who" aria-hidden="true">{s.who}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <p class="again"><Icon name="refresh" size={14} />{again}</p>
+</DiagramFrame>
+
+<style>
+  .actors {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  }
+
+  .who {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.6rem;
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1px solid var(--border-hi);
+    font: 600 0.68rem / 1 var(--font-mono);
+    color: var(--accent);
+  }
+
+  .loop {
+    --n: 6;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    counter-reset: step;
+  }
+
+  @media (min-width: 40rem) {
+    .loop {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .loop {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1.4rem;
+    }
+
+    /* arrow between steps */
+    .loop li:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -1.3rem;
+      width: 1.2rem;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 9px);
+    }
+  }
+
+  .loop li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.8rem 0.4rem 0.7rem;
+    border: 1px dashed var(--accent-2);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 75%, transparent);
+    counter-increment: step;
+    animation: pulse-step 7.2s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 1.2s);
+  }
+
+  .loop li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    top: 0.35rem;
+    left: 0.5rem;
+    font: 500 0.62rem / 1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .step-icon {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--accent);
+  }
+
+  .step-label {
+    font: 700 0.9rem / 1.1 var(--font-display);
+  }
+
+  .step-who {
+    font: 500 0.65rem / 1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .again {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0.9rem 0 0;
+    font: 500 0.72rem / 1.4 var(--font-mono);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .again :global(.icon) {
+    color: var(--mint);
+    animation: spin-slow 6s linear infinite;
+  }
+
+  @keyframes pulse-step {
+    0%,
+    18%,
+    100% {
+      border-color: var(--accent-2);
+      box-shadow: none;
+      transform: none;
+    }
+    6%,
+    12% {
+      border-color: var(--mint);
+      box-shadow: 0 0 22px -6px var(--mint);
+      transform: translateY(-3px);
+    }
+  }
+
+  @keyframes spin-slow {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

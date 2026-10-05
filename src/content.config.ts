@@ -5,7 +5,7 @@ import { z } from 'astro/zod';
 /**
  * Content collections.
  *
- * publications: src/content/publications/<slug>/{pt,en}.md
+ * publications: src/content/publications/<slug>/{pt,en}.md (or .mdx, to embed components)
  *   Entry id = "<slug>/<lang>" (folder + file name). Pairing/consistency between
  *   the two languages is enforced at build time by src/lib/publications.ts.
  *
@@ -31,7 +31,7 @@ const EXPERIMENT_STATUS = [...PRODUCT_STATUS, 'running', 'concluded'] as const;
 
 const publications = defineCollection({
   loader: glob({
-    pattern: '**/*.md',
+    pattern: '**/*.{md,mdx}',
     base: './src/content/publications',
     generateId: ({ entry }) => stripMd(entry),
   }),

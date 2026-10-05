@@ -1,0 +1,154 @@
+---
+/**
+ * Frame for article diagrams: a self-contained "card" (brand mark, status chip,
+ * title, body, legend, caption) that reads well inline and as a screenshot.
+ * Breaks out of the prose column to use the article's full width.
+ */
+import Icon from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  id: string;
+  title: string;
+  status: 'implemented' | 'proposed' | 'illustrative';
+  caption?: string;
+  legend?: boolean;
+}
+
+const { lang, id, title, status, caption, legend = false } = Astro.props;
+const L = {
+  implemented: { pt: 'implementado', en: 'implemented' },
+  proposed: { pt: 'proposta · não implementado', en: 'proposal · not implemented' },
+  illustrative: { pt: 'ilustrativo', en: 'illustrative' },
+  exists: { pt: 'já existe', en: 'already exists' },
+  proposedShort: { pt: 'proposto', en: 'proposed' },
+} as const;
+---
+
+<figure class="dgm reveal" aria-labelledby={`${id}-title`}>
+  <div class="dgm-top">
+    <span class="dgm-brand" aria-hidden="true"><span class="dgm-planet"></span><span>brskt<span class="dot">.</span>space</span></span>
+    <span class:list={['chip', status === 'implemented' ? 'chip-mint' : 'chip-accent']}>
+      {status === 'implemented' ? <Icon name="circle-check" size={13} /> : <Icon name="sparkles" size={13} />}
+      {L[status][lang]}
+    </span>
+  </div>
+  <p class="dgm-title" id={`${id}-title`}>{title}</p>
+  <div class="dgm-body">
+    <slot />
+  </div>
+  {
+    (legend || caption) && (
+      <div class="dgm-foot">
+        {legend && (
+          <p class="dgm-legend">
+            <span class="sw sw-solid" aria-hidden="true" />
+            {L.exists[lang]}
+            <span class="sw sw-dashed" aria-hidden="true" />
+            {L.proposedShort[lang]}
+          </p>
+        )}
+        {caption && <figcaption>{caption}</figcaption>}
+      </div>
+    )
+  }
+</figure>
+
+<style>
+  .dgm {
+    --dgm-w: min(58rem, calc(100vw - 2 * var(--gutter)));
+    position: relative;
+    width: var(--dgm-w);
+    margin: 2.25rem 0 2.25rem calc(50% - var(--dgm-w) / 2);
+    padding: clamp(1rem, 3vw, 1.75rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(1px 1px at 12% 22%, rgb(255 255 255 / 0.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 14%, rgb(255 255 255 / 0.4) 50%, transparent 51%),
+      radial-gradient(1.3px 1.3px at 64% 82%, rgb(255 255 255 / 0.35) 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 70%, rgb(255 255 255 / 0.3) 50%, transparent 51%),
+      radial-gradient(40rem 22rem at 100% 0%, color-mix(in srgb, var(--brand) 38%, transparent), transparent 70%),
+      radial-gradient(30rem 18rem at 0% 100%, color-mix(in srgb, var(--mint) 7%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--bg-2));
+    overflow: hidden;
+    color: var(--text);
+  }
+
+  .dgm-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .dgm-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: 750 0.9rem / 1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--muted);
+  }
+
+  .dgm-brand .dot {
+    color: var(--mint);
+  }
+
+  .dgm-planet {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--accent), var(--brand));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 60%, transparent);
+  }
+
+  .dgm-title {
+    margin-top: 0.75rem;
+    font: 800 clamp(1.25rem, 1rem + 1vw, 1.7rem) / 1.15 var(--font-display);
+    letter-spacing: -0.03em;
+  }
+
+  .dgm-body {
+    margin-top: clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  .dgm-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.25rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--border-hi);
+  }
+
+  .dgm-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font: 500 0.75rem / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .sw {
+    width: 1.6rem;
+    height: 0.9rem;
+    border-radius: 4px;
+    border: 1.5px solid var(--accent-2);
+  }
+
+  .sw-dashed {
+    margin-left: 0.6rem;
+    border-style: dashed;
+  }
+
+  figcaption {
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+</style>
