@@ -175,6 +175,7 @@ const strings = {
   'meta.status': { pt: 'status', en: 'status' },
   'meta.date': { pt: 'publicado', en: 'published' },
   'meta.updated': { pt: 'atualizado', en: 'updated' },
+  'meta.readingTime': { pt: '{n} min de leitura', en: '{n} min read' },
 
   'type.product': { pt: 'produto', en: 'product' },
   'type.article': { pt: 'artigo', en: 'article' },

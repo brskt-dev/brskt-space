@@ -199,9 +199,27 @@ const other = otherLang(lang);
     }
   }
 
+  /* phones: four items must fit on one line, so drop the icons and tighten the pills */
+  @media (max-width: 30rem) {
+    .main-nav ul {
+      flex-wrap: nowrap;
+      gap: 0.1rem;
+    }
+
+    .main-nav a {
+      padding-inline: 0.7rem;
+      font-size: 0.875rem;
+    }
+
+    .main-nav a :global(.icon) {
+      display: none;
+    }
+  }
+
   @media (max-width: 22.5rem) {
     .main-nav a {
-      padding-inline: 0.6rem;
+      padding-inline: 0.5rem;
+      font-size: 0.8125rem;
     }
   }
 </style>

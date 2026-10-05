@@ -11,6 +11,7 @@ import Icon, { type IconName } from '../ui/Icon.astro';
 import { formatDate, isoDate, pathFor, statusLabel, t, typeLabel, type Lang, type PublicationType } from '../../i18n/ui';
 import { getPublications } from '../../lib/publications';
 import { isExternal } from '../../lib/url';
+import { readingMinutes } from '../../lib/reading-time';
 
 interface Props {
   lang: Lang;
@@ -24,6 +25,7 @@ const entry = pub.entries[lang];
 const data = entry.data;
 const { Content, headings } = await render(entry);
 const toc = headings.filter((h) => h.depth === 2);
+const minutes = pub.type === 'article' ? readingMinutes(entry.body) : undefined;
 const backKey = pub.section === 'articles' ? 'pub.back.articles' : 'pub.back.projects';
 const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
 ---
@@ -70,6 +72,14 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
           <span class="sr-only">{t(lang, 'meta.date')}: </span>
           <time datetime={isoDate(data.date)}>{formatDate(lang, data.date)}</time>
         </span>
+        {
+          minutes && (
+            <span class="chip">
+              <Icon name="book-open" size={13} />
+              {t(lang, 'meta.readingTime').replace('{n}', String(minutes))}
+            </span>
+          )
+        }
         {
           data.updated && (
             <span class="chip">

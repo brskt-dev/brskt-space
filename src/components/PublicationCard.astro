@@ -8,6 +8,7 @@ import Cover from './ui/Cover.astro';
 import Icon, { type IconName } from './ui/Icon.astro';
 import { publicationUrl, statusLabel, t, typeLabel, type Lang, type PublicationType } from '../i18n/ui';
 import type { Publication } from '../lib/publications';
+import { readingMinutes } from '../lib/reading-time';
 
 interface Props {
   lang: Lang;
@@ -20,6 +21,7 @@ const data = pub.entries[lang].data;
 const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = publicationUrl(lang, pub.type, pub.slug);
 const cardImage = data.thumbnail ?? data.cover;
+const minutes = pub.type === 'article' ? readingMinutes(pub.entries[lang].body) : undefined;
 const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
 ---
 
@@ -37,6 +39,14 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
   <div class="card-body">
     <p class="badges">
       <span class="chip chip-accent"><Icon name={typeIcon[pub.type]} size={13} />{typeLabel(lang, pub.type)}</span>
+      {
+        minutes && (
+          <span class="chip">
+            <Icon name="clock" size={13} />
+            {t(lang, 'meta.readingTime').replace('{n}', String(minutes))}
+          </span>
+        )
+      }
       {
         pub.status && (
           <span class="chip chip-mint">

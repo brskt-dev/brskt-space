@@ -74,6 +74,7 @@ draft: true
 
   - Use ## para seções e ### para subseções (o título da página já é o h1).
   - Imagem: salve na mesma pasta e escreva ![descrição da imagem](./nome-da-imagem.png)
+  - Diagrama: bloco ```text com caracteres de caixa (┌─┐ │ └─┘ ▶). Tempo de leitura é automático.
   - Código: bloco com três crases e a linguagem, por exemplo ```csharp
 -->
 

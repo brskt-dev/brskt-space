@@ -797,6 +797,19 @@ a:hover {
   font-family: inherit;
 }
 
+/* ```text blocks are used for box-drawing diagrams: tight lines so the box edges
+   connect, and a font that shrinks on phones so less horizontal scrolling is needed. */
+.prose pre[data-language='text'] {
+  line-height: 1.32;
+  font-size: clamp(0.56rem, 2.1vw, 0.875rem);
+}
+
+@media (max-width: 40rem) {
+  .prose pre[data-language='text'] {
+    padding: 0.9rem 0.75rem;
+  }
+}
+
 .prose hr {
   border: 0;
   height: 1px;
