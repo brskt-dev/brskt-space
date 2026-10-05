@@ -18,7 +18,7 @@ Para não misturar as coisas, separei o artigo em três camadas: **o que foi imp
 
 - **Contas compartilhadas e limitadas.** Várias pessoas, poucas contas, nenhuma noção clara de quem está usando o quê.
 - **Login manual repetido.** Digitar usuário e senha a cada acesso, o que exige que cada pessoa conheça a senha.
-- **Atribuição difícil.** Quando uma conta compartilhada é usada, fica complicado dizer quem a usou e em qual atendimento.
+- **Atribuição difícil.** Quando uma conta compartilhada é usada, fica complicado dizer quem a usou.
 - **Procedimento na memória.** O passo a passo de cada sistema vivia em treinamento, anotação e mensagem antiga.
 
 O caminho óbvio seria integrar por API. E, quando existe uma API adequada, ele continua sendo o melhor: contrato explícito, versionamento, erros que dizem o que aconteceu. O problema é que alguns desses sistemas simplesmente não têm API. Ficar esperando o roadmap de um terceiro pode significar nunca integrar.
@@ -74,7 +74,7 @@ Na prática, o fluxo é este:
 
 1. Durante um atendimento, a pessoa pede para abrir uma plataforma.
 2. A aplicação web aciona o agente pelo protocolo.
-3. O agente pede uma reserva de conta. A reserva fica associada a quem pediu e ao atendimento.
+3. O agente pede a reserva de uma conta livre, e o protótipo registra quem está com ela.
 4. Abre uma aba com um perfil limpo e as regras de navegação da plataforma, e roda o roteiro de login.
 5. A pessoa trabalha, e pode disparar rotinas cadastradas.
 6. Quando o atendimento termina, a conta é devolvida e o perfil vai embora.
@@ -94,6 +94,8 @@ Um cuidado que esse desenho exige: um protocolo registrado pode ser acionado por
 ### Conta como recurso reservável
 
 Cada conta compartilhada virou um recurso que se reserva e se devolve, com operações atômicas e idempotentes no banco. Atômicas para que duas pessoas não peguem a mesma conta ao mesmo tempo. Idempotentes porque, no mundo real, existe clique duplo, retentativa depois de timeout e mensagem que chega duas vezes. Repetir uma reserva ou uma devolução não pode bagunçar o estado.
+
+O vínculo entre pessoa e conta mora no protótipo, não na plataforma. Do lado da plataforma, as contas são genéricas, algo como conta1, conta2 e conta3, e não uma conta com o nome de cada pessoa. Quem sabe quem está com qual conta é o protótipo, que registra cada reserva. É isso que dá rastreabilidade dos acessos e permite compartilhar as contas de forma dinâmica, sem fixar uma conta por pessoa na plataforma.
 
 Um limite importante: a reserva ser atômica e idempotente **não** torna idempotente o que acontece no sistema externo. Se uma rotina enviou um formulário e a resposta se perdeu, repetir a rotina pode enviar de novo. A garantia vale para quem está com a conta, não para os efeitos lá fora.
 
@@ -154,7 +156,7 @@ Completam o pacote: confirmações antes de fechar, histórico de execução das
 
 ## O que isso resolve, e o que não resolve
 
-**Rastreabilidade de acesso não é auditoria de ações.** O desenho permite dizer quem estava com qual conta em qual atendimento. Ele **não** comprova cada ação feita dentro do sistema externo. Para esse sistema, quem agiu foi a conta compartilhada. O histórico das rotinas ajuda no que passou pelo executor, mas as ações manuais dentro da sessão não ficam auditadas uma a uma.
+**Rastreabilidade de acesso não é auditoria de ações.** O protótipo registra quem estava com qual conta e quando a reservou e devolveu. Ele **não** comprova cada ação feita dentro do sistema externo. Para esse sistema, quem agiu foi a conta compartilhada. O histórico das rotinas ajuda no que passou pelo executor, mas as ações manuais dentro da sessão não ficam auditadas uma a uma.
 
 **A interface continua frágil.** Uma mudança de layout pode quebrar o login ou uma rotina sem aviso. O sistema ajuda a perceber e corrigir, mas não impede.
 
@@ -164,7 +166,7 @@ Completam o pacote: confirmações antes de fechar, histórico de execução das
 
 - **API oficial ou integração de parceiro:** o melhor caminho quando existe.
 - **Contas individuais com SSO ou acesso delegado:** se a plataforma permite e o licenciamento cabe, isso resolve o compartilhamento na raiz.
-- **Cofre de senhas com compartilhamento:** resolve a distribuição da credencial, mas não o vínculo com o atendimento nem os procedimentos.
+- **Cofre de senhas com compartilhamento:** resolve a distribuição da credencial, mas não o registro de quem está com cada conta nem os procedimentos.
 - **Extensão de navegador:** menos atrito que um app instalado, menos controle sobre perfis e ciclo de vida.
 - **Navegador automatizado ou RPA no servidor:** bons para trabalho sem pessoa na frente, mas levam a sessão para longe de quem está atendendo.
 - **RPA assistido na máquina:** fica perto da pessoa, ao custo de uma ferramenta a mais e de menos controle sobre perfis e reservas.

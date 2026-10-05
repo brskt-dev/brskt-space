@@ -18,7 +18,7 @@ At first glance it looks like a password problem. It isn't. There were four symp
 
 - **Shared, limited accounts.** Many people, few accounts, no clear picture of who is using what.
 - **Repeated manual logins.** Typing a username and password on every access, which means everyone has to know the password.
-- **Hard attribution.** When a shared account is used, it's hard to say who used it and for which case.
+- **Hard attribution.** When a shared account is used, it's hard to say who used it.
 - **Procedures living in people's heads.** Each system's step-by-step lived in training sessions, notes and old messages.
 
 The obvious path would be integrating through an API. And when a proper API exists, that's still the best route: an explicit contract, versioning, errors that tell you what happened. The catch is that some of these systems simply don't have one. Waiting for a third party's roadmap can mean never integrating at all.
@@ -74,7 +74,7 @@ In practice, the flow goes like this:
 
 1. During a case, the person asks to open a platform.
 2. The web app triggers the agent through the protocol.
-3. The agent asks for an account reservation. The reservation is tied to whoever asked for it and to the case.
+3. The agent asks to reserve a free account, and the prototype records who has it.
 4. It opens a tab with a clean profile and the platform's navigation rules, and runs the login script.
 5. The person works, and can trigger stored routines.
 6. When the case ends, the account is returned and the profile goes away.
@@ -94,6 +94,8 @@ One thing this design demands: a registered protocol can be triggered by any pag
 ### Accounts as reservable resources
 
 Each shared account became a resource you reserve and return, through atomic, idempotent operations in the database. Atomic so two people can't take the same account at the same time. Idempotent because, in the real world, there are double clicks, retries after timeouts and messages that arrive twice. Repeating a reservation or a return must not corrupt the state.
+
+The link between a person and an account lives in the prototype, not on the platform. On the platform side, the accounts are generic, something like account1, account2 and account3, rather than one account named after each person. The prototype is what knows who has which account, because it records every reservation. That's what gives you traceability of access and lets the accounts be shared dynamically, without pinning one account to each person on the platform.
 
 An important limit: the reservation being atomic and idempotent does **not** make what happens in the external system idempotent. If a routine submitted a form and the response got lost, running the routine again may submit it again. The guarantee covers who holds the account, not the effects out there.
 
@@ -154,7 +156,7 @@ Rounding it out: confirmations before closing, a run history for routines and fa
 
 ## What this solves, and what it doesn't
 
-**Access traceability is not action auditing.** The design lets you tell who had which account for which case. It does **not** prove each action taken inside the external system. As far as that system knows, the shared account did it. The routine history helps with whatever went through the executor, but manual actions inside the session aren't audited one by one.
+**Access traceability is not action auditing.** The prototype records who had which account, and when it was reserved and returned. It does **not** prove each action taken inside the external system. As far as that system knows, the shared account did it. The routine history helps with whatever went through the executor, but manual actions inside the session aren't audited one by one.
 
 **The UI is still fragile.** A layout change can break the login or a routine without warning. The system helps you notice and fix it, but it doesn't prevent it.
 
@@ -164,7 +166,7 @@ Rounding it out: confirmations before closing, a run history for routines and fa
 
 - **An official API or partner integration:** the best route when it exists.
 - **Individual accounts with SSO or delegated access:** if the platform supports it and licensing allows, this solves sharing at the root.
-- **A password vault with sharing:** solves distributing the credential, but not the link to the case or the procedures.
+- **A password vault with sharing:** solves distributing the credential, but not recording who has each account, or the procedures.
 - **A browser extension:** less friction than an installed app, less control over profiles and lifecycle.
 - **An automated browser or RPA on a server:** good for work with nobody at the screen, but it moves the session away from the person handling the case.
 - **Attended RPA on the desktop:** stays next to the person, at the cost of one more tool and less control over profiles and reservations.
