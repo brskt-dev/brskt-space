@@ -63,6 +63,9 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
 | `status` | em product e experiment | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Em artigos, apague a linha. |
 | `thumbnail` | não | Imagem do card na home e nas listagens. Sem ela, o card usa a `cover`. |
+
+> **Artigos:** o tempo de leitura é calculado sozinho a partir do texto (cerca de 200 palavras por minuto), não precisa preencher. Para diagramas, use um bloco ` ```text ` com caracteres de caixa (`┌─┐ │ └─┘ ▶`): ele ganha espaçamento justo e fonte que encolhe no celular.
+
 | `stats` | não | Números de destaque em cards: `{ value, label }`. Só números reais. |
 | `stack` | não | Lista de tecnologias, mostrada em chips no fim da página. |
 | `gallery` | não | Telas: `{ src: ./arquivo.webp, alt, caption, orientation }` (`portrait` para telas de celular). Arquivos na pasta da publicação. |

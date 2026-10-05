@@ -74,6 +74,7 @@ draft: true
 
   - Use ## for sections and ### for subsections (the page title is already the h1).
   - Image: save it in the same folder and write ![image description](./image-name.png)
+  - Diagram: a ```text block with box-drawing characters (┌─┐ │ └─┘ ▶). Reading time is automatic.
   - Code: a block with three backticks and the language, e.g. ```csharp
 -->
 

@@ -12,6 +12,7 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 - Routing: every /pt and /en page comes from `src/pages/[lang]/[...path].astro`, which takes its paths from `getSiteRoutes()` in `src/lib/routes.ts`. The same table feeds `sitemap.xml`. Page bodies live in `src/components/views/*View.astro`. To add a page: add a `PageKey` + `segments` entry in `src/i18n/ui.ts`, a `RouteView` variant + `routes.push` in `getSiteRoutes()`, a view component, and a branch in `[...path].astro`. The nav item in `SiteHeader.astro` is optional. Never create files under `src/pages/pt/` or `src/pages/en/`: they build and pass `npm run verify`, but they are missing from sitemap.xml and the nav.
 - `src/lib/publications.ts`: build-time integrity check (throws = build fails). `src/content.config.ts`: zod schemas (dates must be `YYYY-MM-DD`).
 - `templates/publication/{pt,en}.md`: templates for new publications (outside `src/`, never built).
+- Articles: reading time is computed from the body (`src/lib/reading-time.ts`), never a frontmatter field. Diagrams are ```text blocks with box-drawing characters (styled in `global.css`); keep them ≤ ~64 columns.
 - `scripts/verify-dist.mjs`: post-build checks on `dist/` (links, base path, head tags, hreflang, placeholder text).
 
 ## Commands
