@@ -1,54 +1,31 @@
 ---
 type: article
 title: "Quando a interface vira integração: de rotinas gravadas a agentes de IA"
-summary: "Um agente desktop que reserva contas, abre sessões isoladas e executa rotinas sobre sistemas de terceiros sem API. As decisões difíceis por trás dele, os limites que ficaram e como eu levaria essa ideia para agentes de IA sem entregar o volante ao modelo."
+summary: "Como dar acesso a sistemas web legados sem API, ou com contas caras demais para ter uma por pessoa: um agente desktop que empresta contas, abre sessões isoladas e executa rotinas. E como eu levaria essa ideia para agentes de IA."
 date: 2026-10-05
 tags: ["Arquitetura", ".NET", "WebView2", "SQL Server", "Automação", "Agentes de IA"]
 ---
 
-Imagine uma pessoa em atendimento que, para resolver uma única demanda, precisa entrar em vários sistemas de terceiros. Cada um tem a sua conta, a sua tela de login e o seu jeito de fazer as coisas. Alguns são aplicações web que não oferecem API nenhuma. As contas são compartilhadas e em número limitado, então alguém precisa saber qual está livre, qual é a senha e como se faz aquele procedimento que só quem passou pelo treinamento lembra.
+Toda empresa tem aquele sistema web legado que ninguém consegue largar. Às vezes ele não tem API. Às vezes tem, mas cada conta custa tanto que dar uma para cada pessoa da equipe é inviável. O resultado é conhecido: algumas contas compartilhadas, senha passando de mão em mão, ninguém sabe direito quem está usando o quê, e o passo a passo de cada tela mora na cabeça de quem já fez aquilo cem vezes.
 
-Desenvolvi uma solução para esse cenário: um agente desktop que abre essas plataformas dentro de sessões controladas, faz o login sozinho e executa rotinas cadastradas como dados. Este texto conta a ideia, as decisões que mais deram trabalho, o que ela **não** resolve e para onde eu levaria esse conceito com IA.
+Emprestar contas parece simples até alguém precisar controlar isso de verdade. Eu desenvolvi uma solução para esse cenário: um agente desktop que empresta as contas, abre o sistema numa sessão isolada, faz o login sozinho e executa procedimentos cadastrados. Neste texto conto como ela funciona e para onde eu levaria a ideia com IA.
 
-Para não misturar as coisas, separei o artigo em três camadas: **o que foi implementado**, **a análise dos limites** e **as expansões que proponho e que não existem no sistema**.
+## A ideia: usar a tela como integração
 
-## O problema não era só o login
+Quando existe uma API adequada, ela continua sendo o melhor caminho. O problema é que nem sempre existe, e esperar o roadmap de um terceiro pode significar nunca integrar.
 
-À primeira vista, parece um problema de senha. Não é. Os sintomas eram quatro:
+Então a integração passa pela única porta disponível: a interface. Sempre dentro de sessões controladas e para quem tem autorização para usar aquele sistema.
 
-- **Contas compartilhadas e limitadas.** Várias pessoas, poucas contas, nenhuma noção clara de quem está usando o quê.
-- **Login manual repetido.** Digitar usuário e senha a cada acesso, o que exige que cada pessoa conheça a senha.
-- **Atribuição difícil.** Quando uma conta compartilhada é usada, fica complicado dizer quem a usou.
-- **Procedimento na memória.** O passo a passo de cada sistema vivia em treinamento, anotação e mensagem antiga.
+Por que desktop? A política de mesma origem do navegador impede que um script comum da minha aplicação web controle a página de outro domínio. Havia outros caminhos, como uma extensão ou um navegador automatizado num servidor. Mas eu queria controlar o navegador inteiro, com perfis de autenticação e regras de navegação, e manter a sessão na máquina de quem está usando. Um app WPF em .NET com navegadores embarcados (WebView2) entregava isso, ao custo de instalar e atualizar um programa em cada máquina.
 
-O caminho óbvio seria integrar por API. E, quando existe uma API adequada, ele continua sendo o melhor: contrato explícito, versionamento, erros que dizem o que aconteceu. O problema é que alguns desses sistemas simplesmente não têm API. Ficar esperando o roadmap de um terceiro pode significar nunca integrar.
-
-## A ideia: a interface como superfície de integração
-
-Se a única porta que o sistema oferece é a tela, a integração passa pela tela, dentro de sessões controladas e para quem tem autorização para operar aquela plataforma.
-
-Isso **não** quer dizer que interfaces sejam melhores que APIs. A interface foi feita para gente, muda sem aviso e não promete nada para quem automatiza. A diferença é que ela existe hoje. O desenho todo parte dessa aceitação: vou depender de uma superfície frágil, então preciso de controle sobre a sessão, rotinas fáceis de ajustar e honestidade sobre o que pode dar errado.
-
-### Por que desktop
-
-Uma pergunta justa: por que não fazer tudo dentro da própria aplicação web?
-
-Porque a política de mesma origem dos navegadores impede que um script comum da minha aplicação leia ou controle a página de outro domínio. Isso não torna a automação impossível. Uma extensão de navegador, uma ferramenta de RPA ou um navegador automatizado no servidor também chegariam lá. Mas, neste caso, eu queria três coisas ao mesmo tempo:
-
-1. controlar o navegador inteiro, inclusive perfis de autenticação e regras de navegação;
-2. manter a sessão na máquina de quem está atendendo, ao lado do trabalho dessa pessoa;
-3. ser acionado pela aplicação web com um clique.
-
-Um agente desktop com navegadores embarcados (WebView2, num app WPF em .NET) entregava as três. O preço é real: instalação em cada máquina, atualização distribuída, só Windows, mais um componente para suportar e versões diferentes rodando ao mesmo tempo. Boa parte das decisões abaixo existe justamente para pagar esse preço.
-
-## A arquitetura implementada
+## Como funciona
 
 São cinco peças:
 
-- **Aplicação web:** organiza o trabalho e pede a abertura de uma plataforma.
-- **Agente desktop Windows:** hospeda os navegadores embarcados, as abas e os perfis de autenticação isolados.
-- **API de controle:** guarda plataformas, contas disponíveis, permissões, roteiros de login e rotinas.
-- **Serviço de atendimento:** controla o ciclo do atendimento e a devolução das contas.
+- **Aplicação web:** onde o trabalho acontece; dela sai o pedido para abrir um sistema.
+- **Agente desktop Windows:** hospeda os navegadores embarcados, as abas e os perfis isolados.
+- **API de controle:** guarda sistemas, contas disponíveis, permissões, roteiros de login e rotinas.
+- **Serviço de ciclo de uso:** decide quando o uso termina e a conta precisa voltar.
 - **Protocolo customizado:** permite que a aplicação web acione o agente.
 
 ```text
@@ -59,161 +36,56 @@ IMPLEMENTADO
 │                   │◀── presença ──│  · abas com WebView2     │
 └─────────┬─────────┘  (HTTP local) │  · perfil por reserva    │
           │                         │  · executor de rotinas   │
-          │ atendimento             └─────┬──────────────┬─────┘
+          │ início do uso           └─────┬──────────────┬─────┘
           ▼                               │ reserva      │ sessão
 ┌───────────────────┐   devolução   ┌─────▼──────────┐   │ autenticada
 │ Serviço de        │──────────────▶│ API de controle│   ▼
-│ atendimento       │               │ contas, regras,│  Plataformas
-└───────────────────┘               │ rotinas        │  externas
+│ ciclo de uso      │               │ contas, regras,│  Sistemas
+└───────────────────┘               │ rotinas        │  externos
                                     └───────┬────────┘
                                             ▼
                                        SQL Server
 ```
 
-Na prática, o fluxo é este:
+A pessoa pede para abrir um sistema, a aplicação web aciona o agente, o agente reserva uma conta livre, abre uma aba com perfil limpo e faz o login. Quando o uso termina, a conta volta para o pool e o perfil é apagado.
 
-1. Durante um atendimento, a pessoa pede para abrir uma plataforma.
-2. A aplicação web aciona o agente pelo protocolo.
-3. O agente pede a reserva de uma conta livre, e o protótipo registra quem está com ela.
-4. Abre uma aba com um perfil limpo e as regras de navegação da plataforma, e roda o roteiro de login.
-5. A pessoa trabalha, e pode disparar rotinas cadastradas.
-6. Quando o atendimento termina, a conta é devolvida e o perfil vai embora.
+## As decisões de que mais gosto
 
-## As decisões que mostram os detalhes difíceis
+**Acordar o desktop a partir do navegador.** O agente é acionado por um protocolo registrado no Windows, mesmo fechado. Se já estiver aberto, a nova ativação vai para a instância que está rodando. A instalação é por usuário, sem pedir administrador. E como a página não fica sabendo se o protocolo funcionou, um serviço HTTP local responde se o agente está presente e disponível.
 
-### Acordar o desktop a partir do navegador
+**Conta como recurso que se empresta.** No sistema externo, as contas são genéricas: algo como conta1, conta2, conta3, e não uma com o nome de cada pessoa. O vínculo entre pessoa e conta mora no protótipo, que reserva e devolve com operações atômicas e idempotentes no banco. Isso dá rastreabilidade de quem usou o quê e permite compartilhar as contas de forma dinâmica. Cada reserva começa com um perfil limpo, e a devolução apaga o perfil, para ninguém herdar a sessão de outra pessoa.
 
-A aplicação web aciona o agente por um protocolo registrado no Windows, mesmo com o agente fechado. Isso traz três problemas pequenos que viram grandes se ignorados:
+**A senha que ninguém digita.** O agente preenche o login. A pessoa não precisa ver, copiar ou digitar a senha, e menos gente precisa conhecê-la. Não é segredo absoluto, já que a credencial passa pela máquina, mas a exposição do dia a dia cai bastante.
 
-- **Uma instância só.** Se o agente já está aberto, uma nova ativação precisa ser repassada ao processo existente, e não abrir uma segunda cópia brigando pelas mesmas abas.
-- **Sem pedir administrador.** Instalação e registro são por usuário. Numa operação com muitas máquinas, depender de privilégio elevado para cada instalação ou atualização trava tudo.
-- **O navegador não sabe se deu certo.** Acionar um protocolo é um tiro no escuro: a página não recebe resposta. Por isso existe um serviço HTTP local, que a aplicação web consulta para saber se o agente está presente e disponível antes de prometer alguma coisa para a pessoa.
+**Login e procedimentos são a mesma coisa.** O roteiro de login e os procedimentos de trabalho rodam no mesmo executor. Uma rotina é um dado persistido: navegar, preencher, clicar, selecionar, pressionar teclas, esperar e pedir confirmação humana. Um administrador grava as interações para cadastrar um procedimento, sem escrever uma integração para cada sistema. A interface vai mudar e alguém vai ter que ajustar a rotina, mas ajustar dado é bem mais leve que reescrever código.
 
-Um cuidado que esse desenho exige: um protocolo registrado pode ser acionado por qualquer página. A ativação é um pedido, não uma ordem. Quem decide se a pessoa pode usar aquela plataforma é a API de controle, que mantém as permissões. Isso impede o acesso a plataformas não autorizadas, mas não impede que uma página qualquer dispare uma abertura que a pessoa teria permissão de fazer. O mesmo vale para o serviço HTTP local: qualquer página aberta no navegador consegue consultá-lo.
+## O futuro da ideia: agentes de IA
 
-### Conta como recurso reservável
+Daqui para baixo, **nada está implementado**. É para onde eu levaria o conceito.
 
-Cada conta compartilhada virou um recurso que se reserva e se devolve, com operações atômicas e idempotentes no banco. Atômicas para que duas pessoas não peguem a mesma conta ao mesmo tempo. Idempotentes porque, no mundo real, existe clique duplo, retentativa depois de timeout e mensagem que chega duas vezes. Repetir uma reserva ou uma devolução não pode bagunçar o estado.
+O executor já sabe fazer coisas na tela. A pergunta interessante é quem decide **o que** fazer. O princípio que eu manteria: **o modelo propõe, o aplicativo decide.** Permissões, validação e execução continuam em código determinístico.
 
-O vínculo entre pessoa e conta mora no protótipo, não na plataforma. Do lado da plataforma, as contas são genéricas, algo como conta1, conta2 e conta3, e não uma conta com o nome de cada pessoa. Quem sabe quem está com qual conta é o protótipo, que registra cada reserva. É isso que dá rastreabilidade dos acessos e permite compartilhar as contas de forma dinâmica, sem fixar uma conta por pessoa na plataforma.
+Com isso, dá para imaginar:
 
-Um limite importante: a reserva ser atômica e idempotente **não** torna idempotente o que acontece no sistema externo. Se uma rotina enviou um formulário e a resposta se perdeu, repetir a rotina pode enviar de novo. A garantia vale para quem está com a conta, não para os efeitos lá fora.
-
-### Perfil limpo a cada reserva
-
-Cada plataforma tem o seu perfil de autenticação e as suas regras de navegação permitida. Uma nova reserva começa com um perfil limpo, e a devolução apaga esse perfil. A ideia é simples: a próxima pessoa não herda cookies, sessão ou dados de quem usou a conta antes.
-
-Perfis isolados e listas de navegação permitida reduzem bastante o risco de vazamento acidental entre sessões e de alguém sair navegando por onde não devia. Mas eles **não** transformam o navegador num sandbox inviolável. Uma página maliciosa, uma falha do motor do navegador ou uma máquina comprometida continuam sendo riscos de outra ordem.
-
-### A senha que ninguém digita
-
-O agente preenche o login. A pessoa não precisa ver, copiar ou digitar a senha. Isso reduz bastante a exposição do dia a dia: menos chance de a senha parar num papel, num bloco de notas ou numa conversa, e menos gente precisando conhecê-la.
-
-Reduzir exposição não é o mesmo que garantir segredo. Para preencher o formulário, a credencial passa pelo processo do agente e pela máquina. Depois de preenchida, ela está no campo da página. Alguém com controle da máquina, ferramentas de depuração ou acesso ao campo preenchido (um botão de "mostrar senha", por exemplo) consegue extraí-la. E, uma vez logada, a pessoa opera a sessão normalmente.
-
-### Login e procedimentos são a mesma coisa
-
-A decisão de que mais gosto: o roteiro de login e os procedimentos de trabalho usam **o mesmo executor de rotinas**. Uma rotina é um dado persistido, uma sequência de passos como navegar, preencher, clicar, selecionar, pressionar teclas, esperar e pedir confirmação humana.
-
-Algo nesta linha (ilustrativo, não é o formato real):
-
-```yaml
-# Ilustrativo: a forma da ideia, não o formato do sistema.
-rotina: consultar-pedido
-passos:
-  - navegar: "{endereço da plataforma}/pedidos"
-  - preencher: { alvo: "campo de busca", valor: "{número do pedido}" }
-  - tecla: Enter
-  - esperar: { ate: "lista de resultados visível" }
-  - confirmar: "Confere se é o pedido certo antes de continuar?"
-```
-
-Um administrador pode **gravar** interações para cadastrar um procedimento, sem escrever uma integração específica para cada sistema. A gravação do roteiro de login tem uma restrição própria: ela fica limitada aos valores de usuário e senha da conta disponibilizada.
-
-Gravar reduz muito a programação específica. Não elimina manutenção. A interface muda, um campo troca de lugar, uma espera que funcionava passa a ser curta. Validar uma rotina gravada e entender por que ela quebrou continua exigindo conhecimento técnico.
-
-### Quando a sessão expira
-
-Para perceber que uma sessão caiu, o agente usa uma pista: depois de um login bem-sucedido, se os elementos do formulário de login reaparecem, provavelmente a sessão expirou.
-
-É uma heurística, e eu a trato assim. Se a plataforma redesenha a tela de login, a pista some. Se algum formulário parecido aparece em outro contexto, ela pode disparar sem motivo. E plataformas sem um roteiro de login observável não recebem essa detecção.
-
-### "Não sei" não é "revogado"
-
-O agente consulta de tempos em tempos quais reservas continuam válidas. Quando essa consulta falha por rede ou autenticação, o resultado é **estado desconhecido**, não a confirmação de que a reserva foi revogada. Parece detalhe, mas tratar falha de rede como revogação fecharia abas de quem está trabalhando sempre que o Wi-Fi piscasse. O oposto também é ruim: tratar falha como "tudo certo" para sempre. Desconhecido precisa ser um estado de primeira classe. O que fazer quando o desconhecido se prolonga é uma decisão de política, não de rede.
-
-Na mesma linha, quando uma rotina está no meio da execução, o encerramento **operacional** da aba pode esperar ela terminar. Interromper no meio pode deixar o sistema externo num estado pior do que qualquer um dos dois extremos.
-
-Isso não é uma regra universal de segurança. Encerramento planejado, como o fim de um atendimento, é diferente de revogação urgente, como um acesso que precisa ser cortado agora. No segundo caso, esperar a rotina terminar pode ser exatamente o que não se quer. E fechar a aba local não invalida, sozinho, uma sessão que o sistema externo ainda considera aberta.
-
-### Atualizar sem derrubar ninguém
-
-Atualizar um app desktop com sessões abertas é pedir para estragar o dia de alguém. Por isso as atualizações esperam uma janela sem plataformas abertas. Se essa janela demora a aparecer, existe uma solicitação para que ela seja liberada.
-
-O pacote de atualização tem o hash verificado, e um processo auxiliar externo espera o agente encerrar, instala a atualização e reabre o agente. O hash confere a **integridade** em relação a um valor esperado: o arquivo baixado é o que se esperava receber. **Autenticidade** é outra questão: depende de o valor esperado vir de uma fonte confiável, separada do pacote. Assinatura de código seria o passo natural para fortalecer essa parte.
-
-Completam o pacote: confirmações antes de fechar, histórico de execução das rotinas e informações sobre falhas, para que o suporte não dependa só do relato de quem estava na tela.
-
-## O que isso resolve, e o que não resolve
-
-**Rastreabilidade de acesso não é auditoria de ações.** O protótipo registra quem estava com qual conta e quando a reservou e devolveu. Ele **não** comprova cada ação feita dentro do sistema externo. Para esse sistema, quem agiu foi a conta compartilhada. O histórico das rotinas ajuda no que passou pelo executor, mas as ações manuais dentro da sessão não ficam auditadas uma a uma.
-
-**A interface continua frágil.** Uma mudança de layout pode quebrar o login ou uma rotina sem aviso. O sistema ajuda a perceber e corrigir, mas não impede.
-
-**Os termos de uso importam.** Automatizar a interface de um terceiro só faz sentido com autorização para operar aquele sistema, e vale ler o contrato antes de sair gravando rotinas.
-
-**Alternativas, cada uma com o seu custo:**
-
-- **API oficial ou integração de parceiro:** o melhor caminho quando existe.
-- **Contas individuais com SSO ou acesso delegado:** se a plataforma permite e o licenciamento cabe, isso resolve o compartilhamento na raiz.
-- **Cofre de senhas com compartilhamento:** resolve a distribuição da credencial, mas não o registro de quem está com cada conta nem os procedimentos.
-- **Extensão de navegador:** menos atrito que um app instalado, menos controle sobre perfis e ciclo de vida.
-- **Navegador automatizado ou RPA no servidor:** bons para trabalho sem pessoa na frente, mas levam a sessão para longe de quem está atendendo.
-- **RPA assistido na máquina:** fica perto da pessoa, ao custo de uma ferramenta a mais e de menos controle sobre perfis e reservas.
-
-## O padrão fora daqui
-
-O formato não é exclusivo deste caso. Imagino que operações autorizadas sobre sistemas de terceiros, com acessos compartilhados e procedimentos repetíveis, apareçam também em lugares como:
-
-- **BPO e backoffice**, operando portais de vários clientes;
-- **contabilidade**, com portais de órgãos e instituições;
-- **seguros**, com portais de seguradoras para cotação e acompanhamento;
-- **cobrança**, com portais de credores e bancos;
-- **logística**, com portais de transportadoras e marketplaces.
-
-Em todos, imagino que as perguntas seriam parecidas: de quem é a conta agora, como o procedimento deixa de depender da memória de alguém e o que acontece quando a tela muda.
-
-## E a IA nessa história?
-
-Daqui para baixo, **nada está implementado**. São propostas de evolução.
-
-O princípio que eu manteria em todas: **o modelo propõe, o aplicativo decide.** Permissão, validação e execução ficam em código determinístico. Parte disso já existe: as permissões na API de controle e a execução no executor de rotinas. A validação de propostas de um modelo seria nova.
-
-1. **Intenção em linguagem natural.** A pessoa descreveria a tarefa, e um modelo proporia um plano feito de ações que o sistema já conhece, não de comandos inventados.
-2. **Rotinas a partir de demonstração ou descrição.** O modelo transformaria uma gravação ou um texto numa rotina candidata, que alguém revisaria antes de usar.
-3. **Escolha contextual.** Diante de uma página, o modelo escolheria entre os elementos observados e as operações permitidas para aquela plataforma. Escolher é bem diferente de inventar seletor.
-4. **Mudanças de interface.** Quando um passo quebrasse, o modelo sugeriria a correspondência mais provável, e a rotina só seria substituída depois de validada.
-5. **Verificação de resultado.** Comparar o estado observado com o objetivo e separar três respostas: concluído, falhou e não sei.
-6. **Diagnóstico assistido.** Interpretar a falha e propor uma recuperação, sem repetir às cegas uma ação que pode já ter produzido efeito.
-7. **Execução assistida.** Automatizar o que é previsível e pedir confirmação nas decisões que importam.
-8. **Uma interface de ferramentas para agentes.** Expor operações limitadas via MCP ou um contrato equivalente, com autorização e execução sob controle do aplicativo, e não do agente que chama.
+- **Intenção em linguagem natural.** A pessoa diria o que precisa, e um modelo montaria um plano usando só ações que o sistema já conhece.
+- **Rotinas a partir de demonstração.** Uma gravação ou uma descrição viraria uma rotina candidata, revisada antes de entrar em uso.
+- **Escolha em vez de invenção.** Diante da página, o modelo escolheria entre os elementos observados e as operações permitidas, em vez de inventar seletores.
+- **Reparos quando a tela muda.** Quando um passo quebrasse, o modelo sugeriria a correspondência mais provável, validada antes de substituir a rotina.
+- **Verificação de resultado.** Comparar a tela com o objetivo e separar três respostas: concluído, falhou e não sei.
+- **Ferramentas para agentes.** Expor operações limitadas via MCP ou um contrato equivalente, com a autorização sempre do lado do aplicativo.
 
 ### Onde um modelo como o Jev se encaixa
 
-O [Jev](https://docs.typesafe.ai/introduction), da TypeSafe, é um exemplo interessante para os itens 3 e 5. Pela documentação oficial (consultada em outubro de 2026), ele é descrito como um modelo "System One", feito para decisões estruturadas. Não é um controlador de desktop:
+O [Jev](https://docs.typesafe.ai/introduction), da TypeSafe, é um bom exemplo para as escolhas delimitadas. Pela documentação oficial, ele é um modelo "System One": recebe só texto (strings, JSON, listas) e devolve respostas tipadas. Choice escolhe uma opção de uma lista, com probabilidades e confiança. Score dá uma nota numa rubrica. Noul diz se uma afirmação é verdadeira, com um valor de 0 a 1. Ele não gera texto, não lê imagem e não clica em nada.
 
-- **recebe texto:** strings, objetos JSON e listas de texto; imagem, áudio e vídeo não são suportados;
-- **responde com tipos:** Choice escolhe uma opção de uma lista e devolve a escolha, probabilidades e confiança; Score dá uma nota numa rubrica, com probabilidades e confiança; Noul diz se uma afirmação é verdadeira, com um valor de 0 a 1;
-- **não gera texto nem código,** e não clica em nada.
-
-Isso combina com escolhas delimitadas. Em vez de mandar um print, o agente montaria uma **representação textual da página**, um recorte do DOM ou da árvore de acessibilidade, com papel, nome e estado de cada elemento relevante. Junto vai a lista dos alvos candidatos já enumerados pelo código. Numa Choice, o modelo devolveria a escolha (o candidato 7, por exemplo) com probabilidades e uma confiança. Numa Noul, o código perguntaria "a página mostra uma confirmação de envio?" e o modelo devolveria um valor entre 0 e 1. Nenhum número aqui vem de teste.
+Isso encaixa bem aqui. Em vez de um print, o agente montaria uma **versão em texto da página**, com um recorte do DOM ou da árvore de acessibilidade, e a lista de alvos candidatos. O Jev escolheria entre eles. Para verificar o resultado, o código perguntaria algo como "a página mostra uma confirmação de envio?" e receberia um valor.
 
 A arquitetura que eu testaria é híbrida:
 
-- **modelo generativo** para interpretar a intenção e planejar, só quando necessário;
-- **modelo de decisão**, como o Jev, para escolhas delimitadas;
-- **código determinístico** para permissões, validação, limites e execução;
-- **humano** para confirmação e exceções relevantes.
+- **modelo generativo** para entender a intenção e planejar, só quando precisar;
+- **modelo de decisão**, como o Jev, para as escolhas delimitadas;
+- **código determinístico** para permissões, validação e execução;
+- **humano** para confirmar o que importa.
 
 ```text
 EXPANSÃO PROPOSTA (não implementada)
@@ -245,52 +117,25 @@ Página ┄┄▶ ┆ Modelo de decisão          ┆
           verificar o resultado (proposto)
 ```
 
-Um fluxo genérico, em pseudocódigo ilustrativo:
+O ciclo fica: **observar → propor → validar → confirmar quando necessário → executar → verificar.**
 
-```csharp
-// Ilustrativo: um esboço da ideia, não código do sistema.
-var estado  = Observar(aba);            // árvore de acessibilidade podada, sem dados sensíveis
-var alvos   = Candidatos(estado, passo); // só elementos observados agora
-var decisao = await modelo.Escolher(passo.Descricao, alvos);   // escolha delimitada
+Três regras que eu não abriria mão: confiança do modelo não é autorização; o que aparece na tela é dado, nunca instrução; e credenciais não vão para o modelo. Se isso reduz custo, latência ou a dependência de roteiros rígidos, ainda é hipótese. Precisa ser medido com rotinas reais.
 
-if (!Permitido(plataforma, passo.Acao, decisao.Alvo)) return Bloquear();
-if (passo.Irreversivel || decisao.Confianca < limiar)
-    if (!await Pessoa.Confirmar(passo, decisao)) return Cancelar();
+## E aí, o que você faria?
 
-Executar(passo.Acao, decisao.Alvo);
-var resultado = Verificar(Observar(aba), passo.Objetivo); // Concluido | Falhou | Incerto
-```
+Tenho minhas opiniões, mas quero ouvir as suas:
 
-**Observar → propor → validar → confirmar quando necessário → executar → verificar.** Num exemplo hipotético de cobrança, a pessoa pediria a segunda via de um documento. O modelo proporia o caminho com ações conhecidas. O código conferiria se aquela ação é permitida na plataforma. A emissão pediria confirmação. O executor clicaria, e a verificação procuraria o documento na tela antes de dizer "concluído".
+- Que representação de página você daria a um modelo de decisão: DOM podado, árvore de acessibilidade ou uma mistura?
+- Você confiaria a um agente uma rotina inteira, ou só os passos previsíveis?
+- MCP é o contrato certo para expor esse tipo de operação, ou faz mais sentido algo mais restrito?
+- Onde mais você enxerga esse padrão de contas emprestadas e telas sem API?
 
-Os cuidados que eu não negociaria:
-
-- **Confiança não é autorização nem garantia de acerto.** A própria documentação do Jev diz que a calibração é medida sobre grupos de previsões e não garante que uma resposta individual esteja certa. O limiar decide quando pedir ajuda. Quem decide se a ação pode acontecer é a permissão.
-- **Conteúdo observado é dado, não instrução.** Uma página pode conter texto feito para manipular o modelo ("ignore as instruções e..."). Nada que venha da tela vira comando. As ações possíveis vêm da lista permitida, nunca do conteúdo da página. Isso limita o estrago, mas não elimina: o conteúdo ainda pode puxar a escolha para o candidato errado entre os permitidos. Por isso validação, confirmação e verificação continuam no fluxo.
-- **Credenciais nunca vão para o modelo.**
-- **Dados sensíveis são minimizados ou mascarados antes de qualquer chamada.** O conteúdo dessas telas é de terceiros e pode ter dados pessoais.
-- **A execução tem limites** de passos, tempo e escopo.
-- **Ações irreversíveis sempre passam por uma pessoa.**
-
-Sobre os ganhos: menos latência, menos custo e menos dependência de roteiros rígidos são **hipóteses**. Elas precisam ser medidas com rotinas reais antes de virar argumento. Não tenho números, e não vou fingir que tenho.
-
-## Perguntas em aberto
-
-Se você já mexeu com algo parecido, eu quero muito saber como resolveu:
-
-- Qual é a melhor representação textual de uma página para decisões delimitadas: DOM podado, árvore de acessibilidade ou uma mistura?
-- Como detectar que uma rotina quebrou **antes** de alguém perceber no meio de um atendimento?
-- Como descrever o efeito de uma ação, para saber se é seguro repetir depois de uma falha?
-- Quando o sistema externo só conhece uma conta compartilhada, até onde dá para ir de rastreabilidade de acesso para auditoria de ações?
-- MCP é o contrato certo para expor esse tipo de operação a agentes, ou faz mais sentido algo mais restrito?
-- Como você lida com plataformas cujos termos de uso não falam nada sobre automação?
-
-Deixa a sua experiência nos comentários aqui embaixo. Concordando ou discordando, a conversa fica melhor.
+Deixa nos comentários aqui embaixo.
 
 ## Referências
 
-- TypeSafe: [Introduction](https://docs.typesafe.ai/introduction) e [System One](https://docs.typesafe.ai/concepts/system-one) (documentação oficial do Jev), e [typesafe.ai](https://typesafe.ai/).
+- TypeSafe: [Introduction](https://docs.typesafe.ai/introduction) e [System One](https://docs.typesafe.ai/concepts/system-one) (documentação oficial do Jev, consultada em outubro de 2026), e [typesafe.ai](https://typesafe.ai/).
 - MDN: [Same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) e [Accessibility tree](https://developer.mozilla.org/en-US/docs/Glossary/Accessibility_tree).
-- Microsoft: [WebView2](https://learn.microsoft.com/en-us/microsoft-edge/webview2/), [user data folder](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/user-data-folder) e [registro de protocolos no Windows](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)).
+- Microsoft: [WebView2](https://learn.microsoft.com/en-us/microsoft-edge/webview2/).
 - [Model Context Protocol](https://modelcontextprotocol.io/).
 - OWASP: [LLM01, Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/).
