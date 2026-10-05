@@ -1,0 +1,92 @@
+---
+/** A node (card) in an article diagram. `proposed` nodes get a dashed border. */
+import Icon, { type IconName } from '../ui/Icon.astro';
+
+interface Props {
+  icon: IconName;
+  title: string;
+  sub?: string;
+  area?: string;
+  proposed?: boolean;
+  big?: boolean;
+}
+
+const { icon, title, sub, area, proposed = false, big = false } = Astro.props;
+---
+
+<div class:list={['dn', { 'dn-proposed': proposed, 'dn-big': big }]} style={area ? `grid-area:${area}` : undefined}>
+  <div class="dn-head">
+    <span class="dn-icon" aria-hidden="true"><Icon name={icon} size={18} /></span>
+    <div>
+      <p class="dn-title">{title}</p>
+      {sub && <p class="dn-sub">{sub}</p>}
+    </div>
+  </div>
+  <slot />
+</div>
+
+<style>
+  .dn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 0;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--brand-hi) 70%, transparent);
+    transition:
+      transform 260ms var(--ease-out),
+      border-color 260ms ease;
+  }
+
+  .dn:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-2);
+  }
+
+  .dn-proposed {
+    border-style: dashed;
+    border-color: var(--accent-2);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+  }
+
+  .dn-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .dn-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: #fff;
+  }
+
+  .dn-proposed .dn-icon {
+    background: var(--surface-2);
+    color: var(--accent);
+    border: 1px dashed var(--accent-2);
+  }
+
+  .dn-title {
+    margin: 0;
+    font: 700 0.98rem / 1.2 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .dn-sub {
+    margin: 0.1rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+</style>

@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
+import mdx from '@astrojs/mdx';
 import { externalLinks } from './src/lib/markdown-external-links.mjs';
 
 // Deployed as a GitHub Pages project site: https://brskt-dev.github.io/brskt-space/
@@ -13,6 +14,9 @@ export default defineConfig({
   base: BASE,
   trailingSlash: 'always',
   output: 'static',
+  // MDX: publications may use .mdx to embed components (e.g. animated diagrams).
+  // It extends the markdown config, so the external-links plugin applies too.
+  integrations: [mdx()],
   build: {
     format: 'directory',
   },

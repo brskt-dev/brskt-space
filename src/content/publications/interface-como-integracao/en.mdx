@@ -6,6 +6,11 @@ date: 2026-10-05
 tags: ["Architecture", ".NET", "WebView2", "SQL Server", "Automation", "AI agents"]
 ---
 
+import AccessArchitecture from '../../../components/diagrams/AccessArchitecture.astro';
+import PageToText from '../../../components/diagrams/PageToText.astro';
+import AiLoop from '../../../components/diagrams/AiLoop.astro';
+
+
 Every company has that legacy web system nobody can quite let go of. Sometimes it has no API. Sometimes it does, but each account costs so much that giving one to every person on the team is out of the question. You know how it ends: a few shared accounts, a password passed from hand to hand, no one really sure who's using what, and each screen's step-by-step living in the head of whoever has done it a hundred times.
 
 Lending accounts sounds simple until someone actually has to keep track of it. I built a solution for this scenario: a desktop agent that lends out the accounts, opens the system in an isolated session, signs in on its own and runs stored procedures. In this post I explain how it works and where I'd take the idea with AI.
@@ -28,24 +33,7 @@ There are five pieces:
 - **Usage lifecycle service:** decides when a session of use ends and the account has to come back.
 - **Custom protocol:** lets the web app trigger the agent.
 
-```text
-IMPLEMENTED
-
-┌───────────────────┐   protocol    ┌──────────────────────────┐
-│  Web application  │──────────────▶│  Desktop agent (WPF)     │
-│                   │◀── presence ──│  · WebView2 tabs         │
-└─────────┬─────────┘  (local HTTP) │  · clean profile per use │
-          │                         │  · routine executor      │
-          │ start of use            └─────┬──────────────┬─────┘
-          ▼                               │ reserve      │ authenticated
-┌───────────────────┐   returns     ┌─────▼──────────┐   │ session
-│ Usage lifecycle   │──────────────▶│ Control API    │   ▼
-│ service           │               │ accounts,      │  External
-└───────────────────┘               │ rules, routines│  systems
-                                    └───────┬────────┘
-                                            ▼
-                                       SQL Server
-```
+<AccessArchitecture lang="en" />
 
 The person asks to open a system, the web app triggers the agent, the agent reserves a free account, opens a tab with a clean profile and signs in. When the use ends, the account goes back to the pool and the profile is deleted.
 
@@ -58,6 +46,17 @@ The person asks to open a system, the web app triggers the agent, the agent rese
 **The password nobody types.** The agent fills in the login. The person doesn't need to see, copy or type the password, and fewer people need to know it. It's not absolute secrecy, since the credential passes through the machine, but everyday exposure drops a lot.
 
 **Login and procedures are the same thing.** The login script and the work procedures run on the same executor. A routine is persisted data: navigate, fill in, click, select, press keys, wait and ask for human confirmation. An administrator records the interactions to register a procedure, without writing an integration for each system. The UI will change and someone will have to adjust the routine, but adjusting data is a lot lighter than rewriting code.
+
+```yaml
+# Illustrative: the shape of the idea, not the system's format.
+routine: look-up-order
+steps:
+  - navigate: "<system address>/orders"
+  - fill: { target: "search field", value: "<order number>" }
+  - key: Enter
+  - wait: { until: "results list visible" }
+  - confirm: "Is this the right order before we continue?"
+```
 
 ## Where the idea goes next: AI agents
 
@@ -80,6 +79,8 @@ TypeSafe's [Jev](https://docs.typesafe.ai/introduction) is a good example for th
 
 That fits here nicely. Instead of a screenshot, the agent would build a **text version of the page**, a slice of the DOM or the accessibility tree, plus the list of candidate targets. Jev would choose among them. To verify the outcome, the code would ask something like "does the page show a submission confirmation?" and get a value back.
 
+<PageToText lang="en" />
+
 The architecture I'd test is hybrid:
 
 - a **generative model** to understand intent and plan, only when needed;
@@ -87,37 +88,7 @@ The architecture I'd test is hybrid:
 - **deterministic code** for permissions, validation and execution;
 - a **human** to confirm what matters.
 
-```text
-PROPOSED EXPANSION (not implemented)
-legend: ┄ proposed · ─ already exists
-
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Person ┄┄▶ ┆ Generative model           ┆
- intent    ┆ interprets and plans       ┆
-           └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ plan made of known actions
-                          ▼
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Page   ┄┄▶ ┆ Decision model             ┆
- state     ┆ (e.g. Jev)                 ┆
- as text   └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ choice + confidence
-                          ▼
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-           ┆ Proposal validation        ┆
-           ┆ permissions · limits       ┆
-           └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ human confirmation if needed
-                          ▼
-           ┌────────────────────────────┐
-           │ Routine executor           │
-           │ in the desktop agent       │
-           └──────────────┬─────────────┘
-                          ▼
-            verify the outcome (proposed)
-```
-
-The loop becomes: **observe → propose → validate → confirm when needed → execute → verify.**
+<AiLoop lang="en" />
 
 Three rules I wouldn't give up: the model's confidence is not authorization; what shows up on the screen is data, never an instruction; and credentials never go to the model. Whether this cuts cost, latency or the dependence on rigid scripts is still a hypothesis. It needs to be measured on real routines.
 

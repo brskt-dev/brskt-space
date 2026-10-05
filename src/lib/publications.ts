@@ -7,7 +7,7 @@
  * "a publication only goes live when BOTH languages exist" rule.
  *
  * Rules (non-draft publications):
- *   - src/content/publications/<slug>/ must contain exactly pt.md AND en.md;
+ *   - src/content/publications/<slug>/ must contain exactly pt AND en (.md or .mdx);
  *   - `type`, `date`, `updated` and `status` must match between pt and en;
  *   - `status` is required for product / experiment (also enforced by the schema);
  *   - `draft` must match between pt and en; draft: true on both → excluded entirely.
@@ -71,8 +71,9 @@ async function loadAndValidate(): Promise<Publication[]> {
   for (const [slug, pair] of bySlug) {
     const { pt, en } = pair;
     if (!pt || !en) {
-      const present = pt ? 'pt.md' : 'en.md';
-      const missing = pt ? 'en.md' : 'pt.md';
+      const ext = /\.mdx$/i.test((pt ?? en)!.filePath ?? '') ? 'mdx' : 'md';
+      const present = pt ? `pt.${ext}` : `en.${ext}`;
+      const missing = pt ? `en.${ext}` : `pt.${ext}`;
       const onlyEntry = (pt ?? en)!;
       if (onlyEntry.data.draft) continue; // a lone draft never ships, nothing to check
       throw new PublicationIntegrityError(

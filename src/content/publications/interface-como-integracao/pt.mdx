@@ -6,6 +6,11 @@ date: 2026-10-05
 tags: ["Arquitetura", ".NET", "WebView2", "SQL Server", "Automação", "Agentes de IA"]
 ---
 
+import AccessArchitecture from '../../../components/diagrams/AccessArchitecture.astro';
+import PageToText from '../../../components/diagrams/PageToText.astro';
+import AiLoop from '../../../components/diagrams/AiLoop.astro';
+
+
 Toda empresa tem aquele sistema web legado que ninguém consegue largar. Às vezes ele não tem API. Às vezes tem, mas cada conta custa tanto que dar uma para cada pessoa da equipe é inviável. O resultado é conhecido: algumas contas compartilhadas, senha passando de mão em mão, ninguém sabe direito quem está usando o quê, e o passo a passo de cada tela mora na cabeça de quem já fez aquilo cem vezes.
 
 Emprestar contas parece simples até alguém precisar controlar isso de verdade. Eu desenvolvi uma solução para esse cenário: um agente desktop que empresta as contas, abre o sistema numa sessão isolada, faz o login sozinho e executa procedimentos cadastrados. Neste texto conto como ela funciona e para onde eu levaria a ideia com IA.
@@ -28,24 +33,7 @@ São cinco peças:
 - **Serviço de ciclo de uso:** decide quando o uso termina e a conta precisa voltar.
 - **Protocolo customizado:** permite que a aplicação web acione o agente.
 
-```text
-IMPLEMENTADO
-
-┌───────────────────┐   protocolo   ┌──────────────────────────┐
-│  Aplicação web    │──────────────▶│  Agente desktop (WPF)    │
-│                   │◀── presença ──│  · abas com WebView2     │
-└─────────┬─────────┘  (HTTP local) │  · perfil por reserva    │
-          │                         │  · executor de rotinas   │
-          │ início do uso           └─────┬──────────────┬─────┘
-          ▼                               │ reserva      │ sessão
-┌───────────────────┐   devolução   ┌─────▼──────────┐   │ autenticada
-│ Serviço de        │──────────────▶│ API de controle│   ▼
-│ ciclo de uso      │               │ contas, regras,│  Sistemas
-└───────────────────┘               │ rotinas        │  externos
-                                    └───────┬────────┘
-                                            ▼
-                                       SQL Server
-```
+<AccessArchitecture lang="pt" />
 
 A pessoa pede para abrir um sistema, a aplicação web aciona o agente, o agente reserva uma conta livre, abre uma aba com perfil limpo e faz o login. Quando o uso termina, a conta volta para o pool e o perfil é apagado.
 
@@ -58,6 +46,17 @@ A pessoa pede para abrir um sistema, a aplicação web aciona o agente, o agente
 **A senha que ninguém digita.** O agente preenche o login. A pessoa não precisa ver, copiar ou digitar a senha, e menos gente precisa conhecê-la. Não é segredo absoluto, já que a credencial passa pela máquina, mas a exposição do dia a dia cai bastante.
 
 **Login e procedimentos são a mesma coisa.** O roteiro de login e os procedimentos de trabalho rodam no mesmo executor. Uma rotina é um dado persistido: navegar, preencher, clicar, selecionar, pressionar teclas, esperar e pedir confirmação humana. Um administrador grava as interações para cadastrar um procedimento, sem escrever uma integração para cada sistema. A interface vai mudar e alguém vai ter que ajustar a rotina, mas ajustar dado é bem mais leve que reescrever código.
+
+```yaml
+# Ilustrativo: a forma da ideia, não o formato do sistema.
+rotina: consultar-pedido
+passos:
+  - navegar: "<endereço do sistema>/pedidos"
+  - preencher: { alvo: "campo de busca", valor: "<número do pedido>" }
+  - tecla: Enter
+  - esperar: { ate: "lista de resultados visível" }
+  - confirmar: "Confere se é o pedido certo antes de continuar?"
+```
 
 ## O futuro da ideia: agentes de IA
 
@@ -80,6 +79,8 @@ O [Jev](https://docs.typesafe.ai/introduction), da TypeSafe, é um bom exemplo p
 
 Isso encaixa bem aqui. Em vez de um print, o agente montaria uma **versão em texto da página**, com um recorte do DOM ou da árvore de acessibilidade, e a lista de alvos candidatos. O Jev escolheria entre eles. Para verificar o resultado, o código perguntaria algo como "a página mostra uma confirmação de envio?" e receberia um valor.
 
+<PageToText lang="pt" />
+
 A arquitetura que eu testaria é híbrida:
 
 - **modelo generativo** para entender a intenção e planejar, só quando precisar;
@@ -87,37 +88,7 @@ A arquitetura que eu testaria é híbrida:
 - **código determinístico** para permissões, validação e execução;
 - **humano** para confirmar o que importa.
 
-```text
-EXPANSÃO PROPOSTA (não implementada)
-legenda: ┄ proposto · ─ já existe
-
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Pessoa ┄┄▶ ┆ Modelo generativo          ┆
- intenção  ┆ interpreta e planeja       ┆
-           └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ plano com ações conhecidas
-                          ▼
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Página ┄┄▶ ┆ Modelo de decisão          ┆
- estado    ┆ (ex.: Jev)                 ┆
- em texto  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ escolha + confiança
-                          ▼
-           ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-           ┆ Validação da proposta      ┆
-           ┆ permissões · limites       ┆
-           └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                          ┆ confirmação humana, se preciso
-                          ▼
-           ┌────────────────────────────┐
-           │ Executor de rotinas        │
-           │ do agente desktop          │
-           └──────────────┬─────────────┘
-                          ▼
-          verificar o resultado (proposto)
-```
-
-O ciclo fica: **observar → propor → validar → confirmar quando necessário → executar → verificar.**
+<AiLoop lang="pt" />
 
 Três regras que eu não abriria mão: confiança do modelo não é autorização; o que aparece na tela é dado, nunca instrução; e credenciais não vão para o modelo. Se isso reduz custo, latência ou a dependência de roteiros rígidos, ainda é hipótese. Precisa ser medido com rotinas reais.
 

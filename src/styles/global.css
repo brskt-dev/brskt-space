@@ -797,17 +797,29 @@ a:hover {
   font-family: inherit;
 }
 
-/* ```text blocks are used for box-drawing diagrams: tight lines so the box edges
-   connect, and a font that shrinks on phones so less horizontal scrolling is needed. */
-.prose pre[data-language='text'] {
-  line-height: 1.32;
-  font-size: clamp(0.56rem, 2.1vw, 0.875rem);
+/* Code blocks get a little terminal frame: three dots and the language. */
+.prose > pre {
+  position: relative;
+  padding-top: 2.75rem;
 }
 
-@media (max-width: 40rem) {
-  .prose pre[data-language='text'] {
-    padding: 0.9rem 0.75rem;
-  }
+.prose > pre::before {
+  content: attr(data-language);
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 2rem;
+  padding-left: 3.6rem;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--r) var(--r) 0 0;
+  background:
+    radial-gradient(circle at 1rem 50%, var(--brand-hi) 0 4px, transparent 4.5px),
+    radial-gradient(circle at 1.75rem 50%, var(--sun) 0 4px, transparent 4.5px),
+    radial-gradient(circle at 2.5rem 50%, var(--mint) 0 4px, transparent 4.5px),
+    var(--bg-2);
+  font: 500 0.7rem / 1 var(--font-mono);
+  color: var(--muted);
 }
 
 .prose hr {
