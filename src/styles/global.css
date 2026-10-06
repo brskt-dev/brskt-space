@@ -747,18 +747,19 @@ a:hover {
   font-weight: 650;
 }
 
-.prose ul,
-.prose ol {
+/* list rules stop at diagram cards (figure.dgm), which lay out their own lists */
+.prose ul:not(.dgm *),
+.prose ol:not(.dgm *) {
   padding-left: 1.3em;
 }
 
-.prose ul > li::marker {
+.prose ul:not(.dgm *) > li::marker {
   content: '✦  ';
   color: var(--accent-2);
   font-size: 0.8em;
 }
 
-.prose li + li {
+.prose li:not(.dgm *) + li {
   margin-top: 0.4em;
 }
 
