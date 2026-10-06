@@ -169,6 +169,19 @@ publicação compartilham a mesma discussão (o slug é a chave). Para reagir, o
 - Visual (tema escuro do site): `public/giscus-theme.css`.
 - Moderação: aba **Discussions** do repositório (editar, ocultar, bloquear, apagar).
 
+## Visitas (GoatCounter)
+
+O site conta visitas com o [GoatCounter](https://www.goatcounter.com): sem cookies e sem dados pessoais,
+então não precisa de banner de consentimento. O painel mostra visitas por página, de onde a pessoa veio
+(LinkedIn, Google…), país, navegador e tamanho de tela.
+
+- Configuração: `src/data/analytics.ts`. Com `code` vazio, nenhum script vai para o site.
+- O `code` é o subdomínio escolhido no cadastro: para `https://brskt.goatcounter.com` o code é `brskt`.
+  O painel fica nesse mesmo endereço.
+- Cliques em links externos (LinkedIn, GitHub, demos) também são contados, como eventos `ext-<site>`
+  (ex.: `ext-linkedin.com`). Isso vem de `ExternalLink.astro` e do plugin de Markdown, sem nada a fazer por publicação.
+- `npm run dev` e `npm run preview` não contam: o GoatCounter ignora localhost.
+
 ## Mapa de URLs
 
 Os caminhos abaixo vêm depois de `https://brskt-dev.github.io/brskt-space`.

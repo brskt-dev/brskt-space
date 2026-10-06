@@ -46,7 +46,9 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
   text on dark (1.97:1). Text must keep WCAG AA contrast; links/focus use `--accent`.
 - **Accessibility.** One `h1` per page, semantic landmarks, visible `:focus-visible`, alt text, tap targets
   >= 44px, no horizontal scroll at 360px, external links open in a new tab (`target="_blank" rel="noopener noreferrer"`, via `ExternalLink.astro` or the Markdown plugin).
-- Client JS: only the tiny language redirect on the root chooser and the giscus embed (reactions + comments
+- Client JS: only the tiny language redirect on the root chooser, the giscus embed (reactions + comments
   on publication pages, `src/components/Reactions.astro`, config in `src/data/giscus.ts`, theme in
-  `public/giscus-theme.css`). The owner chose giscus (GitHub Discussions) because the site has no backend.
+  `public/giscus-theme.css`) and GoatCounter analytics (cookieless; script in `BaseHead.astro`, config in
+  `src/data/analytics.ts`, external-link clicks counted as `ext-<host>` events via `data-goatcounter-click`).
+  The owner chose giscus (GitHub Discussions) because the site has no backend, and GoatCounter for visits.
   Nothing else ships JS.

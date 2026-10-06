@@ -6,6 +6,20 @@
 
 /** Screen-reader hint for links that leave the site (also used by ui.ts 'a11y.external'). */
 export const EXTERNAL_HINT = { pt: '(abre em nova guia)', en: '(opens in a new tab)' };
+/**
+ * GoatCounter event name for a click on an external link (`ext-linkedin.com`), or
+ * undefined for URLs without a host. count.js picks up `data-goatcounter-click`.
+ * @param {string} href
+ */
+export function clickEvent(href) {
+  try {
+    const host = new URL(href).hostname.replace(/^www\./, '');
+    return host ? `ext-${host}` : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Path of the external-link arrow icon (also used by ExternalLink.astro). */
 export const EXT_ICON_PATH = 'M4 2h6v6M10 2 2.5 9.5';
 
@@ -47,6 +61,8 @@ export const externalLinks = (siteUrl) => ({
       rel.add('noreferrer');
       ctx.setProperty(node, 'rel', [...rel]);
       ctx.setProperty(node, 'target', '_blank');
+      const event = clickEvent(href);
+      if (event) ctx.setProperty(node, 'dataGoatcounterClick', event);
       ctx.appendChild(node, [
         icon(),
         {
