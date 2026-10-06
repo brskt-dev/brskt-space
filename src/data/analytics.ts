@@ -12,7 +12,7 @@
  */
 export const goatcounter = {
   /** Empty = analytics disabled. */
-  code: '',
+  code: 'brskt',
 } as const;
 
 export const analyticsEnabled = (goatcounter.code as string).length > 0;
