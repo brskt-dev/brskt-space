@@ -1,11 +1,12 @@
 ---
 /**
  * <head> contents shared by every page: meta, canonical, hreflang alternates,
- * Open Graph / Twitter, favicon. All URLs are absolute or base-prefixed.
+ * Open Graph / Twitter, favicon, analytics. All URLs are absolute or base-prefixed.
  */
 import '../styles/global.css';
 import { assetPath, absoluteUrl } from '../lib/url';
 import { getOgImage } from '../lib/og';
+import { analyticsEnabled, goatcounterEndpoint } from '../data/analytics';
 
 export interface Alternate {
   hreflang: string;
@@ -72,3 +73,4 @@ const ogImage = absoluteUrl(og.src, site);
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+{analyticsEnabled && <script is:inline async data-goatcounter={goatcounterEndpoint} src="https://gc.zgo.at/count.js"></script>}
