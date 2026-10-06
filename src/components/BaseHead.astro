@@ -55,6 +55,7 @@ const ogImage = absoluteUrl(og.src, site);
 {canonical && <link rel="canonical" href={url} />}
 {alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={absoluteUrl(a.href, site)} />)}
 <link rel="icon" href={assetPath('favicon.svg')} type="image/svg+xml" />
+<link rel="apple-touch-icon" href={assetPath('apple-touch-icon.png')} />
 <link rel="sitemap" href={assetPath('sitemap.xml')} />
 
 <meta property="og:title" content={title} />
