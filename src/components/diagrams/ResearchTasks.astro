@@ -188,17 +188,30 @@ const steps: { icon: IconName; title: string; what: string; tech: string; you: s
     border: 1px solid color-mix(in srgb, var(--sun) 40%, transparent);
   }
 
+  /* phones: both labels on one row, the bar below; wide: label · bar · label */
   .scale {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.45rem 0.6rem;
     margin-top: 1rem;
     font: 500 0.66rem / 1.3 var(--font-mono);
     color: var(--muted);
   }
 
+  .scale span:last-child {
+    text-align: right;
+  }
+
+  @media (min-width: 40rem) {
+    .scale {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+  }
+
   .bar {
-    flex: 1;
+    grid-column: 1 / -1;
+    grid-row: 2;
     height: 6px;
     border-radius: 6px;
     background: linear-gradient(90deg, var(--mint), var(--accent-2) 50%, var(--sun));
