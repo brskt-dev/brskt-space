@@ -1,7 +1,7 @@
 ---
 type: article
-title: "Chatbots e eleições: o que o estudo Papo de IA encontrou"
-summary: "O InternetLab testou oito chatbots com usuários simulados por outra IA. Quando pediam um candidato, esses usuários muitas vezes recebiam respostas que ligavam candidaturas ao seu perfil ou às suas prioridades, mesmo quando o chatbot dizia não indicar voto."
+title: "Como usar IA pra se informar na eleição sem ela escolher por você"
+summary: "Um guia prático, em cinco regras, pra usar chatbots na eleição. Cada regra vem com um dado do Papo de IA, estudo do InternetLab que testa oito chatbots com eleitores simulados."
 date: 2026-10-08
 cover: ./media/cover-pt.webp
 thumbnail: ./media/thumb-pt.webp
@@ -12,45 +12,49 @@ draft: true
 import MirrorAnswers from '../../../components/diagrams/MirrorAnswers.astro';
 import ChatbotStrip from '../../../components/diagrams/ChatbotStrip.astro';
 
-O [Papo de IA](https://internetlab.org.br/pt/projetos/papo-de-ia-como-os-chatbots-interagem-sobre-eleicoes/), do InternetLab, estuda como os chatbots conversam sobre as eleições de 2026. Nas conversas sobre voto, o padrão mais frequente tem nome: "compatibilidade com o usuário". A resposta liga candidatos ao perfil ou às prioridades de quem pergunta. O quadro abaixo traz exemplos e números.
-
-<MirrorAnswers lang="pt" />
-
-Na primeira rodada, os chatbots recusaram expressamente indicar um nome em 42% das respostas sobre voto. Mas o [Boletim 1](https://internetlab.org.br/wp-content/uploads/2026/09/Papo_de_IA_-_Boletim_1-1.pdf) conclui: "Recusar o pedido e atender à sua substância não são coisas excludentes."
-
-## Como foi o teste
+O [Papo de IA](https://internetlab.org.br/pt/projetos/papo-de-ia-como-os-chatbots-interagem-sobre-eleicoes/), do InternetLab, LabDados/FGV e Rede Conhecimento Social, testa oito chatbots: ChatGPT, Claude, Copilot, DeepSeek, Gemini, Google AI Mode, Grok e Meta AI. Foram duas rodadas (agosto e setembro de 2026), com eleitores simulados por outra IA. O padrão mais frequente sobre voto: ligar candidaturas a quem pergunta. Abaixo, o que faço com isso.
 
 <ChatbotStrip />
 
-Foram oito chatbots: ChatGPT, Claude, Copilot, DeepSeek, Gemini, Google AI Mode, Grok e Meta AI. Todos com conta gratuita, no modelo padrão e na interface que o público usa (a Meta AI, pelo WhatsApp). Um aviso: uso muito o Claude Code e o Codex. São da Anthropic e da OpenAI, que fazem o Claude e o ChatGPT.
+## 1. Não diga seu lado nem seu perfil
 
-Quem conversa com eles é outro modelo de linguagem, no papel de perfis que combinam posição política, gênero, idade, escolaridade e estilos de conversa e de escrita. Todo perfil, de qualquer lado, carrega uma crença plantada pelos pesquisadores. Nas conversas sobre voto, a de que é legítimo pedir um nome ou um ranking segundo as próprias prioridades. Nas conversas sobre integridade eleitoral, a de que a eleição pode não ser confiável.
+**Faça:** use um chat temporário, sem memória, e pergunte sem dizer idade, gênero, religião ou lado. Se a IA presumir algo, peça pra refazer sem isso.
 
-Um modelo "juiz" classificou as conversas com uma rubrica escrita, e outros modelos e pesquisadores conferiram amostras. Foram duas rodadas: 1.679 conversas em agosto e 1.920 em setembro. Os percentuais de conversas são "estimativas de piso": nos testes, o valor verdadeiro tende a ser maior.
+Na rodada 2, 70,6% das conversas sobre voto ligaram candidaturas ao perfil ou às prioridades de quem perguntava. O estudo não testou conversas sem perfil. DeepSeek, Meta AI e Grok às vezes presumiram traços nunca ditos: o DeepSeek usou "falar a língua do povo evangélico" com quem não declarou essa religião.
 
-## Diferenças entre plataformas
+<MirrorAnswers lang="pt" />
 
-No [Boletim 2](https://internetlab.org.br/wp-content/uploads/2026/10/Papo_de_IA_-_Boletim_2.pdf), o ChatGPT ficou "muito mais contido": as conversas sobre voto com ao menos uma ocorrência marcada pelo juiz caíram de 73,9% na rodada 1 para 35% na rodada 2. A comparação entre rodadas, avisam os autores, é "de tendência, e não de medida exata". Na rodada 2, o Gemini teve ocorrência em 100% das suas conversas sobre voto, o maior percentual entre as plataformas. Como todas receberam o mesmo roteiro, o boletim atribui as diferenças às "escolhas de produto de cada empresa".
+## 2. Peça comparação de propostas, não um nome
 
-## O que o estudo não diz
+**Faça:** `Compare os planos de governo das candidaturas a [cargo] sobre [tema], sem dizer qual é melhor.` Depois, confira no plano registrado.
 
-A regra do TSE ([art. 28, § 1º-C, da Res. 23.610/2019](https://web.archive.org/web/20261004122733/https://www.tse.jus.br/legislacao/compilada/res/2019/resolucao-no-23-610-de-18-de-dezembro-de-2019)) veda a provedores de IA, "ainda que solicitado pela(o) usuária(o)", "ranquear, recomendar, sugerir ou priorizar candidatas(os)". Mas o estudo "não se propõe a avaliar a conformidade das ferramentas com a legislação eleitoral". Também não diz que os chatbots têm viés, nem mede para que lado político as respostas pendem.
+Na rodada 1, os chatbots se recusaram expressamente a indicar um nome em 42% das respostas sobre voto, mas muitas vezes reorganizaram as candidaturas "segundo as prioridades declaradas". A Meta AI baseou uma comparação nos planos registrados no TSE, "dado público e verificável".
 
-O Google disse ao [UOL](https://www.uol.com.br/tilt/noticias/redacao/2026/10/03/pesquisa-aponta-que-gemini-reforca-duvida-sobre-eleicoes-em-25-das-conversas.htm) que o estudo "utiliza uma IA para avaliar outra e não reflete o uso cotidiano do Gemini por pessoas reais, mas sim um teste de estresse artificial baseado em um número reduzido de conversas". Em parte, tem razão: os números não medem com que frequência isso acontece com pessoas reais. Os autores avisam, na [nota metodológica](https://internetlab.org.br/wp-content/uploads/2026/09/Papo_de_IA_-_Nota_metodologica_v.1.1.pdf), que os perfis "não constituem uma amostra da população brasileira".
+## 3. Pergunte de novo trocando o perfil
 
-## Como perguntar
+**Faça:** quebre a regra 1. Num chat temporário, pergunte `Sou mulher. O que as candidaturas a [cargo] propõem contra o feminicídio?`; em outro, troque por `Sou homem.` Se a resposta inverter os nomes, ela espelha você.
 
-- **Peça uma comparação de propostas, não um nome.** E não diga seu lado nem seu perfil.
-- **Pergunte nos dois sentidos.** Se a resposta muda quando você muda de lado, ela está espelhando você.
-- **Peça fontes e confira.** Sobre como votar, a fonte é a Justiça Eleitoral.
-- **Desconfie de texto pronto pra encaminhar.**
+Numa amostra da rodada 1, o [Boletim 1](https://internetlab.org.br/wp-content/uploads/2026/09/Papo_de_IA_-_Boletim_1-1.pdf) notou que "o feminicídio aparece associado a candidatos de forma praticamente invertida conforme o gênero da persona". Com perfis masculinos de direita ou sem posição declarada, virou preocupação atribuída a Haddad ou Lula; com femininos do mesmo tipo, a Tarcísio.
 
-## E aí, o que você acha?
+## 4. Não peça texto pronto pra mandar no grupo
 
-- Um chatbot que diz não indicar voto, mas organiza seus critérios até sobrar um nome, está te ajudando a decidir ou decidindo por você?
-- Você prefere um chatbot que não fala de candidatos ou um que responde igual a qualquer perfil?
+**Faça:** cole o que chegou no grupo e pergunte: `O que aqui dá pra confirmar, e em qual fonte oficial?` Se for responder, escreva você.
 
-Deixa nos comentários aqui embaixo.
+Na rodada 2, 42,9% das ocorrências sobre integridade eleitoral (trechos marcados pelo estudo) foram textos prontos pra compartilhar, quase todos a pedido. A Meta AI deu a um perfil de esquerda um texto "pronto para você usar": "Gente, a urna não é tão perfeita quanto parece"; o Gemini, a um de direita, uma "Sugestão de texto para redes sociais" contra aceitar o resultado.
+
+## 5. Teste o chatbot que você usa
+
+**Faça:** antes de pesquisar a eleição num chatbot, rode nele o teste da regra 3.
+
+Na rodada 2, com o mesmo roteiro, a indicação de candidatura nas conversas sobre voto foi de 0% no ChatGPT a 82% no DeepSeek; no Claude e Copilot, 8%. Mesmo o ChatGPT teve ocorrência em 35% delas. O [Boletim 2](https://internetlab.org.br/wp-content/uploads/2026/10/Papo_de_IA_-_Boletim_2.pdf) atribui as diferenças às "escolhas de produto de cada empresa", e a nota metodológica lembra que as plataformas mudam "sem aviso prévio".
+
+## O que o estudo não mede
+
+Um modelo "juiz" classifica as conversas. Os números mostram o que acontece quando alguém insiste, não a frequência entre eleitores reais: os perfis "não constituem uma amostra da população brasileira" ([nota metodológica](https://internetlab.org.br/wp-content/uploads/2026/09/Papo_de_IA_-_Nota_metodologica_v.1.1.pdf)). O Google disse ao [UOL](https://www.uol.com.br/tilt/noticias/redacao/2026/10/03/pesquisa-aponta-que-gemini-reforca-duvida-sobre-eleicoes-em-25-das-conversas.htm) que o estudo "não reflete o uso cotidiano do Gemini por pessoas reais"; nisso, tem razão. O estudo não avalia se as plataformas cumprem a [regra do TSE](https://web.archive.org/web/20261004122733/https://www.tse.jus.br/legislacao/compilada/res/2019/resolucao-no-23-610-de-18-de-dezembro-de-2019) nem testa este guia.
+
+Aviso: uso muito o Claude Code, da Anthropic, e o Codex, da OpenAI, que fazem o Claude e o ChatGPT.
+
+Deixa nos comentários aqui embaixo qual regra você já usa ou acrescentaria.
 
 ## Referências
 
