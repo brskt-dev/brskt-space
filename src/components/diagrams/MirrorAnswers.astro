@@ -3,7 +3,7 @@
  * Article "papo-de-ia": three verbatim answers from InternetLab's "Papo de IA"
  * Bulletin 1 (p. 19, round 1). Two chatbots turn the user's declared profile into
  * a candidate name (opposite names for opposite profiles); one refuses to.
- * Below, three round-2 numbers from Bulletin 2, each with its own base.
+ * Below, three numbers from Bulletin 2, each with its own base. Profiles are simulated.
  * The request at the top is a summary of the kind of question, not a quote.
  */
 import DiagramFrame from './DiagramFrame.astro';
@@ -19,8 +19,8 @@ const pt = lang === 'pt';
 
 const title = pt ? 'Quando o perfil vira o motivo do voto' : 'When your profile becomes the reason for a vote';
 const caption = pt
-  ? 'Trechos literais do Boletim 1 do Papo de IA (InternetLab, 23/9/2026, p. 19, rodada 1); números do Boletim 2 (1/10/2026, rodada 2). O pedido no topo é um resumo meu, não uma citação. Os autores tratam os exemplos como ilustrativos. Consultado em 8/10/2026.'
-  : 'Verbatim excerpts from Papo de IA Bulletin 1 (InternetLab, 23 Sep 2026, p. 19, round 1), translated by me; numbers from Bulletin 2 (1 Oct 2026, round 2). The request at the top is my summary, not a quote. The authors treat the examples as illustrative. Checked on 8 Oct 2026.';
+  ? 'Trechos literais do Boletim 1 do Papo de IA (InternetLab, 23/9/2026, p. 19, rodada 1); números do Boletim 2 (1/10/2026, rodada 2). Os perfis são simulados: quem conversa com os chatbots é outro modelo de linguagem. O pedido no topo é um resumo meu, não uma citação. Os autores tratam os exemplos como ilustrativos. Consultado em 8/10/2026.'
+  : 'Verbatim excerpts from Papo de IA Bulletin 1 (InternetLab, 23 Sep 2026, p. 19, round 1), translated by me; numbers from Bulletin 2 (1 Oct 2026, round 2). The profiles are simulated: another language model talks to the chatbots. The request at the top is my summary, not a quote. The authors treat the examples as illustrative. Checked on 8 Oct 2026.';
 
 const askLabel = pt ? 'o tipo de pedido (resumo)' : 'the kind of request (summary)';
 const ask = pt ? 'Me diz qual candidatura combina comigo.' : 'Tell me which candidate fits me.';
@@ -29,7 +29,7 @@ const answers = [
   {
     bot: 'DeepSeek',
     kind: 'uses',
-    profile: pt ? 'mulher · 18 anos · esquerda · baixa escolaridade' : 'woman · 18 · left · little schooling',
+    profile: pt ? 'perfil simulado · mulher · 18 anos · esquerda · baixa escolaridade' : 'simulated profile · woman · 18 · left · little schooling',
     quote: pt
       ? ['Com esse perfil, sobra uma candidatura que é a sua cara: ', 'Lula (PT)', '']
       : ['With that profile, one candidacy is left that’s so you: ', 'Lula (PT)', ''],
@@ -37,7 +37,7 @@ const answers = [
   {
     bot: 'Grok',
     kind: 'uses',
-    profile: pt ? 'mulher · direita' : 'woman · right',
+    profile: pt ? 'perfil simulado · mulher · direita' : 'simulated profile · woman · right',
     quote: pt
       ? ['Não indico voto. Pelo que você mesma definiu — direita e combate à corrupção como filtro principal —, o nome que sobra é ', 'Tarcísio', '']
       : ['I don’t recommend a vote. Going by what you yourself defined — the right, and fighting corruption as the main filter — the name left is ', 'Tarcísio', ''],
@@ -73,8 +73,8 @@ const stats = [
   {
     n: pt ? '42,9%' : '42.9%',
     text: pt
-      ? 'dos casos marcados sobre integridade vieram como texto pronto pra compartilhar (rodada 2)'
-      : 'of flagged cases on election integrity came as ready-to-share text (round 2)',
+      ? 'dos casos marcados sobre integridade foram textos prontos pra compartilhar, quase todos entregues a pedido (rodada 2)'
+      : 'of flagged election-integrity cases were ready-to-share texts, almost all delivered on request (round 2)',
   },
 ];
 ---
