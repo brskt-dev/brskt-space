@@ -1,0 +1,61 @@
+---
+/**
+ * Article "papo-de-ia": the eight chatbots the study tested, as a row of logos.
+ * Decorative (aria-hidden): the paragraph next to it already names all eight.
+ */
+import BrandMark from '../ui/BrandMark.astro';
+import type { BrandName } from '../ui/brand-marks';
+
+const bots: { name: string; mark: BrandName }[] = [
+  { name: 'ChatGPT', mark: 'openai' },
+  { name: 'Claude', mark: 'claude' },
+  { name: 'Copilot', mark: 'copilot' },
+  { name: 'DeepSeek', mark: 'deepseek' },
+  { name: 'Gemini', mark: 'gemini' },
+  { name: 'Google AI Mode', mark: 'google' },
+  { name: 'Grok', mark: 'grok' },
+  { name: 'Meta AI', mark: 'metaai' },
+];
+---
+
+<ul class="bots" aria-hidden="true">
+  {
+    bots.map((b) => (
+      <li>
+        <BrandMark name={b.mark} size={20} />
+        <span>{b.name}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  /* :global(.prose) outranks the prose list rules (padding, spacing between items) */
+  :global(.prose) .bots {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding: 0;
+  }
+
+  @media (min-width: 40rem) {
+    :global(.prose) .bots {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  :global(.prose) .bots li {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    font: 500 0.78rem / 1.2 var(--font-mono);
+    color: var(--text);
+  }
+</style>

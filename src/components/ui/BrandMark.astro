@@ -1,0 +1,23 @@
+---
+/**
+ * A chatbot's logo, monochrome (currentColor) so it follows the theme tokens like
+ * the Lucide icons do. Path data and license in `brand-marks.ts`. Decorative by
+ * default (aria-hidden); pass `label` when the logo stands alone.
+ */
+import { brandMarks, type BrandName } from './brand-marks';
+
+interface Props {
+  name: BrandName;
+  size?: number;
+  class?: string;
+  /** Accessible name. Omit for decorative logos (the default). */
+  label?: string;
+}
+
+const { name, size = 18, class: className, label } = Astro.props;
+const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': 'true' as const };
+---
+
+<svg class:list={['icon', className]} width={size} height={size} viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" focusable="false" {...a11y}>
+  {brandMarks[name].map((d) => <path d={d} />)}
+</svg>

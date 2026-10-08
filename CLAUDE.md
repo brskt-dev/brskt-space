@@ -38,7 +38,7 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
   build every href/src with the helpers (`pathFor`, `publicationUrl`, `alternateUrl`, `urlFor` in
   `src/i18n/ui.ts`; `joinBase`, `assetPath`, `absoluteUrl` in `src/lib/url.ts`). Routes end with `/`.
 - **Look & feel (owner's brief).** "Fun dev", community, space theme ("Brskt Space"): Bricolage Grotesque
-  (display), Geist (text), JetBrains Mono (code/tags); Lucide icons via `src/components/ui/Icon.astro`;
+  (display), Geist (text), JetBrains Mono (code/tags); Lucide icons via `src/components/ui/Icon.astro`; chatbot logos (monochrome, `currentColor`) via `src/components/ui/BrandMark.astro`;
   generated covers via `Cover.astro`; CSS-only motion (hover/press, slow loops, scroll reveal). Every animation
   must be disabled under `prefers-reduced-motion` (handled globally in `global.css`).
 - **Dark only.** No light mode or toggle. Use the CSS tokens in `src/styles/global.css` (`--bg`, `--surface`,

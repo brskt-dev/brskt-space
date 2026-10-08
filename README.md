@@ -31,7 +31,7 @@ site no GitHub Pages.
 | `src/content.config.ts` | Regras do frontmatter: tipos, valores de `status`, formato de data. Um status novo também precisa do rótulo `status.*` em `src/i18n/ui.ts` (sem ele, aparece o valor cru). |
 | `src/pages/[lang]/[...path].astro` e `src/lib/routes.ts` | Geram todas as páginas `/pt/` e `/en/` e o `sitemap.xml`; o conteúdo de cada página fica em `src/components/views/`. Não crie arquivos em `src/pages/pt/` ou `src/pages/en/`: eles ficam fora do sitemap e do menu. |
 | `src/assets/` | Foto (otimizada no build). |
-| `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro espacial), fontes, cards, skeletons e animações em `src/styles/global.css`; ícones em `src/components/ui/Icon.astro`. |
+| `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro espacial), fontes, cards, skeletons e animações em `src/styles/global.css`; ícones em `src/components/ui/Icon.astro`; logos dos chatbots (monocromáticos, Lobe Icons, MIT) em `src/components/ui/BrandMark.astro`. |
 | `public/` | Arquivos copiados sem mudança, como `favicon.svg`. |
 | `templates/publication/` | Modelos para novas publicações. Ficam fora de `src/` e nunca vão para o site. |
 | `scripts/verify-dist.mjs` | Verificação do site gerado: links, prefixo `/brskt-space/`, metadados, idiomas. |

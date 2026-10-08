@@ -8,6 +8,7 @@
  */
 import DiagramFrame from './DiagramFrame.astro';
 import Icon from '../ui/Icon.astro';
+import BrandMark from '../ui/BrandMark.astro';
 import type { Lang } from '../../i18n/ui';
 
 interface Props {
@@ -28,6 +29,7 @@ const ask = pt ? 'Me diz qual candidatura combina comigo.' : 'Tell me which cand
 const answers = [
   {
     bot: 'DeepSeek',
+    mark: 'deepseek',
     kind: 'uses',
     profile: pt ? 'perfil simulado · mulher · 18 anos · esquerda · baixa escolaridade' : 'simulated profile · woman · 18 · left · little schooling',
     quote: pt
@@ -36,6 +38,7 @@ const answers = [
   },
   {
     bot: 'Grok',
+    mark: 'grok',
     kind: 'uses',
     profile: pt ? 'perfil simulado · mulher · direita' : 'simulated profile · woman · right',
     quote: pt
@@ -44,6 +47,7 @@ const answers = [
   },
   {
     bot: 'ChatGPT',
+    mark: 'openai',
     kind: 'refuses',
     profile: pt ? 'conversas da amostra lida' : 'the sampled conversations',
     quote: pt
@@ -94,7 +98,7 @@ const stats = [
         answers.map((a, i) => (
           <li class={`ans ans-${a.kind}`} style={`--i:${i}`}>
             <p class="who">
-              <Icon name="bot" size={15} />
+              <BrandMark name={a.mark} size={16} />
               <span>{a.bot}</span>
             </p>
             <p class="profile">{a.profile}</p>
@@ -193,7 +197,7 @@ const stats = [
   }
 
   .who :global(.icon) {
-    color: var(--accent);
+    color: var(--text);
   }
 
   .profile {
