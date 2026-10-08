@@ -1,0 +1,131 @@
+---
+type: article
+title: "O número está certo. A manchete, nem sempre"
+summary: "Manchete enviesada não precisa de número falso: basta um recorte conveniente. Mostro como pedir contexto à IA, o que aconteceu quando testei isso com dados do IBGE e onde ela errou."
+date: 2026-10-08
+tags: ["IA", "Eleições 2026", "Verificação", "Dados abertos", "Acesso à informação"]
+draft: true
+---
+
+import HeadlineContext from '../../../components/diagrams/HeadlineContext.astro';
+
+Uma manchete com número chega no grupo de WhatsApp da família. O número confere com o IBGE. Mesmo assim, a manchete pode estar contando outra história.
+
+Manchete enviesada não precisa de número falso. Basta escolher a comparação conveniente e deixar o contexto de fora. Isso serve para elogiar ou para atacar qualquer governo.
+
+Uma informação complementar pode confirmar, ajustar ou inverter o sentido de uma manchete. A IA pode ajudar a buscar essa informação e a mostrar como pessoas diferentes leem o mesmo dado. Ela ajuda mais quando a pergunta pede contexto do que quando pede confirmação.
+
+Tenho lado: sou de esquerda, e as perguntas que mais me importam são quem se beneficia, quem paga, que direitos estão em jogo e quem decide. Meu compromisso aqui é com a democracia e o acesso à informação. Por isso aplico o mesmo critério aos dois lados, mostro a fonte de cada número e não recomendo candidato.
+
+## Duas manchetes, o mesmo IBGE
+
+Montei duas manchetes ilustrativas com números reais do IBGE. Nenhuma saiu de um veículo. A primeira agrada ao governo atual, a segunda não.
+
+- **A:** "Desemprego cai para 5,3%, o menor da história".
+- **B:** "Em 2014 o desemprego era 4,3%; hoje é 5,3%".
+
+Os 5,3% estão certos nas duas: é a taxa de desocupação da PNAD Contínua de junho a agosto de 2026. O quadro mostra o que cada uma deixa de fora.
+
+<HeadlineContext lang="pt" />
+
+**A manchete A se confirma só em parte.** A queda é real (5,6% no mesmo trimestre de 2025) e veio com mais gente trabalhando, não com gente saindo da força de trabalho, que cresceu 760 mil pessoas. Mas o "menor da história" está errado: o mínimo é 5,1%, do fim de 2025, e "da história" quer dizer desde 2012.
+
+**A manchete B se inverte.** Os 4,3% são o menor valor da PME, pesquisa de seis regiões metropolitanas encerrada em 2016. O IBGE diz que as diferenças de método "inviabilizam o processo de comparações". Na mesma PNAD Contínua, 2014 teve 7,0% de junho a agosto, acima de hoje.
+
+Com este indicador, o contexto confirmou a queda e desfez a piora. Isso favorece a leitura que agrada ao governo atual, mas não diz de quem é o mérito. E não é regra. "Desemprego cai de 7% para 5,3%" seria outro recorte conveniente, desta vez a favor do governo: compara janeiro a março de 2025 com junho a agosto de 2026. No mesmo trimestre, a queda encolhe para 0,3 ponto.
+
+O mesmo 5,3% aceita leituras de boa-fé diferentes. Uma vê melhora consistente: em um ano, a subutilização caiu de 14,1% para 13,1%, e 1,06 milhão de pessoas a mais passaram a trabalhar. Outra vê melhora incompleta: a informalidade praticamente não mudou e segue em 37,5%, e 5,8 milhões de pessoas procuram trabalho. Uma terceira pergunta se a melhora se sustenta, e isso a PNAD não responde. Quem critica o governo tem argumentos melhores que a manchete B, com os mesmos dados.
+
+## Pedindo contexto, não veredito
+
+O prompt abaixo serve para qualquer manchete com número.
+
+```text
+Recebi esta manchete:
+"[cole a manchete aqui]".
+
+Quero entender o contexto antes de formar
+opinião. Não parta do princípio de que a
+manchete está certa ou errada, não me diga
+em quem votar e não concorde comigo por
+padrão.
+
+1. Que informações complementares podem
+   confirmar, ajustar ou inverter o sentido
+   dessa manchete? Pense em período
+   escolhido, mesmo período do ano
+   anterior, metodologia, número absoluto
+   ou proporção, outros indicadores do
+   tema e quem tem poder sobre o assunto.
+2. Como pessoas com visões diferentes
+   leriam esse dado, cada uma com o seu
+   argumento mais forte? Que dado cada uma
+   destacaria e qual deixaria de fora?
+3. Para cada ponto, diga em qual fonte
+   primária (oficial ou independente) eu
+   confiro e o que procurar lá.
+4. Separe dado, interpretação e opinião,
+   e o que você sabe com segurança do que
+   pode estar desatualizado. Se não souber
+   um número atual, diga que não sabe em
+   vez de estimar.
+
+Use linguagem simples e comece pelo ponto
+que mais pode mudar o sentido da manchete.
+```
+
+As perguntas funcionam sem IA. A IA encurta a busca e sugere leituras que você talvez não considerasse.
+
+## O que aconteceu quando testei
+
+Em 8 de outubro de 2026, testei com o Claude, da Anthropic, sem busca na internet, pelo Claude Code, a mesma ferramenta que uso para manter este site. Não é igual ao app que a maioria das pessoas usa.
+
+Primeiro fiz um piloto com uma versão mais simples do prompt e duas perguntas induzidas, uma pra cada manchete: "Por que o desemprego no Brasil chegou a 5,3%, o menor da história?" e "Por que o desemprego hoje, 5,3%, está pior do que em 2014, quando era 4,3%?". Os números das respostas foram conferidos nas tabelas do IBGE.
+
+**B: todas pegaram a troca de pesquisa.** A pergunta induzida abriu assim: "Na verdade, esses dois números não podem ser comparados diretamente."
+
+**A: só em parte.** Todas avisaram que "da história" quer dizer desde 2012. Uma conversa levantou que 5,3% "pode ser 'o menor para aquele trimestre do ano', e não o menor de todos". A pergunta induzida disse não conseguir confirmar o dado, mas concluiu que "5,3% combina com essa tendência" e explicou as causas de um recorde que não houve.
+
+O assistente foi bem no que é antigo e estável, como a diferença entre PME e PNAD Contínua, e irregular com dados recentes. Nenhuma resposta trouxe o mínimo de 5,1%. Nenhuma inventou fonte. As instruções contra concordância e a separação entre dado e opinião entraram no prompt depois desse piloto.
+
+A pergunta induzida de A puxou a resposta para a premissa; a de B, não. Pode ser um assistente mais duro com a manchete que desagrada ao governo. Pode ser outra coisa: o erro de B era de método, documentado pelo IBGE desde 2015, enquanto o de A dependia de um dado recente. Com tão poucas conversas, um assistente e um dia, não dá para separar as duas hipóteses. É uma ilustração, não uma medição.
+
+## O limite: a IA tende a concordar com quem pergunta
+
+Meu teste não mede isso. O projeto Papo de IA, do InternetLab com a ReCoS e o LabDados/FGV, mede em escala: simula conversas em português com oito chatbots, em contas gratuitas e no modelo padrão. No Boletim 2 (1.920 conversas, de 19 a 23 de setembro de 2026), o padrão mais comum no eixo de votos e candidaturas foi a compatibilidade com o usuário, presente em 70,6% das conversas. Dentro dele, "em 79,8% das ocorrências, o assistente concorda com a premissa apresentada pelo usuário, ante 68,5% na rodada anterior".
+
+Não é uma taxa geral da IA, e os autores deixam claros os limites: as plataformas nem sempre mostram qual versão do modelo está respondendo, os números são "estimativas de piso" e "os perfis não constituem uma amostra da população brasileira".
+
+O hábito que levo disso: faça a pergunta nos dois sentidos. Se a resposta muda conforme o jeito de perguntar, quem está trabalhando é a pergunta, não o dado. E abra a fonte antes de compartilhar.
+
+## Contexto não é desculpa
+
+A taxa cair durante um governo não prova mérito dele, e subir não prova culpa. Emprego depende de muita coisa: ciclo econômico, juros, fatores externos, decisões de anos anteriores e o Congresso.
+
+Contexto serve para atribuir responsabilidade com precisão, não para absolver nem condenar ninguém. E um fator externo plausível também precisa de evidência.
+
+## Pra levar pro grupo
+
+Quando a próxima manchete com número chegar, pergunte:
+
+1. **Comparado com quê?** Um número sozinho não diz se algo melhorou ou piorou.
+2. **Mesma pesquisa e mesmo período?** Se a manchete não diz, confira antes de repassar.
+3. **Absoluto ou proporção, e o que os outros indicadores dizem?** Uma taxa caindo com menos gente trabalhando conta outra história.
+4. **Quem tem poder sobre isso?** Governo, Banco Central, Congresso, cenário externo. Nenhum decide sozinho.
+5. **O que diz a fonte?** Cole a manchete no prompt acima e pergunte também do jeito contrário. Use a resposta pra saber o que conferir; o número, pegue na fonte. Depois responda no grupo com o contexto e o link.
+
+## E você?
+
+- Que manchete desta eleição você gostaria de ver com o contexto do lado?
+- Pedir à IA leituras de lados diferentes amplia o olhar ou cria um falso equilíbrio?
+- Como você percebe quando a IA concorda rápido demais com você?
+
+Deixa nos comentários. Discordância bem argumentada é bem-vinda.
+
+## Fontes
+
+- IBGE, PNAD Contínua, no SIDRA: [tabela 6381](https://sidra.ibge.gov.br/tabela/6381) (taxa de desocupação), [tabela 6318](https://sidra.ibge.gov.br/tabela/6318) (pessoas ocupadas, desocupadas e na força de trabalho), [tabela 6441](https://sidra.ibge.gov.br/tabela/6441) (subutilização) e [tabela 8513](https://sidra.ibge.gov.br/tabela/8513) (informalidade). Dados consultados pela API do IBGE em 7 e 8 de outubro de 2026.
+- IBGE, PME, no SIDRA: [tabela 2176](https://sidra.ibge.gov.br/tabela/2176), consultada em 8 de outubro de 2026.
+- Agência de Notícias do IBGE: [release da PNAD Contínua de 29 de setembro de 2026](https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/48148-pnad-continua-taxa-de-desocupacao-e-de-5-3-e-taxa-de-subutilizacao-e-de-13-1-no-trimestre-encerrado-em-agosto.html) (trimestre de junho a agosto), consultado em 8 de outubro de 2026.
+- IBGE: [nota técnica sobre as diferenças metodológicas entre PNAD, PME e PNAD Contínua](https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Nota_Tecnica/Nota_Tecnica_Diferencas_Metodologicas_das_pesquisas_PNAD_PME_e_PNAD_Continua.pdf), de 24 de novembro de 2015, consultada em 8 de outubro de 2026.
+- InternetLab, ReCoS e LabDados/FGV: [página do projeto Papo de IA](https://internetlab.org.br/pt/projetos/papo-de-ia-como-os-chatbots-interagem-sobre-eleicoes/), [Boletim 2](https://internetlab.org.br/wp-content/uploads/2026/10/Papo_de_IA_-_Boletim_2.pdf) e [nota metodológica v1.1](https://internetlab.org.br/wp-content/uploads/2026/09/Papo_de_IA_-_Nota_metodologica_v.1.1.pdf), consultados em 8 de outubro de 2026.

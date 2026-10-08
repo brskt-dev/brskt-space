@@ -56,8 +56,6 @@ import {
   ShieldCheck,
   Timer,
   UserCheck,
-  Search,
-  Scale,
 } from '@lucide/astro';
 
 const lucide = {
@@ -112,8 +110,6 @@ const lucide = {
   'shield-check': ShieldCheck,
   'timer': Timer,
   'user-check': UserCheck,
-  search: Search,
-  scale: Scale,
 } as const;
 
 export type IconName = keyof typeof lucide | 'github' | 'linkedin';
