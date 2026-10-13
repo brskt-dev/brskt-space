@@ -12,11 +12,11 @@ draft: true
 import AgentApiFlow from '../../../components/diagrams/AgentApiFlow.astro';
 import AgentRunJourney from '../../../components/diagrams/AgentRunJourney.astro';
 
-No dia 6 de outubro, a Microsoft publicou [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), do Waldek Mastykarz. AX é a experiência que um agente de IA tem ao descobrir, escolher e usar uma tecnologia. E o post é honesto num ponto: muita mudança que parece "amigável pra agente" pode piorar o resultado, e enquanto ninguém mede, é só hipótese.
+No dia 6 de outubro, a Microsoft publicou [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), do Waldek Mastykarz. AX é a experiência que um agente de IA tem ao descobrir, escolher e usar uma tecnologia. E o post fala uma coisa que achei bem honesta: muita mudança que parece "amigável pra agente" pode piorar o resultado, e enquanto ninguém mede, é só hipótese.
 
 Eu construo APIs em .NET no dia a dia, então a pergunta que ficou pra mim foi bem prática: uma API que funciona direitinho pro frontend funciona pra um agente?
 
-Pra ver isso acontecer, montei com o Claude Code uma API fictícia de onboarding de clientes, com dados sintéticos e duas versões do contrato, e coloquei um agente pra fazer a mesma tarefa nas duas. O agente também é um Claude, e isso pesa nos resultados. Código, testes e dados estão [no repositório](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
+Pra ver isso acontecer, montei com o Claude Code uma API fictícia de onboarding de clientes, com dados sintéticos e duas versões do contrato, e coloquei um agente pra fazer a mesma tarefa nas duas. Detalhe: o agente também é um Claude. Volto nisso no fim. Código, testes e dados estão [no repositório](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
 
 ## Um 200 que não trocou nada
 
@@ -39,15 +39,15 @@ Content-Type: application/json; charset=utf-8
 
 Deu 200 e o plano continua 2. No código tem um comentário explicando que troca de plano é com os gerentes de conta, no back office, então a API ignora o campo. Só que a resposta não fala nada disso. Um dos agentes resumiu bem: "A API aceita o pedido e ignora o plano sem dar erro."
 
-Um 200 diz que o servidor respondeu. Não diz que aconteceu o que você queria.
+Ou seja, o 200 só diz que o servidor respondeu, não que ele fez o que você pediu.
 
-## O que o frontend sabe e o agente não
+## O que o agente tem na mão
 
-O frontend carrega um monte de coisa que o contrato não escreve: os ids dos planos, o formato do CNPJ, quais campos dá pra editar. O agente só tem o OpenAPI e as respostas, e é com isso que ele escolhe a operação, monta os argumentos, decide se tenta de novo e o que vai te contar no final. O que é válido, o que a credencial pode fazer e o que mudou de verdade, quem decide é o servidor.
+Tudo aquilo que o formulário sabe, o agente não sabe. Ele só tem o OpenAPI e as respostas, e é com isso que escolhe a operação, monta os argumentos, decide se tenta de novo e o que vai te contar no final. O que é válido, o que a credencial pode fazer e o que mudou de verdade, quem decide é o servidor.
 
 <AgentApiFlow lang="pt" />
 
-E quase nada disso é novo. Um script de parceiro que só tem a documentação bate nas mesmas paredes. A diferença é que o agente lê tudo ao pé da letra e age em cima do que leu. O modelo você não controla. O contrato que ele lê, sim.
+E quase nada disso é novo. Um script de parceiro que só tem a documentação bate nas mesmas paredes. A diferença é que o agente lê tudo ao pé da letra e age em cima do que leu. Não dá pra controlar o modelo, mas o contrato que ele lê tá na nossa mão.
 
 ## Onde o v1 atrapalha
 
@@ -60,7 +60,7 @@ O OpenAPI do v1 é gerado direto dos records do C#, sem nenhuma descrição. Só
 - **Repetição que duplica.** Se a resposta da criação se perde e o cliente reenvia, nascem duas solicitações.
 - **Permissão escondida.** A troca de plano depende do back office, e a API nunca diz isso.
 
-Nenhum desses problemas é de IA. São problemas de contrato que um formulário bem feito esconde.
+E repara que nada disso é coisa de IA. É contrato que o formulário escondia.
 
 ## O que mudou no v2
 
@@ -102,7 +102,7 @@ Content-Type: application/problem+json
 }
 ```
 
-Esse formato é o Problem Details, da [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html). O `detail` é pra gente ler, e o que é pra máquina usar vai em campos extras, como `requiredScope` e `allowedAction`. Em poucas linhas, o erro diz que nada mudou, o que falta e qual é o caminho certo. O OpenAPI também diz quando vale repetir: 400 é pra corrigir, 403 e 404 não mudam se repetir, 409 espera o `Retry-After`.
+Esse formato é o Problem Details, da [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html). O `detail` é pra gente ler, e o que é pra máquina usar vai em campos extras, como `requiredScope` e `allowedAction`. O próprio erro já conta que nada mudou e mostra o caminho. E o OpenAPI diz quando vale repetir: só 409 e 5xx, com a mesma chave e o mesmo corpo. 400, 403, 404 e 422 pedem uma mudança, não outra tentativa.
 
 ### Repetir sem duplicar
 
@@ -119,7 +119,7 @@ Location: /v2/onboarding-requests/onb_560d8c1919
 Idempotent-Replayed: true
 ```
 
-Mesma chave com outro corpo dá 422. Nos testes, dez requisições paralelas com a mesma chave criam uma solicitação só. Mas isso não é "exatamente uma vez": a chave só protege reenvios com ela mesma, por 24 horas na demo, e em produção o registro precisa ser gravado na mesma transação da criação. Na demo, ele fica em memória.
+Mesma chave com outro corpo dá 422. Nos testes, dez requisições paralelas com a mesma chave criam uma solicitação só. Só não dá pra chamar isso de "exatamente uma vez": a chave protege reenvios com ela mesma, por 24 horas na demo, e em produção esse registro tem que ser gravado na mesma transação da criação, não em memória como aqui.
 
 ### Permissão é coisa do servidor
 
@@ -142,15 +142,13 @@ Location: /v2/plan-change-requests/pcr_45b0453bee
 }
 ```
 
-O modelo pode ter certeza absoluta de que a cliente quer o Enterprise. A credencial continua sem o escopo, e é isso que vale. Confiança do modelo não é permissão.
-
-E toda leitura filtra pelo cliente da credencial: o id de outro cliente volta 404, como se não existisse.
+Não importa o quanto o modelo tenha certeza de que a cliente quer o Enterprise: sem o escopo na credencial, o servidor não deixa. E toda leitura filtra pelo cliente da credencial, então o id de outro cliente volta 404, como se não existisse.
 
 ### Como saber que deu certo
 
 No v1, o agente tinha um `st: 0` e boa sorte. No v2, a solicitação tem um id estável (`onb_…`), o pedido de troca tem o dele (`pcr_…`), e todo status tem nome e descrição. As respostas trazem um `X-Correlation-Id`, o mesmo do log de auditoria.
 
-E falando em log: ele nunca guarda a chave da API nem o corpo das requisições, mas o CNPJ foi parar lá mesmo assim, na busca por CNPJ e nas `Idempotency-Key`s que os agentes montaram, tipo `onb-padaria-11222333000181-pro-20261020`. Quando um modelo monta a query e a chave, dado de cliente vai junto, e em produção isso pede [hash ou redação](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction) antes de gravar.
+E falando em log: ele nunca guarda a chave da API nem o corpo das requisições, mas o CNPJ foi parar lá mesmo assim, na busca por CNPJ e nas `Idempotency-Key`s que os agentes montaram, tipo `onb-padaria-11222333000181-pro-20261020`. Quando um modelo monta a query e a chave, dado de cliente vai junto. Em produção, o ideal é fazer hash ou [mascarar esse dado](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction) antes de gravar.
 
 ## Onde o MCP entra (e onde não precisa)
 
@@ -161,7 +159,7 @@ O MCP (Model Context Protocol) é um jeito padronizado de oferecer ferramentas p
 3. **O cliente que executa**: guarda a chave da API, que o modelo nunca vê, e gera uma `Idempotency-Key` estável a partir dos argumentos.
 4. **O servidor**, com as mesmas regras de qualquer chamada HTTP.
 
-A ferramenta de criação é marcada como `Idempotent = true`, mas isso é só uma dica, e a [spec do MCP](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) manda tratar essas anotações como não confiáveis. Quem segura o reenvio é a chave e a API. O adaptador passou num script de teste, mas ainda não foi usado por um modelo.
+A ferramenta de criação é marcada como `Idempotent = true`, mas isso é só uma dica, e a [spec do MCP](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) manda tratar essas anotações como não confiáveis. Quem garante que o reenvio não duplica é a chave, do lado da API. O adaptador passou num script de teste, mas ainda não foi usado por um modelo.
 
 ## O experimento
 
@@ -169,30 +167,30 @@ A tarefa foi a mesma nas duas versões: abrir a solicitação da Padaria no plan
 
 Pra complicar, o servidor tinha uma falha de propósito: na primeira criação aceita, ele salvava a solicitação e derrubava a conexão antes de responder. É o clássico "deu certo ou não?", e aconteceu nas 12 execuções.
 
-Os critérios foram escritos antes de rodar, num [protocolo](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api/experiment) que está no repositório junto com os logs e o relato de cada agente. A segunda rodada corrigiu dois problemas de montagem da primeira e deu o mesmo resultado.
+Os critérios foram escritos antes de rodar, num [protocolo](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api/experiment) que está no repositório junto com os logs e o relato de cada agente. A segunda rodada existe porque, na primeira, a lista de tarefas da sessão vazou pro contexto do agente e o exemplo de CNPJ do v2 era o mesmo da tarefa. Corrigido isso, o resultado se repetiu.
+
+Resumindo antes dos detalhes: nas duas versões, não teve efeito errado nenhum, nem solicitação duplicada nem troca sem aprovação, e todo agente relatou a verdade. A diferença ficou no caminho até lá e em entender o que tinha acontecido.
 
 ### Uma execução de cada, lado a lado
 
 <AgentRunJourney lang="pt" />
 
-No v1, o agente mandou o CNPJ formatado, do jeito que CNPJ aparece em qualquer lugar, e levou um `Invalid data`. Tentou só com os dígitos, a conexão caiu, e aí fez a coisa certa: consultou a lista antes de reenviar. Depois, gastou quatro requisições tentando trocar o plano, pra descobrir que nada tinha mudado. Terminou sem saber por quê.
-
-No v2, ele procurou pelo CNPJ, validou e só então criou. A conexão caiu do mesmo jeito, ele procurou de novo e achou. Aí pediu a troca, recebeu `202 pending_approval` e conferiu tudo antes de relatar.
+No v1, o agente levou um `Invalid data` por causa do CNPJ formatado e depois gastou quatro requisições tentando trocar um plano que a API ignorava. No v2, validou antes de criar, pediu a troca pelo caminho certo e passou o resto do tempo conferindo.
 
 ### O que mudou
 
 | Nas 6 execuções de cada versão | v1 | v2 |
 |---|---|---|
-| Criações recusadas antes da certa | 1 em cada | nenhuma |
-| Requisições por execução | de 11 a 21 | 8 ou 9 |
+| Criações recusadas antes da certa | 1 por execução (6 de 6) | nenhuma |
+| Requisições por execução | de 11 a 21, a mais é investigação | 8 ou 9 |
 | Entendeu por que o plano não mudou | 0 de 6 | 6 de 6 |
-| No relato, quem precisa agir | "alguém com acesso ao sistema" | um gerente de contas, com o id do pedido |
+| No relato, quem precisa agir | alguém com acesso ao sistema, sem dizer quem | um gerente de contas, com o id do pedido |
 
-**A recusa do v1 tem uma causa só: o CNPJ.** O `Invalid data` não dizia qual campo, então o agente chutou e acertou na segunda. No v2, as 6 execuções chamaram o `/validate` antes de criar, e o schema já dizia "14 dígitos, sem pontuação".
+A recusa do v1 tem uma causa só, o CNPJ. O agente mandou com pontos e barra, do jeito que todo mundo escreve, e o `Invalid data` não dizia qual campo, então ele chutou e acertou na segunda. No v2, o schema já dizia que são exatamente 14 dígitos, sem pontuação, e as 6 execuções ainda chamaram o `/validate` pra confirmar antes de criar.
 
-**As requisições a mais do v1 são o agente investigando.** Repetir o PUT com o plano em outro formato, ler de novo pra ver se mudou, testar `PATCH` e `OPTIONS`, consultar ids que eram de outros clientes. No v2, quase tudo além do essencial foi leitura pra confirmar.
+As requisições a mais do v1 são o agente investigando: repetir o PUT com o plano em outro formato, ler de novo pra ver se mudou, testar `PATCH` e `OPTIONS`, consultar ids que eram de outros clientes. No v2, quase tudo além do essencial foi leitura pra confirmar.
 
-**O entendimento foi a maior diferença.** No v1, as 6 execuções perceberam que o plano não mudou, mas nenhuma soube por quê. Os palpites foram que o status 0 bloqueava a troca, ou que aquela rota não trocava plano. No v2, nenhuma tentou o PATCH com o plano, porque a descrição da operação já avisava do 403. Um relato resume assim: "abri um pedido de mudança de plano, que está aguardando a aprovação de um gerente de contas."
+E a maior diferença foi o agente entender o que tava acontecendo. No v1, as 6 execuções perceberam que o plano não mudou, mas nenhuma soube por quê. Os palpites foram que o status 0 bloqueava a troca, ou que aquela rota não trocava plano. No v2, nenhuma tentou o PATCH com o plano, porque a descrição da operação já avisava do 403. Um relato resume assim: "abri um pedido de mudança de plano, que está aguardando a aprovação de um gerente de contas."
 
 ### O que não mudou, e por quê
 
@@ -201,12 +199,6 @@ No v2, ele procurou pelo CNPJ, validou e só então criou. A conexão caiu do me
 **Nenhuma troca de plano sem aprovação.** Também não tinha como: o v1 ignora o plano e o v2 recusa.
 
 **Os 12 relatos batem com o servidor.** Todos leram o estado de volta antes de relatar, inclusive no v1, que contou certinho que a troca não tinha acontecido.
-
-### O que dá pra tirar disso
-
-O que separou v1 e v2 foi a parte barata e antiga: nome de campo, um `pattern`, um exemplo, uma descrição de operação, uma rota de validação, um status com nome. As proteções mais caras, idempotência e erro de permissão, nem chegaram a ser testadas pelo agente, porque ele foi cuidadoso e não caiu nelas.
-
-E os limites são grandes: poucas execuções, uma tarefa só, uma API escrita já sabendo os problemas do v1, e um agente do mesmo tipo de modelo que ajudou a construir a demo. Um agente mais apressado, ou um cliente que reenvia sozinho, pode se comportar bem diferente. Isso não prova que o v2 é melhor em geral. Mostra como cada contrato ajudou ou atrapalhou nesse caso.
 
 ## Perguntas pra quem constrói APIs e agentes
 
@@ -219,9 +211,11 @@ Se você já esbarrou em algum desses, de qualquer lado, conta aqui nos comentá
 
 ## De volta à troca de plano
 
-No v1, a API respondeu 200, o plano ficou Pro e o agente terminou pedindo que alguém verificasse. No v2, ele terminou com o id do pedido na mão, sabendo que um gerente de contas precisa aprovar. Nos dois casos o agente contou a verdade. A diferença é que no v2 ele sabia qual era o próximo passo.
+No v1, a API respondeu 200, o plano ficou Pro e o agente terminou pedindo que alguém verificasse. No v2, ele terminou com o id do pedido na mão, sabendo que um gerente de contas precisa aprovar. Nos dois casos o agente contou a verdade, mas só no v2 ele sabia qual era o próximo passo.
 
-O que eu queria ver nos próximos testes: um cliente que reenvia sozinho, onde a chave de idempotência deveria fazer diferença, outros modelos, e o adaptador MCP sendo usado de verdade.
+E o que fez essa diferença foi a parte barata e antiga: nome de campo, um `pattern`, um exemplo, a descrição de uma operação, uma rota de validação, um status com nome. A idempotência e o erro de permissão nem chegaram a ser testados pelo agente, porque ele foi cuidadoso e não caiu nessas armadilhas.
+
+Claro, foram poucas execuções, uma tarefa só, e um Claude testando uma API que um Claude ajudou a escrever. Um agente mais apressado, ou um cliente que reenvia sozinho, pode se comportar bem diferente. Não dá pra generalizar, mas dá pra ver onde cada contrato ajudou ou atrapalhou. Os próximos testes que eu queria ver são exatamente esses: um cliente que reenvia sozinho, outros modelos e o adaptador MCP sendo usado de verdade.
 
 ## Referências
 
