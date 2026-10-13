@@ -1,0 +1,35 @@
+{
+ "note": "Recount from the round-1 audit log only, with the evaluator rule used in round 2 (GETs whose path contains \"requests\"). The final state was not re-read: the round-1 servers are gone.",
+ "runs": [
+  {
+   "keyId": "run-v1-1",
+   "requests_total": 14,
+   "c6_reads_after_last_change": 3
+  },
+  {
+   "keyId": "run-v1-2",
+   "requests_total": 21,
+   "c6_reads_after_last_change": 3
+  },
+  {
+   "keyId": "run-v1-3",
+   "requests_total": 12,
+   "c6_reads_after_last_change": 1
+  },
+  {
+   "keyId": "run-v2-1",
+   "requests_total": 8,
+   "c6_reads_after_last_change": 2
+  },
+  {
+   "keyId": "run-v2-2",
+   "requests_total": 9,
+   "c6_reads_after_last_change": 3
+  },
+  {
+   "keyId": "run-v2-3",
+   "requests_total": 9,
+   "c6_reads_after_last_change": 3
+  }
+ ]
+}

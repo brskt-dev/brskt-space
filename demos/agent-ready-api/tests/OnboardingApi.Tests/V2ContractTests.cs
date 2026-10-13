@@ -151,7 +151,10 @@ public class V2ContractTests
 
         Assert.Equal(@"^\d{14}$", create.GetProperty("customerTaxId").GetProperty("pattern").GetString());
         Assert.Equal(["basic", "pro", "enterprise"], schemas.GetProperty("Plan").GetProperty("enum").EnumerateArray().Select(e => e.GetString()));
-        var responses = doc.GetProperty("paths").GetProperty(Requests).GetProperty("post").GetProperty("responses");
+        var post = doc.GetProperty("paths").GetProperty(Requests).GetProperty("post");
+        var key = post.GetProperty("parameters").EnumerateArray().Single(p => p.GetProperty("name").GetString() == "Idempotency-Key");
+        Assert.True(key.GetProperty("required").GetBoolean());
+        var responses = post.GetProperty("responses");
         Assert.True(responses.TryGetProperty("201", out _));
         Assert.True(responses.TryGetProperty("422", out _));
     }

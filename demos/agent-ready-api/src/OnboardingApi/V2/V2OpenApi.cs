@@ -33,6 +33,17 @@ public static class V2OpenApi
             return Task.CompletedTask;
         });
 
+        // The handlers take the header as string? so they can answer a missing key with their own
+        // Problem Details (with guidance) instead of the framework's generic 400. The document must
+        // still say the header is required; the first version of v2 did not, and a review caught it.
+        options.AddOperationTransformer((operation, _, _) =>
+        {
+            foreach (var parameter in operation.Parameters?.OfType<OpenApiParameter>() ?? [])
+                if (parameter.In == ParameterLocation.Header && parameter.Name == "Idempotency-Key")
+                    parameter.Required = true;
+            return Task.CompletedTask;
+        });
+
         // C# needs Plan? and DateOnly? so [Required] can catch a missing field, but null is never valid.
         // Without this, the document would tell callers that null is allowed. Runs on the finished
         // document, after the generator has created the shared component schemas.

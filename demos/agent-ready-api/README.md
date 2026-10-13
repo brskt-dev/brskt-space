@@ -58,9 +58,10 @@ A chave da API vem da configuração do adaptador (`OnboardingApi__ApiKey`), nun
 ## Experimento
 
 `experiment/PROTOCOL.md` foi escrito antes das execuções; `experiment/RESULTS.md` tem os resultados
-e os limites. Dados brutos em `experiment/data/`: o log de auditoria de cada contrato (as leituras
-feitas depois pelo avaliador estão em arquivos separados, `*-evaluator-reads.jsonl`), os relatos dos
-agentes, a avaliação objetiva e a lista de ferramentas que cada agente usou.
+e os limites, nas duas rodadas. Dados brutos em `experiment/data/round-1/` e `round-2/`: o log de
+auditoria de cada contrato (as leituras feitas depois pelo avaliador estão em `*-evaluator-reads.jsonl`),
+os relatos dos agentes, a avaliação objetiva e a lista de ferramentas que cada agente usou. A saída do
+teste do adaptador MCP está em `experiment/data/mcp/`.
 
 Para repetir: `scripts/run-experiment-servers.sh`, depois entregue a cada agente a URL, uma chave de
 `experiment/local-keys.json`, o endereço do OpenAPI e a tarefa do protocolo; no fim,

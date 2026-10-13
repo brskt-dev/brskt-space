@@ -4,7 +4,9 @@ namespace OnboardingApi.Shared;
 
 /// <summary>
 /// One JSON line per request: who (key id, never the key), what, result and effect.
-/// No API keys, no e-mail addresses, no tax ids. Used to evaluate the agent experiment.
+/// No API key and no request body. The path, the query string and the Idempotency-Key are logged
+/// as sent, and callers can put identifiers in them: in the experiment, agents built keys with the
+/// customer's CNPJ. In production, hash or redact those fields. Used to evaluate the agent experiment.
 /// </summary>
 public sealed class AuditLog(IConfiguration config, TimeProvider clock)
 {

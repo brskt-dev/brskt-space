@@ -77,3 +77,20 @@ Também ficam registrados: o agente tem as ferramentas padrão do Claude Code (i
 arquivos) e é só *instruído* a usar curl; o contexto dele inclui o CLAUDE.md do repositório do
 portfólio (que não fala do experimento); e houve uma tentativa de lançamento interrompida antes de
 qualquer requisição (chaves de exemplo no lugar das reais), sem tráfego na API.
+
+## Emenda 2 (registro, depois da rodada 2)
+
+Horário em `amendment-2-written-at.txt`. Não muda tarefa, critérios nem execuções; corrige o registro.
+
+1. **O log guarda o CNPJ, sim.** Ele não guarda a chave de API, o e-mail nem o corpo das requisições, mas
+   guarda o caminho, a query e a `Idempotency-Key` como chegaram. O CNPJ aparece na consulta por CNPJ e nas
+   chaves que os agentes montaram. A frase "que não guarda chave, e-mail nem CNPJ", acima, estava errada.
+2. **O avaliador mudou durante a rodada 2**, antes de avaliá-la: o critério 2 passou a conferir também o nome;
+   o critério 6 passou a contar só leituras de solicitações (GETs com "requests" no caminho; antes contava
+   qualquer GET fora do OpenAPI, inclusive `/v1/plans`); e as leituras do próprio avaliador passaram a ficar
+   de fora pelo horário. A rodada 1 foi recontada do log com a mesma regra (`data/round-1/evaluation-recount.json`);
+   o estado final dela não foi relido, porque os servidores já não existem. O nome, na rodada 1, foi conferido
+   no histórico dos agentes.
+3. **O documento OpenAPI do v2 testado não marcava a `Idempotency-Key` como obrigatória**, embora o servidor
+   responda `400` sem ela. A demo foi corrigida depois das duas rodadas (o cabeçalho agora aparece como
+   `required`, com teste); os agentes testaram a versão anterior.
