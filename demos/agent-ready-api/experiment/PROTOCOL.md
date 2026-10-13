@@ -94,3 +94,14 @@ Horário em `amendment-2-written-at.txt`. Não muda tarefa, critérios nem execu
 3. **O documento OpenAPI do v2 testado não marcava a `Idempotency-Key` como obrigatória**, embora o servidor
    responda `400` sem ela. A demo foi corrigida depois das duas rodadas (o cabeçalho agora aparece como
    `required`, com teste); os agentes testaram a versão anterior.
+
+## Emenda 3 (registro, depois das duas rodadas)
+
+Horário em `amendment-3-written-at.txt`. O log de auditoria ficava dentro do tratamento de exceções, então uma
+requisição cujo corpo não podia ser lido (que volta `400`) era registrada com status `200`. Nenhuma requisição
+das 12 execuções passou por esse caminho (conferido nos logs: toda escrita registrada com `200` tem um efeito
+correspondente, como `created` ou a falha injetada). Corrigido depois, com teste.
+
+Também depois das rodadas, a demo passou a liberar a `Idempotency-Key` quando a criação falha antes de
+qualquer efeito (antes, a chave ficava presa e o reenvio recebia `409` até expirar). Nenhuma execução passou
+por esse caminho.

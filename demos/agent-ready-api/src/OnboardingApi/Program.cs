@@ -45,6 +45,10 @@ if (contract == "v2")
 
 var app = builder.Build();
 
+// Outermost, so the audit line sees the final status code, including the ones the exception
+// handler writes (a first version logged 200 for a body that could not be read).
+app.UseAudit(contract);
+
 if (contract == "v2")
 {
     app.UseExceptionHandler();
@@ -56,7 +60,6 @@ if (contract == "v2")
     });
 }
 
-app.UseAudit(contract);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapOpenApi();

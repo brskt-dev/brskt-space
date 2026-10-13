@@ -57,7 +57,11 @@ public sealed class IdempotencyStore(TimeProvider clock)
         return entry.Completed ? new Outcome.Replay(entry) : new Outcome.InProgress();
     }
 
-    /// <summary>A failed attempt must not block the key forever.</summary>
+    /// <summary>
+    /// Called when the work failed before any effect, so a retry with the same key can run.
+    /// If a failure could happen after the effect, the effect and this record must share a
+    /// transaction; the demo's in-memory store cannot give that guarantee.
+    /// </summary>
     public void Forget(string tenant, string operation, string key) => _entries.TryRemove((tenant, operation, key), out _);
 
     public static string Fingerprint<T>(T body) =>

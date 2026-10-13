@@ -2,6 +2,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using OnboardingApi.Shared;
 
 namespace OnboardingApi.Tests;
 
@@ -14,11 +17,27 @@ public sealed class Api : IDisposable
 
     private readonly WebApplicationFactory<Program> _factory;
 
-    public Api(string contract, bool dropFirstCreateResponse = false)
+    public Api(string contract, bool dropFirstCreateResponse = false, string? auditLogPath = null, bool failFirstCreate = false)
     {
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(b => b
-            .UseSetting("Contract", contract)
-            .UseSetting("Faults:DropFirstCreateResponse", dropFirstCreateResponse.ToString()));
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(b =>
+        {
+            b.UseSetting("Contract", contract)
+             .UseSetting("Faults:DropFirstCreateResponse", dropFirstCreateResponse.ToString());
+            if (auditLogPath is not null) b.UseSetting("AuditLogPath", auditLogPath);
+            if (failFirstCreate)
+                b.ConfigureTestServices(s => s.AddSingleton<OnboardingStore>(sp => new FailsFirstCreate(sp.GetRequiredService<TimeProvider>())));
+        });
+    }
+
+    /// <summary>Throws on the first create, before anything is saved.</summary>
+    private sealed class FailsFirstCreate(TimeProvider clock) : OnboardingStore(clock)
+    {
+        private int _calls;
+
+        public override OnboardingRequest Create(string tenantId, string legalName, string taxId, Plan plan, DateOnly startDate, string email) =>
+            Interlocked.Increment(ref _calls) == 1
+                ? throw new InvalidOperationException("Simulated failure before the effect.")
+                : base.Create(tenantId, legalName, taxId, plan, startDate, email);
     }
 
     public HttpClient Client(string apiKey = AcmeKey)

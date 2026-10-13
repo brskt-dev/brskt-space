@@ -23,7 +23,7 @@ has the contract), automated tests, a small MCP adapter and a small agent experi
 Precisa do SDK do .NET 10 e de Python 3 (só para os scripts).
 
 ```bash
-dotnet test                                   # 14 testes
+dotnet test                                   # 16 testes
 
 # um contrato por processo
 Contract=v1 dotnet run --project src/OnboardingApi --urls http://127.0.0.1:5101

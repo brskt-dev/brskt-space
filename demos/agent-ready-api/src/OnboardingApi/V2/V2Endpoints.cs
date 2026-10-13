@@ -100,7 +100,18 @@ public static class V2Endpoints
                 http.Record($"replayed:{((OnboardingRequestResource)done.Body!).Id}");
                 return TypedResults.Created(done.Location, (OnboardingRequestResource)done.Body!);
             case IdempotencyStore.Outcome.Started(var entry):
-                var created = store.Create(tenant, body.CustomerLegalName.Trim(), body.CustomerTaxId, body.Plan!.Value, body.StartDate!.Value, body.ContactEmail.Trim());
+                OnboardingRequest created;
+                try
+                {
+                    created = store.Create(tenant, body.CustomerLegalName.Trim(), body.CustomerTaxId, body.Plan!.Value, body.StartDate!.Value, body.ContactEmail.Trim());
+                }
+                catch
+                {
+                    // Nothing was created: free the key so a retry with it can go through
+                    // (otherwise it would get 409 until the key expires).
+                    idempotency.Forget(tenant, CreateOperation, idempotencyKey);
+                    throw;
+                }
                 var resource = created.ToResource(clock.GetUtcNow());
                 entry.Complete(StatusCodes.Status201Created, resource.Links.Self, resource);
                 http.Record($"created:{created.PublicId}");
@@ -164,7 +175,16 @@ public static class V2Endpoints
                 http.Response.Headers["Idempotent-Replayed"] = "true";
                 return TypedResults.Accepted(done.Location, (PlanChangeResource)done.Body!);
             case IdempotencyStore.Outcome.Started(var entry):
-                var change = store.AddPlanChange(tenant, r.PublicId, body.Plan!.Value, body.Reason.Trim());
+                PlanChangeRequest change;
+                try
+                {
+                    change = store.AddPlanChange(tenant, r.PublicId, body.Plan!.Value, body.Reason.Trim());
+                }
+                catch
+                {
+                    idempotency.Forget(tenant, $"plan-change:{r.PublicId}", idempotencyKey);
+                    throw;
+                }
                 var resource = change.ToResource();
                 entry.Complete(StatusCodes.Status202Accepted, resource.Self, resource);
                 http.Record($"plan_change_requested:{r.PublicId}:{change.PublicId}");

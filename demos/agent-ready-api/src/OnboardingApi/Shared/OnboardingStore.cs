@@ -6,14 +6,14 @@ namespace OnboardingApi.Shared;
 /// In-memory store, good enough for a demo and for tests. Every read filters by tenant:
 /// one client never sees another client's requests, not even to learn that they exist.
 /// </summary>
-public sealed class OnboardingStore(TimeProvider clock)
+public class OnboardingStore(TimeProvider clock)
 {
     private readonly Lock _gate = new();
     private readonly List<OnboardingRequest> _requests = [];
     private readonly List<PlanChangeRequest> _planChanges = [];
     private int _lastNumber;
 
-    public OnboardingRequest Create(string tenantId, string legalName, string taxId, Plan plan, DateOnly startDate, string email)
+    public virtual OnboardingRequest Create(string tenantId, string legalName, string taxId, Plan plan, DateOnly startDate, string email)
     {
         lock (_gate)
         {

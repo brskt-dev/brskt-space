@@ -66,6 +66,20 @@ public class V2ContractTests
     }
 
     [Fact]
+    public async Task Failure_before_the_effect_frees_the_key_for_a_retry()
+    {
+        using var api = new Api("v2", failFirstCreate: true);
+        var client = api.Client();
+
+        var failed = await client.SendAsync(Api.Post(Requests, Api.V2Body(), "fail-key-0001"));
+        var retry = await client.SendAsync(Api.Post(Requests, Api.V2Body(), "fail-key-0001"));
+
+        Assert.Equal(HttpStatusCode.InternalServerError, failed.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, retry.StatusCode);
+        Assert.Single(await client.GetFromJsonAsync<JsonElement[]>(Requests) ?? []);
+    }
+
+    [Fact]
     public async Task Validation_errors_use_the_json_field_name()
     {
         using var api = new Api("v2");
@@ -84,6 +98,18 @@ public class V2ContractTests
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("plan", (await Api.Json(response)).GetProperty("field").GetString());
+    }
+
+    [Fact]
+    public async Task Audit_log_records_the_final_status_of_a_rejected_body()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"audit-{Guid.NewGuid():N}.jsonl");
+        using (var api = new Api("v2", auditLogPath: path))
+            await api.Client().SendAsync(Api.Post(Requests, Api.V2Body(plan: "premium"), "audit-key-0001"));
+
+        var entry = JsonDocument.Parse(File.ReadLines(path).Last()).RootElement.GetProperty("entry");
+        File.Delete(path);
+        Assert.Equal(400, entry.GetProperty("status").GetInt32());
     }
 
     [Fact]
