@@ -108,7 +108,7 @@ Esse formato é o Problem Details, da [RFC 9457](https://www.rfc-editor.org/rfc/
 
 `POST` não é idempotente: mandou duas vezes, criou duas vezes. E o caso chato é quando a resposta não chega. Deu certo ou não? Reenvio ou não?
 
-O v2 segue o [draft do header Idempotency-Key](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) da IETF, que ainda não é padrão. O cliente manda uma chave por operação e repete a mesma chave se precisar reenviar. O servidor guarda o resultado da primeira vez e, no reenvio, devolve o original:
+O v2 segue o [draft do header Idempotency-Key](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) da IETF, que expirou sem virar padrão. O cliente manda uma chave por operação e repete a mesma chave se precisar reenviar. O servidor guarda o resultado da primeira vez e, no reenvio, devolve o original:
 
 ```http
 POST /v2/onboarding-requests
@@ -190,7 +190,7 @@ A recusa do v1 tem uma causa só, o CNPJ. O agente mandou com pontos e barra, do
 
 As requisições a mais do v1 são o agente investigando: repetir o PUT com o plano em outro formato, ler de novo pra ver se mudou, testar `PATCH` e `OPTIONS`, consultar ids que eram de outros clientes. No v2, quase tudo além do essencial foi leitura pra confirmar.
 
-E a maior diferença foi o agente entender o que tava acontecendo. No v1, as 6 execuções perceberam que o plano não mudou, mas nenhuma soube por quê. Os palpites foram que o status 0 bloqueava a troca, ou que aquela rota não trocava plano. No v2, nenhuma tentou o PATCH com o plano, porque a descrição da operação já avisava do 403. Um relato resume assim: "abri um pedido de mudança de plano, que está aguardando a aprovação de um gerente de contas."
+E a maior diferença foi o agente entender o que tava acontecendo. No v1, as 6 execuções perceberam que o plano não mudou, mas nenhuma soube por quê. Os palpites foram que o tal do `st` bloqueava a troca, ou que aquela rota não trocava plano. No v2, nenhuma tentou o PATCH com o plano, porque a descrição da operação já avisava do 403. Um relato resume assim: "abri um pedido de mudança de plano, que está aguardando a aprovação de um gerente de contas."
 
 ### O que não mudou, e por quê
 
@@ -223,7 +223,7 @@ Consultadas em 13 de outubro de 2026.
 
 - Waldek Mastykarz, [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), Microsoft for Developers, 6 de outubro de 2026.
 - [RFC 9457: Problem Details for HTTP APIs](https://www.rfc-editor.org/rfc/rfc9457.html).
-- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), Internet-Draft da IETF, trabalho em andamento.
+- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), Internet-Draft da IETF (expirado em abril de 2026; última revisão: 07).
 - ASP.NET Core 10: [Include OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) e [Validation](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0). .NET: [Data redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
 - Model Context Protocol, revisão 2026-07-28: [Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
 - Demo, testes, protocolo e dados do experimento: [brskt-space/demos/agent-ready-api](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).

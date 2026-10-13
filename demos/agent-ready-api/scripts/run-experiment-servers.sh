@@ -5,6 +5,9 @@
 # Stop with: kill $(cat experiment/local-logs/*.pid)
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# a fresh start: stop servers from a previous run and drop its logs, so counts don't mix
+if ls experiment/local-logs/*.pid >/dev/null 2>&1; then kill $(cat experiment/local-logs/*.pid) 2>/dev/null || true; fi
+rm -f experiment/local-logs/audit-*.jsonl experiment/local-logs/*.pid
 dotnet build src/OnboardingApi -c Release -o .run/api >/dev/null
 mkdir -p experiment/local-logs
 python3 - <<'PY'
@@ -27,7 +30,7 @@ export ASPNETCORE_ENVIRONMENT=Production Faults__DropFirstCreateResponse=true
 for pair in "v1 5201" "v2 5202"; do
   set -- $pair
   ASPNETCORE_URLS=http://127.0.0.1:$2 Contract=$1 AuditLogPath=$PWD/experiment/local-logs/audit-$1.jsonl \
-    nohup dotnet .run/api/OnboardingApi.dll --contentRoot .run/api > experiment/local-logs/stdout-$1.log 2>&1 &
+    nohup dotnet .run/api/OnboardingApi.dll --contentRoot "$PWD/.run/api" > experiment/local-logs/stdout-$1.log 2>&1 &
   echo $! > experiment/local-logs/$1.pid
 done
 echo "v1: http://127.0.0.1:5201/openapi/v1.json  v2: http://127.0.0.1:5202/openapi/v2.json  keys: experiment/local-keys.json"

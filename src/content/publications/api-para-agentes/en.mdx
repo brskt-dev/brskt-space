@@ -108,7 +108,7 @@ That's Problem Details, from [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.h
 
 `POST` isn't idempotent: send it twice, create twice. And the annoying case is when the response never arrives. Did it work or not? Do I resend or not?
 
-v2 follows the IETF [Idempotency-Key header draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), which isn't a standard yet. The client sends one key per operation and repeats the same key if it needs to resend. The server stores the first result and, on a resend, returns the original:
+v2 follows the IETF [Idempotency-Key header draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), which expired without becoming a standard. The client sends one key per operation and repeats the same key if it needs to resend. The server stores the first result and, on a resend, returns the original:
 
 ```http
 POST /v2/onboarding-requests
@@ -190,7 +190,7 @@ The v1 rejection has a single cause, the CNPJ. The agent sent it with dots and a
 
 v1's extra requests are the agent investigating: repeating the PUT with the plan in another format, reading again to see if it changed, trying `PATCH` and `OPTIONS`, looking up ids that belonged to other customers. In v2, almost everything beyond the essentials was reads to confirm.
 
-And the biggest difference was the agent understanding what was going on. In v1, all 6 runs noticed the plan hadn't changed, but none knew why. Their guesses were that status 0 blocked the change, or that the route didn't change plans. In v2, none tried the PATCH with a plan, because the operation's description already warned about the 403. One report sums it up: "I opened a plan change request, which is waiting for an account manager's approval."
+And the biggest difference was the agent understanding what was going on. In v1, all 6 runs noticed the plan hadn't changed, but none knew why. Their guesses were that the `st` field blocked the change, or that the route didn't change plans. In v2, none tried the PATCH with a plan, because the operation's description already warned about the 403. One report sums it up: "I opened a plan change request, which is waiting for an account manager's approval."
 
 ### What didn't change, and why
 
@@ -215,7 +215,7 @@ In v1, the API answered 200, the plan stayed Pro and the agent ended by asking s
 
 And what made that difference was the cheap, old stuff: a field name, a `pattern`, an example, an operation description, a validation route, a status with a name. Idempotency and the permission error never even got tested by the agent, because it was careful and didn't walk into those traps.
 
-Sure, it was few runs, a single task, and a Claude testing an API that a Claude helped write. A more hurried agent, or a client that retries on its own, could behave very differently. You can't generalize from this, but you can see where each contract helped or got in the way. Those are exactly the next tests I'd like to see: a client that retries on its own, other models and the MCP adapter in real use.
+Sure, it was only a few runs, a single task, and a Claude testing an API that a Claude helped write. A more hurried agent, or a client that retries on its own, could behave very differently. You can't generalize from this, but you can see where each contract helped or got in the way. Those are exactly the next tests I'd like to see: a client that retries on its own, other models and the MCP adapter in real use.
 
 ## References
 
@@ -223,7 +223,7 @@ Accessed on October 13, 2026.
 
 - Waldek Mastykarz, [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), Microsoft for Developers, October 6, 2026.
 - [RFC 9457: Problem Details for HTTP APIs](https://www.rfc-editor.org/rfc/rfc9457.html).
-- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), IETF Internet-Draft, work in progress.
+- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), IETF Internet-Draft (expired in April 2026; latest revision: 07).
 - ASP.NET Core 10: [Include OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) and [Validation](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0). .NET: [Data redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
 - Model Context Protocol, revision 2026-07-28: [Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
 - Demo, tests, protocol and experiment data: [brskt-space/demos/agent-ready-api](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
