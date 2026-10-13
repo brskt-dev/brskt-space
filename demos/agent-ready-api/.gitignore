@@ -5,3 +5,4 @@ obj/
 experiment/local-keys.json
 experiment/local-logs/
 experiment/local-eval.json
+__pycache__/
