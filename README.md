@@ -34,6 +34,7 @@ site no GitHub Pages.
 | `src/components/`, `src/layouts/`, `src/styles/` | Visual e corpo das páginas (`views/`). Cores (tema escuro espacial), fontes, cards, skeletons e animações em `src/styles/global.css`; ícones em `src/components/ui/Icon.astro`. |
 | `public/` | Arquivos copiados sem mudança, como `favicon.svg`. |
 | `templates/publication/` | Modelos para novas publicações. Ficam fora de `src/` e nunca vão para o site. |
+| `demos/` | Código de demonstração dos artigos (ex.: `demos/agent-ready-api`, em .NET). Fica fora do build do site; cada pasta tem o próprio README e os próprios testes. |
 | `scripts/verify-dist.mjs` | Verificação do site gerado: links, prefixo `/brskt-space/`, metadados, idiomas. |
 | `.github/workflows/deploy.yml` | Build, verificação e deploy no GitHub Pages. |
 

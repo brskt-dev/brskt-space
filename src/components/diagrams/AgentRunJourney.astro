@@ -1,0 +1,418 @@
+---
+/**
+ * Article "api-para-agentes": one run per contract, step by step, as the server's audit log
+ * recorded it (round 2, runs v1-2 and v2-2 in demos/agent-ready-api/experiment/data/round-2).
+ * Paths are shortened for width; ids are the real ones from that run. Quotes come from the
+ * agents' final reports (written in Portuguese; the English ones are translations).
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+type Kind = 'read' | 'ok' | 'error' | 'drop' | 'warn' | 'wait';
+type Text = { pt: string; en: string };
+interface Step {
+  m: string;
+  path: string;
+  kind: Kind;
+  out: Text | string;
+  note?: Text;
+}
+
+const { lang } = Astro.props;
+
+const icons: Record<Kind, IconName> = {
+  read: 'eye',
+  ok: 'circle-check',
+  error: 'circle-x',
+  drop: 'unplug',
+  warn: 'triangle-alert',
+  wait: 'hourglass',
+};
+
+const dropped: Text = { pt: 'conexão caiu', en: 'connection dropped' };
+const ignored: Text = { pt: '200 · plano ignorado', en: '200 · plan ignored' };
+const stillPro: Text = { pt: 'ainda Pro', en: 'still Pro' };
+const readsContract: Text = { pt: 'lê o contrato', en: 'reads the contract' };
+const noResend: Text = { pt: 'achou a solicitação e não reenvia', en: 'finds the request, does not resend' };
+
+const lanes = [
+  {
+    tag: 'v1',
+    title: { pt: 'feito para o formulário', en: 'built for the form' },
+    stats: [
+      { pt: '11 requisições', en: '11 requests' },
+      { pt: '1 criação recusada', en: '1 rejected create' },
+      { pt: 'termina sem saber por quê', en: 'ends without knowing why' },
+    ],
+    steps: [
+      { m: 'GET', path: '/openapi/v1.json', kind: 'read', out: '200', note: readsContract },
+      { m: 'GET', path: '/v1/plans', kind: 'read', out: '200', note: { pt: 'Pro = 2, Enterprise = 3', en: 'Pro = 2, Enterprise = 3' } },
+      { m: 'GET', path: '/v1/requests', kind: 'read', out: '200', note: { pt: 'lista as solicitações', en: 'lists the requests' } },
+      { m: 'POST', path: '/v1/requests', kind: 'error', out: '400 · Invalid data', note: { pt: 'CNPJ com pontos e barra', en: 'CNPJ with dots and slash' } },
+      { m: 'POST', path: '/v1/requests', kind: 'drop', out: dropped, note: { pt: 'só dígitos: salvou, mas a resposta não chegou', en: 'digits only: saved, but no response' } },
+      { m: 'GET', path: '/v1/requests', kind: 'read', out: '200', note: noResend },
+      { m: 'GET', path: '/v1/requests/1', kind: 'read', out: '200' },
+      { m: 'PUT', path: '/v1/requests/1', kind: 'warn', out: ignored, note: { pt: 'pede o Enterprise', en: 'asks for Enterprise' } },
+      { m: 'GET', path: '/v1/requests/1', kind: 'read', out: '200', note: stillPro },
+      { m: 'PUT', path: '/v1/requests/1', kind: 'warn', out: ignored, note: { pt: 'tenta o plano em outro formato', en: 'tries the plan in another format' } },
+      { m: 'GET', path: '/v1/requests/1', kind: 'read', out: '200', note: stillPro },
+    ] as Step[],
+    quote: {
+      pt: 'A mudança para o plano Enterprise não foi feita. Não sei por que a API ignora o plano…',
+      en: 'The change to the Enterprise plan was not made. I don’t know why the API ignores the plan…',
+    },
+  },
+  {
+    tag: 'v2',
+    title: { pt: 'contrato revisto', en: 'revised contract' },
+    stats: [
+      { pt: '9 requisições', en: '9 requests' },
+      { pt: '0 criações recusadas', en: '0 rejected creates' },
+      { pt: 'termina com o próximo passo', en: 'ends with the next step' },
+    ],
+    steps: [
+      { m: 'GET', path: '/openapi/v2.json', kind: 'read', out: '200', note: readsContract },
+      { m: 'GET', path: '/v2/onboarding-requests?customerTaxId=…', kind: 'read', out: '200', note: { pt: 'nenhuma com esse CNPJ', en: 'none for this CNPJ' } },
+      { m: 'POST', path: '/v2/onboarding-requests/validate', kind: 'ok', out: '200', note: { pt: 'dados ok, nada criado', en: 'data ok, nothing created' } },
+      { m: 'POST', path: '/v2/onboarding-requests', kind: 'drop', out: dropped, note: { pt: 'com Idempotency-Key: salvou, mas a resposta não chegou', en: 'with an Idempotency-Key: saved, but no response' } },
+      { m: 'GET', path: '/v2/onboarding-requests?customerTaxId=…', kind: 'read', out: '200', note: noResend },
+      { m: 'POST', path: '…/onb_f7ca2dbe42/plan-change-requests', kind: 'wait', out: '202 · pending_approval', note: { pt: 'pede a troca', en: 'requests the change' } },
+      { m: 'GET', path: '/v2/onboarding-requests/onb_f7ca2dbe42', kind: 'read', out: '200', note: { pt: 'Pro, status received', en: 'Pro, status received' } },
+      { m: 'GET', path: '/v2/plan-change-requests/pcr_304da7c9d0', kind: 'read', out: '200', note: { pt: 'esperando um gerente de contas', en: 'waiting for an account manager' } },
+      { m: 'GET', path: '/v2/onboarding-requests?customerTaxId=…', kind: 'read', out: '200', note: { pt: 'continua uma só', en: 'still just one' } },
+    ] as Step[],
+    quote: {
+      pt: 'A troca foi pedida e está esperando aprovação de um gerente de conta. Até lá, a solicitação continua no plano Pro.',
+      en: 'The change was requested and is waiting for an account manager’s approval. Until then, the request stays on the Pro plan.',
+    },
+  },
+];
+
+const T = {
+  title: { pt: 'Mesma tarefa, dois contratos', en: 'Same task, two contracts' },
+  caption: {
+    pt: 'Execução 2 de cada versão, na rodada 2, na ordem do log do servidor. As duas pegaram a mesma falha: a conexão cai depois de salvar a primeira criação aceita.',
+    en: 'Run 2 of each version, round 2, in the order of the server log. Both hit the same fault: the connection drops after the first accepted create is saved. Agents reported in Portuguese; quotes are translated.',
+  },
+  report: { pt: 'relato final', en: 'final report' },
+} as const;
+
+const tx = (v: Text | string) => (typeof v === 'string' ? v : v[lang]);
+---
+
+<DiagramFrame lang={lang} id="dg-agent-runs" title={T.title[lang]} status="recorded" caption={T.caption[lang]}>
+  <div class="lanes">
+    {
+      lanes.map((lane) => (
+        <div class:list={['lane', `lane-${lane.tag}`]}>
+          <div class="lane-head">
+            <p class="lane-title">
+              <span class="lane-tag">{lane.tag}</span>
+              {lane.title[lang]}
+            </p>
+            <ul class="stats">
+              {lane.stats.map((s) => (
+                <li>{s[lang]}</li>
+              ))}
+            </ul>
+          </div>
+
+          <ol class="steps">
+            {lane.steps.map((s) => (
+              <li class:list={['step', `k-${s.kind}`]}>
+                <span class="dot" aria-hidden="true">
+                  <Icon name={icons[s.kind]} size={14} />
+                </span>
+                <code class="req">
+                  <b>{s.m}</b> {s.path}
+                </code>
+                <p class="res">
+                  <span class="out">{tx(s.out)}</span>
+                  {s.note && <span class="note">{s.note[lang]}</span>}
+                </p>
+              </li>
+            ))}
+          </ol>
+
+          <blockquote class="report">
+            <p class="report-label">
+              <Icon name="message" size={13} />
+              {T.report[lang]}
+            </p>
+            <p>“{lane.quote[lang]}”</p>
+          </blockquote>
+        </div>
+      ))
+    }
+  </div>
+</DiagramFrame>
+
+<style>
+  .lanes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .lane {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    min-width: 0;
+    padding: 0.9rem;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+
+  .lane-v2 {
+    border-color: color-mix(in srgb, var(--mint) 40%, var(--border-hi));
+  }
+
+  .lane-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    font: 700 1rem / 1.2 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .lane-tag {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-hi);
+    font: 700 0.75rem / 1.4 var(--font-mono);
+    color: var(--accent);
+  }
+
+  .lane-v2 .lane-tag {
+    color: var(--mint);
+  }
+
+  .stats {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+  }
+
+  .stats li {
+    margin: 0;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font: 500 0.68rem / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  /* the rail: a line down the steps with a slow dot travelling along it */
+  .steps {
+    position: relative;
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .steps::before,
+  .steps::after {
+    content: '';
+    position: absolute;
+    left: calc(0.8rem - 1px);
+    pointer-events: none;
+  }
+
+  .steps::before {
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--border-hi), color-mix(in srgb, var(--accent-2) 45%, transparent), var(--border-hi));
+  }
+
+  .steps::after {
+    top: 0;
+    width: 6px;
+    height: 6px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent) 60%, transparent);
+    animation: travel 9s linear infinite;
+  }
+
+  .lane-v2 .steps::after {
+    background: var(--mint);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--mint) 55%, transparent);
+  }
+
+  @keyframes travel {
+    from {
+      top: 0.3rem;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    92% {
+      opacity: 1;
+    }
+    to {
+      top: calc(100% - 0.6rem);
+      opacity: 0;
+    }
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    column-gap: 0.55rem;
+    row-gap: 0.2rem;
+    margin: 0;
+    transition: transform 220ms var(--ease-out);
+  }
+
+  .step:hover {
+    transform: translateX(3px);
+  }
+
+  .dot {
+    position: relative;
+    z-index: 1;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--muted);
+  }
+
+  .req {
+    min-width: 0;
+    padding: 0;
+    background: none;
+    font: 500 0.74rem / 1.5 var(--font-mono);
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+
+  .req b {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .res {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    margin: 0;
+  }
+
+  .out {
+    padding: 0.05rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font: 600 0.66rem / 1.45 var(--font-mono);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .note {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  /* outcomes: mint = it worked, sun = it went wrong or did nothing, accent = waits for a person */
+  .k-ok .dot,
+  .k-ok .out {
+    color: var(--mint);
+    border-color: color-mix(in srgb, var(--mint) 45%, transparent);
+  }
+
+  .k-error .dot,
+  .k-error .out,
+  .k-warn .dot,
+  .k-warn .out,
+  .k-drop .dot,
+  .k-drop .out {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 45%, transparent);
+    background: color-mix(in srgb, var(--sun) 7%, var(--surface-2));
+  }
+
+  .k-drop .dot {
+    border-style: dashed;
+    animation: blink 2.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--sun) 18%, transparent);
+    }
+  }
+
+  .k-wait .dot,
+  .k-wait .out {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    background: color-mix(in srgb, var(--brand) 22%, var(--surface-2));
+  }
+
+  .report {
+    margin: auto 0 0;
+    padding: 0.7rem 0.85rem;
+    border: 1px dashed var(--border-hi);
+    border-radius: var(--r-sm);
+    background: var(--bg-2);
+  }
+
+  .lane-v2 .report {
+    border-color: color-mix(in srgb, var(--mint) 45%, transparent);
+  }
+
+  .report p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .report .report-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.3rem;
+    font: 600 0.66rem / 1 var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step:hover {
+      transform: none;
+    }
+  }
+
+  @media (min-width: 52rem) {
+    .lanes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

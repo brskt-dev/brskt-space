@@ -11,7 +11,7 @@ interface Props {
   lang: Lang;
   id: string;
   title: string;
-  status: 'implemented' | 'proposed' | 'illustrative';
+  status: 'implemented' | 'proposed' | 'illustrative' | 'recorded';
   caption?: string;
   legend?: boolean;
 }
@@ -21,6 +21,7 @@ const L = {
   implemented: { pt: 'implementado', en: 'implemented' },
   proposed: { pt: 'proposta · não implementado', en: 'proposal · not implemented' },
   illustrative: { pt: 'ilustrativo', en: 'illustrative' },
+  recorded: { pt: 'dados reais do experimento', en: 'real experiment data' },
   exists: { pt: 'já existe', en: 'already exists' },
   proposedShort: { pt: 'proposto', en: 'proposed' },
 } as const;
@@ -29,8 +30,8 @@ const L = {
 <figure class="dgm reveal" aria-labelledby={`${id}-title`}>
   <div class="dgm-top">
     <span class="dgm-brand" aria-hidden="true"><span class="dgm-planet"></span><span>brskt<span class="dot">.</span>space</span></span>
-    <span class:list={['chip', status === 'implemented' ? 'chip-mint' : 'chip-accent']}>
-      {status === 'implemented' ? <Icon name="circle-check" size={13} /> : <Icon name="sparkles" size={13} />}
+    <span class:list={['chip', status === 'implemented' || status === 'recorded' ? 'chip-mint' : 'chip-accent']}>
+      {status === 'implemented' || status === 'recorded' ? <Icon name="circle-check" size={13} /> : <Icon name="sparkles" size={13} />}
       {L[status][lang]}
     </span>
   </div>

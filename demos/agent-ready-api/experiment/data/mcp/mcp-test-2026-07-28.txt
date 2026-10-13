@@ -1,0 +1,8 @@
+server/discover: ['2026-07-28']
+tool: create_onboarding_request {'title': 'Create onboarding request', 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False}
+tool: request_plan_change {'title': 'Request plan change', 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False}
+tool: get_onboarding_request {'title': 'Read onboarding request', 'openWorldHint': False, 'readOnlyHint': True}
+create twice, same id: True onb_d6e1a46ea5
+invalid tax id -> isError: True
+plan change: pending_approval
+plan now: pro | status: received

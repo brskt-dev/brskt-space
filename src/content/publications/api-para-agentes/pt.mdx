@@ -1,0 +1,229 @@
+---
+type: article
+title: "Sua API funciona para pessoas. E para agentes de IA?"
+summary: "Uma API fictícia de onboarding em duas versões e a mesma tarefa dada 12 vezes a um agente de IA. O que atrapalhou, o que ajudou e o que o teste não chegou a provar, com código .NET e as requisições de verdade."
+date: 2026-10-13
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
+tags: ["APIs", "Agentes de IA", ".NET", "OpenAPI", "MCP", "Idempotência"]
+draft: false
+---
+
+import AgentApiFlow from '../../../components/diagrams/AgentApiFlow.astro';
+import AgentRunJourney from '../../../components/diagrams/AgentRunJourney.astro';
+
+No dia 6 de outubro, a Microsoft publicou [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), do Waldek Mastykarz. AX é a experiência que um agente de IA tem ao descobrir, escolher e usar uma tecnologia. E o post fala uma coisa que achei bem honesta: muita mudança que parece "amigável pra agente" pode piorar o resultado, e enquanto ninguém mede, é só hipótese.
+
+Eu construo APIs em .NET no dia a dia, então a pergunta que ficou pra mim foi bem prática: uma API que funciona direitinho pro frontend funciona pra um agente?
+
+Pra ver isso acontecer, montei com o Claude Code uma API fictícia de onboarding de clientes, com dados sintéticos e duas versões do contrato, e coloquei um agente pra fazer a mesma tarefa nas duas. Detalhe: o agente também é um Claude. Volto nisso no fim. Código, testes e dados estão [no repositório](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
+
+## Um 200 que não trocou nada
+
+O v1 da API cresceu em volta de um formulário web. O formulário sabe os ids dos planos, coloca a máscara no CNPJ e nem mostra o campo de plano na tela de edição. Pra ele, tá tudo certo.
+
+Agora tira o formulário e deixa só o contrato. A Padaria Exemplo Ltda está no plano Pro (id 2) e pediu pra ir pro Enterprise (id 3). Os agentes tentaram um PUT assim:
+
+```http
+PUT /v1/requests/1
+X-Api-Key: demo-key-acme-0001
+Content-Type: application/json
+
+{"email":"ana@exemplo.test","plan":3}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"id":1,"name":"Padaria Exemplo Ltda","doc":"11222333000181","plan":2,"start":"2026-10-20","email":"ana@exemplo.test","st":0}
+```
+
+Deu 200 e o plano continua 2. No código tem um comentário explicando que troca de plano é com os gerentes de conta, no back office, então a API ignora o campo. Só que a resposta não fala nada disso. Um dos agentes resumiu bem: "A API aceita o pedido e ignora o plano sem dar erro."
+
+Ou seja, o 200 só diz que o servidor respondeu, não que ele fez o que você pediu.
+
+## O que o agente tem na mão
+
+Tudo aquilo que o formulário sabe, o agente não sabe. Ele só tem o OpenAPI e as respostas, e é com isso que escolhe a operação, monta os argumentos, decide se tenta de novo e o que vai te contar no final. O que é válido, o que a credencial pode fazer e o que mudou de verdade, quem decide é o servidor.
+
+<AgentApiFlow lang="pt" />
+
+E quase nada disso é novo. Um script de parceiro que só tem a documentação bate nas mesmas paredes. A diferença é que o agente lê tudo ao pé da letra e age em cima do que leu. Não dá pra controlar o modelo, mas o contrato que ele lê tá na nossa mão.
+
+## Onde o v1 atrapalha
+
+O OpenAPI do v1 é gerado direto dos records do C#, sem nenhuma descrição. Só isso já cria quase todos os problemas que eu queria testar:
+
+- **Parâmetro ambíguo.** O CNPJ se chama `doc` e é só uma string, sem formato.
+- **Erro que não ajuda.** CNPJ com pontuação volta `400 {"error":"Invalid data"}`. Qual campo? Inválido como?
+- **Documentação que mente sem querer.** O PUT marca `plan` como obrigatório e depois ignora.
+- **Resposta que não se explica.** O status é `st`, que vale 0 ou 1. Um agente escreveu: "não sei dizer em que etapa a solicitação está."
+- **Repetição que duplica.** Se a resposta da criação se perde e o cliente reenvia, nascem duas solicitações.
+- **Permissão escondida.** A troca de plano depende do back office, e a API nunca diz isso.
+
+E repara que nada disso é coisa de IA. É contrato que o formulário escondia.
+
+## O que mudou no v2
+
+### Um contrato que dá pra seguir
+
+Os campos ganharam nome que se explica, descrição, formato e exemplo. No .NET 10, esses atributos [viram metadados no OpenAPI](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) e, com `AddValidation()`, são [checados antes do handler](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0):
+
+```csharp
+[property: Description("Customer's CNPJ: exactly 14 digits, no dots, slash or dash. Example: 45723174000110.")]
+[property: Required, RegularExpression(@"^\d{14}$", ErrorMessage = "Use exactly 14 digits, without dots, slash or dash. Example: 45723174000110.")]
+string CustomerTaxId,
+```
+
+Também separei três coisas que no v1 eram uma só: consultar (`GET /v2/onboarding-requests?customerTaxId=`), validar sem criar nada (`POST /v2/onboarding-requests/validate`) e criar de fato. Parece pouco, mas foi o que mais mudou o comportamento do agente.
+
+### Erro que diz o próximo passo
+
+No v2, o PATCH só muda o e-mail de contato. Se alguém tenta trocar o plano por ali:
+
+```http
+PATCH /v2/onboarding-requests/onb_560d8c1919
+Content-Type: application/json
+
+{"plan":"enterprise"}
+
+HTTP/1.1 403 Forbidden
+Content-Type: application/problem+json
+
+{
+  "type": "https://example.com/problems/plan-change-requires-approval",
+  "title": "Changing the plan needs approval by an account manager.",
+  "status": 403,
+  "detail": "No changes were applied. Your credentials can request a plan change, not apply it.",
+  "requiredScope": "plan-change:apply",
+  "allowedAction": {
+    "method": "POST",
+    "href": "/v2/onboarding-requests/onb_560d8c1919/plan-change-requests"
+  }
+}
+```
+
+Esse formato é o Problem Details, da [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html). O `detail` é pra gente ler, e o que é pra máquina usar vai em campos extras, como `requiredScope` e `allowedAction`. O próprio erro já conta que nada mudou e mostra o caminho. E o OpenAPI diz quando vale repetir: só 409 e 5xx, com a mesma chave e o mesmo corpo. 400, 403, 404 e 422 pedem uma mudança, não outra tentativa.
+
+### Repetir sem duplicar
+
+`POST` não é idempotente: mandou duas vezes, criou duas vezes. E o caso chato é quando a resposta não chega. Deu certo ou não? Reenvio ou não?
+
+O v2 segue o [draft do header Idempotency-Key](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) da IETF, que expirou sem virar padrão. O cliente manda uma chave por operação e repete a mesma chave se precisar reenviar. O servidor guarda o resultado da primeira vez e, no reenvio, devolve o original:
+
+```http
+POST /v2/onboarding-requests
+Idempotency-Key: 4b1f0c6e-demo-0003
+
+HTTP/1.1 201 Created
+Location: /v2/onboarding-requests/onb_560d8c1919
+Idempotent-Replayed: true
+```
+
+Mesma chave com outro corpo dá 422. Nos testes, dez requisições paralelas com a mesma chave criam uma solicitação só. Só não dá pra chamar isso de "exatamente uma vez": a chave protege reenvios com ela mesma, por 24 horas na demo, e em produção esse registro tem que ser gravado na mesma transação da criação, não em memória como aqui.
+
+### Permissão é coisa do servidor
+
+Cada credencial pertence a um cliente e tem escopos, checados no servidor em toda chamada. O escopo que aplica troca de plano nunca é dado a integrações. O que a integração pode fazer é pedir a troca:
+
+```http
+POST /v2/onboarding-requests/onb_560d8c1919/plan-change-requests
+Idempotency-Key: 9d2e7a51-demo-0001
+Content-Type: application/json
+
+{"plan":"enterprise","reason":"Pedido do cliente."}
+
+HTTP/1.1 202 Accepted
+Location: /v2/plan-change-requests/pcr_45b0453bee
+
+{
+  "id": "pcr_45b0453bee",
+  "status": "pending_approval",
+  "statusDescription": "Waiting for an account manager. The onboarding request keeps its current plan until this is approved."
+}
+```
+
+Não importa o quanto o modelo tenha certeza de que a cliente quer o Enterprise: sem o escopo na credencial, o servidor não deixa. E toda leitura filtra pelo cliente da credencial, então o id de outro cliente volta 404, como se não existisse.
+
+### Como saber que deu certo
+
+No v1, o agente tinha um `st: 0` e boa sorte. No v2, a solicitação tem um id estável (`onb_…`), o pedido de troca tem o dele (`pcr_…`), e todo status tem nome e descrição. As respostas trazem um `X-Correlation-Id`, o mesmo do log de auditoria.
+
+E falando em log: ele nunca guarda a chave da API nem o corpo das requisições, mas o CNPJ foi parar lá mesmo assim, na busca por CNPJ e nas `Idempotency-Key`s que os agentes montaram, tipo `onb-padaria-11222333000181-pro-20261020`. Quando um modelo monta a query e a chave, dado de cliente vai junto. Em produção, o ideal é fazer hash ou [mascarar esse dado](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction) antes de gravar.
+
+## Onde o MCP entra (e onde não precisa)
+
+O MCP (Model Context Protocol) é um jeito padronizado de oferecer ferramentas pra um modelo. Não é requisito: os agentes do experimento usaram `curl` puro. Mas a demo tem um adaptador MCP pequeno em C#, e ele ajuda a separar quatro camadas que costumam se misturar:
+
+1. **O contrato HTTP**, que é o OpenAPI.
+2. **A ferramenta que o modelo vê**: nome, descrição e parâmetros. São três, e nenhuma aplica troca de plano.
+3. **O cliente que executa**: guarda a chave da API, que o modelo nunca vê, e gera uma `Idempotency-Key` estável a partir dos argumentos.
+4. **O servidor**, com as mesmas regras de qualquer chamada HTTP.
+
+A ferramenta de criação é marcada como `Idempotent = true`, mas isso é só uma dica, e a [spec do MCP](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) manda tratar essas anotações como não confiáveis. Quem garante que o reenvio não duplica é a chave, do lado da API. O adaptador passou num script de teste, mas ainda não foi usado por um modelo.
+
+## O experimento
+
+A tarefa foi a mesma nas duas versões: abrir a solicitação da Padaria no plano Pro, trocar pro Enterprise e, no final, contar o que ficou feito e o que ficou pendente. Cada versão rodou 6 vezes, em duas rodadas de 3, com um subagente do Claude Code usando só `curl`.
+
+Pra complicar, o servidor tinha uma falha de propósito: na primeira criação aceita, ele salvava a solicitação e derrubava a conexão antes de responder. É o clássico "deu certo ou não?", e aconteceu nas 12 execuções.
+
+Os critérios foram escritos antes de rodar, num [protocolo](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api/experiment) que está no repositório junto com os logs e o relato de cada agente. A segunda rodada existe porque, na primeira, a lista de tarefas da sessão vazou pro contexto do agente e o exemplo de CNPJ do v2 era o mesmo da tarefa. Corrigido isso, o resultado se repetiu.
+
+Resumindo antes dos detalhes: nas duas versões, não teve efeito errado nenhum, nem solicitação duplicada nem troca sem aprovação, e todo agente relatou a verdade. A diferença ficou no caminho até lá e em entender o que tinha acontecido.
+
+### Uma execução de cada, lado a lado
+
+<AgentRunJourney lang="pt" />
+
+No v1, o agente levou um `Invalid data` por causa do CNPJ formatado e depois gastou quatro requisições tentando trocar um plano que a API ignorava. No v2, validou antes de criar, pediu a troca pelo caminho certo e passou o resto do tempo conferindo.
+
+### O que mudou
+
+| Nas 6 execuções de cada versão | v1 | v2 |
+|---|---|---|
+| Criações recusadas antes da certa | 1 por execução (6 de 6) | nenhuma |
+| Requisições por execução | de 11 a 21, a mais é investigação | 8 ou 9 |
+| Entendeu por que o plano não mudou | 0 de 6 | 6 de 6 |
+| No relato, quem precisa agir | alguém com acesso ao sistema, sem dizer quem | um gerente de contas, com o id do pedido |
+
+A recusa do v1 tem uma causa só, o CNPJ. O agente mandou com pontos e barra, do jeito que todo mundo escreve, e o `Invalid data` não dizia qual campo, então ele chutou e acertou na segunda. No v2, o schema já dizia que são exatamente 14 dígitos, sem pontuação, e as 6 execuções ainda chamaram o `/validate` pra confirmar antes de criar.
+
+As requisições a mais do v1 são o agente investigando: repetir o PUT com o plano em outro formato, ler de novo pra ver se mudou, testar `PATCH` e `OPTIONS`, consultar ids que eram de outros clientes. No v2, quase tudo além do essencial foi leitura pra confirmar.
+
+E a maior diferença foi o agente entender o que tava acontecendo. No v1, as 6 execuções perceberam que o plano não mudou, mas nenhuma soube por quê. Os palpites foram que o tal do `st` bloqueava a troca, ou que aquela rota não trocava plano. No v2, nenhuma tentou o PATCH com o plano, porque a descrição da operação já avisava do 403. Um relato resume assim: "abri um pedido de mudança de plano, que está aguardando a aprovação de um gerente de contas."
+
+### O que não mudou, e por quê
+
+**Nenhuma solicitação duplicada, nas 12.** E não foi graças à `Idempotency-Key`. Depois da queda, todos os agentes consultaram antes de reenviar, e nenhum reenviou. A chave foi enviada em todas as criações do v2, mas nunca precisou agir.
+
+**Nenhuma troca de plano sem aprovação.** Também não tinha como: o v1 ignora o plano e o v2 recusa.
+
+**Os 12 relatos batem com o servidor.** Todos leram o estado de volta antes de relatar, inclusive no v1, que contou certinho que a troca não tinha acontecido.
+
+## Perguntas pra quem constrói APIs e agentes
+
+- Alguma operação sua responde 200 e ignora parte do corpo?
+- Se a resposta se perde, dá pra descobrir só pela API se o efeito aconteceu?
+- Quais operações deveriam esperar uma pessoa, e o contrato diz isso antes do erro?
+- O seu agente reenvia sozinho? Com qual chave?
+
+Se você já esbarrou em algum desses, de qualquer lado, conta aqui nos comentários.
+
+## De volta à troca de plano
+
+No v1, a API respondeu 200, o plano ficou Pro e o agente terminou pedindo que alguém verificasse. No v2, ele terminou com o id do pedido na mão, sabendo que um gerente de contas precisa aprovar. Nos dois casos o agente contou a verdade, mas só no v2 ele sabia qual era o próximo passo.
+
+E o que fez essa diferença foi a parte barata e antiga: nome de campo, um `pattern`, um exemplo, a descrição de uma operação, uma rota de validação, um status com nome. A idempotência e o erro de permissão nem chegaram a ser testados pelo agente, porque ele foi cuidadoso e não caiu nessas armadilhas.
+
+Claro, foram poucas execuções, uma tarefa só, e um Claude testando uma API que um Claude ajudou a escrever. Um agente mais apressado, ou um cliente que reenvia sozinho, pode se comportar bem diferente. Não dá pra generalizar, mas dá pra ver onde cada contrato ajudou ou atrapalhou. Os próximos testes que eu queria ver são exatamente esses: um cliente que reenvia sozinho, outros modelos e o adaptador MCP sendo usado de verdade.
+
+## Referências
+
+Consultadas em 13 de outubro de 2026.
+
+- Waldek Mastykarz, [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), Microsoft for Developers, 6 de outubro de 2026.
+- [RFC 9457: Problem Details for HTTP APIs](https://www.rfc-editor.org/rfc/rfc9457.html).
+- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), Internet-Draft da IETF (expirado em abril de 2026; última revisão: 07).
+- ASP.NET Core 10: [Include OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) e [Validation](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0). .NET: [Data redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
+- Model Context Protocol, revisão 2026-07-28: [Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
+- Demo, testes, protocolo e dados do experimento: [brskt-space/demos/agent-ready-api](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).

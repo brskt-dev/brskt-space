@@ -1,0 +1,77 @@
+{
+ "run:v2-3": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 6
+  },
+  "shell_words": {
+   "curl": 6,
+   "echo": 2
+  },
+  "leak_markers": {}
+ },
+ "run:v1-1": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 8
+  },
+  "shell_words": {
+   "curl": 7,
+   "echo": 4,
+   "done": 1,
+   "for": 1,
+   "do": 1
+  },
+  "leak_markers": {}
+ },
+ "run:v1-2": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 9
+  },
+  "shell_words": {
+   "curl": 9,
+   "echo": 2
+  },
+  "leak_markers": {}
+ },
+ "run:v2-2": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 6
+  },
+  "shell_words": {
+   "curl": 6,
+   "echo": 2
+  },
+  "leak_markers": {}
+ },
+ "run:v1-3": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 13
+  },
+  "shell_words": {
+   "curl": 13,
+   "H": 12,
+   "echo": 7,
+   "done": 1,
+   "do": 1,
+   "for": 1
+  },
+  "leak_markers": {}
+ },
+ "run:v2-1": {
+  "tools": {
+   "StructuredOutput": 1,
+   "Bash": 6
+  },
+  "shell_words": {
+   "curl": 3,
+   "echo": 2,
+   "B": 5,
+   "K": 5
+  },
+  "leak_markers": {}
+ }
+}

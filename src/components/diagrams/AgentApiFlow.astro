@@ -1,0 +1,215 @@
+---
+/**
+ * Article "api-para-agentes": who decides what when an agent uses an API.
+ * Left zone: what the model chooses. Right zone: what code allows (tool/client, API, state),
+ * plus the person who approves a plan change. Below: verification by reading the state back.
+ * Generic names only; the flow is the article's demo, not a production system.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import DNode from './DNode.astro';
+import Wire from './Wire.astro';
+import Icon from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  title: { pt: 'O modelo escolhe. O código permite.', en: 'The model chooses. The code allows.' },
+  caption: {
+    pt: 'Fluxo da demonstração deste artigo. Tudo à direita vale para qualquer cliente, com ou sem IA: a confiança do modelo não muda o que a chave pode fazer.',
+    en: 'Flow of this article’s demo. Everything on the right applies to any client, AI or not: the model’s confidence does not change what the key may do.',
+  },
+  zoneModel: { pt: 'o modelo escolhe', en: 'the model chooses' },
+  zoneCode: { pt: 'o código permite', en: 'the code allows' },
+  model: { pt: 'Modelo', en: 'Model' },
+  modelSub: { pt: 'lê o contrato e decide o próximo passo', en: 'reads the contract, picks the next step' },
+  tool: { pt: 'Ferramenta', en: 'Tool' },
+  toolSub: { pt: 'cliente HTTP ou adaptador MCP', en: 'HTTP client or MCP adapter' },
+  api: { pt: 'API', en: 'API' },
+  apiSub: { pt: 'valida e aplica as regras', en: 'validates and applies the rules' },
+  state: { pt: 'Estado', en: 'State' },
+  stateSub: { pt: 'o que de fato aconteceu', en: 'what actually happened' },
+  person: { pt: 'Pessoa', en: 'Person' },
+  personSub: { pt: 'aprova a troca de plano', en: 'approves the plan change' },
+  args: { pt: 'argumentos', en: 'arguments' },
+  http: { pt: 'HTTP', en: 'HTTP' },
+  problem: { pt: 'erro estruturado', en: 'structured error' },
+  effect: { pt: 'efeito', en: 'effect' },
+  approval: { pt: 'pedido', en: 'request' },
+  verify: {
+    pt: 'Antes de relatar, ler o estado de volta: GET /v2/onboarding-requests/{id}',
+    en: 'Before reporting, read the state back: GET /v2/onboarding-requests/{id}',
+  },
+} as const;
+const t = (k: keyof typeof T) => T[k][lang];
+
+const chips = {
+  model: { pt: ['qual operação', 'quais argumentos', 'tentar de novo?', 'o que relatar'], en: ['which operation', 'which arguments', 'retry?', 'what to report'] },
+  tool: { pt: ['guarda a chave', 'Idempotency-Key estável'], en: ['holds the key', 'stable Idempotency-Key'] },
+  api: { pt: ['schema', 'escopo e cliente', 'regra de negócio', 'correlação'], en: ['schema', 'scope and tenant', 'business rule', 'correlation'] },
+  state: { pt: ['status explícito'], en: ['explicit status'] },
+} as const;
+---
+
+<DiagramFrame lang={lang} id="dg-agent-api" title={t('title')} status="illustrative" caption={t('caption')}>
+  <div class="flow">
+    <span class="zone zone-model" aria-hidden="true"></span>
+    <span class="zone zone-code" aria-hidden="true"></span>
+    <p class="zl zl-model"><Icon name="sparkles" size={13} />{t('zoneModel')}</p>
+    <p class="zl zl-code"><Icon name="shield-check" size={13} />{t('zoneCode')}</p>
+
+    <DNode area="model" icon="brain" title={t('model')} sub={t('modelSub')} proposed>
+      <ul class="chips">{chips.model[lang].map((c) => <li>{c}</li>)}</ul>
+    </DNode>
+    <Wire area="w1" dir="right" label={t('args')} />
+    <DNode area="tool" icon="wrench" title={t('tool')} sub={t('toolSub')}>
+      <ul class="chips">{chips.tool[lang].map((c) => <li>{c}</li>)}</ul>
+    </DNode>
+    <Wire area="w2" dir="right" label={t('http')} back={t('problem')} delay={0.6} />
+    <DNode area="api" icon="server" title={t('api')} sub={t('apiSub')}>
+      <ul class="chips">{chips.api[lang].map((c) => <li>{c}</li>)}</ul>
+    </DNode>
+    <Wire area="w3" dir="right" label={t('effect')} delay={1.2} />
+    <DNode area="state" icon="database" title={t('state')} sub={t('stateSub')}>
+      <ul class="chips">{chips.state[lang].map((c) => <li>{c}</li>)}</ul>
+    </DNode>
+    <Wire area="wp" dir="down" label={t('approval')} delay={1.8} />
+    <DNode area="person" icon="user-check" title={t('person')} sub={t('personSub')} />
+  </div>
+
+  <p class="verify"><Icon name="circle-check" size={15} /><span>{t('verify')}</span></p>
+</DiagramFrame>
+
+<style>
+  .flow {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'zl-model'
+      'model'
+      'w1'
+      'zl-code'
+      'tool'
+      'w2'
+      'api'
+      'wp'
+      'person'
+      'w3'
+      'state';
+  }
+
+  .zone {
+    display: none;
+  }
+
+  .zl {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.6rem;
+    font: 600 0.7rem / 1 var(--font-mono);
+  }
+
+  .zl-model {
+    grid-area: zl-model;
+    color: var(--accent);
+  }
+
+  .zl-code {
+    grid-area: zl-code;
+    margin-top: 0.4rem;
+    color: var(--mint);
+  }
+
+  .chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chips li {
+    margin: 0;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font: 500 0.64rem / 1.35 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .verify {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.1rem 0 0;
+    padding: 0.6rem 0.8rem;
+    border: 1px dashed color-mix(in srgb, var(--mint) 55%, transparent);
+    border-radius: var(--r-sm);
+    font: 500 0.74rem / 1.4 var(--font-mono);
+    color: var(--text);
+  }
+
+  .verify :global(.icon) {
+    flex: none;
+    color: var(--mint);
+  }
+
+  @media (min-width: 62rem) {
+    .flow {
+      grid-template-columns: minmax(0, 1fr) 5.2rem minmax(0, 1fr) 7.6rem minmax(0, 1.1fr) 4.4rem minmax(0, 0.85fr);
+      grid-template-rows: auto auto 3.4rem auto;
+      grid-template-areas:
+        'zl-model .  zl-code zl-code zl-code zl-code zl-code'
+        'model    w1 tool    w2      api     w3      state'
+        '.        .  .       .       wp      .       .'
+        '.        .  .       .       person  .       .';
+      align-items: center;
+      row-gap: 0;
+    }
+
+    /* the two zones are drawn behind the nodes, bleeding a little past them */
+    .zone {
+      display: block;
+      z-index: 0;
+      align-self: stretch;
+      justify-self: stretch;
+      margin: -0.55rem;
+      border-radius: calc(var(--r) + 0.5rem);
+    }
+
+    .zone-model {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+      background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+
+    .zone-code {
+      grid-column: 3 / 8;
+      grid-row: 1 / 5;
+      border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
+      background: color-mix(in srgb, var(--mint) 4%, transparent);
+    }
+
+    .zl {
+      position: relative;
+      z-index: 1;
+      margin: 0.15rem 0 0.75rem;
+    }
+
+    .flow :global(.dn) {
+      align-self: stretch;
+    }
+
+    .flow :global(.dn[style*='grid-area:person']) {
+      align-self: start;
+    }
+  }
+</style>

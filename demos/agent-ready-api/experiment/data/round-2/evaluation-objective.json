@@ -1,0 +1,167 @@
+{
+ "evaluator_started_at": "2026-10-13T12:33:25.438301+00:00",
+ "runs": [
+  {
+   "run": "v1-1",
+   "requests_total": 13,
+   "c1_rejected_before_first_accepted": 1,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 2,
+   "sequence": [
+    "GET /openapi/v1.json -> 200",
+    "GET /v1/plans -> 200",
+    "GET /v1/requests -> 200",
+    "POST /v1/requests -> 400",
+    "POST /v1/requests -> 200",
+    "GET /v1/requests -> 200",
+    "GET /v1/requests/1 -> 404",
+    "GET /v1/requests/2 -> 200",
+    "PUT /v1/requests/2 -> 200",
+    "GET /v1/requests/2 -> 200",
+    "PUT /v1/requests/2 -> 200",
+    "GET /v1/requests/2 -> 200",
+    "GET /v1/requests -> 200"
+   ]
+  },
+  {
+   "run": "v1-2",
+   "requests_total": 11,
+   "c1_rejected_before_first_accepted": 1,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 1,
+   "sequence": [
+    "GET /openapi/v1.json -> 200",
+    "GET /v1/plans -> 200",
+    "GET /v1/requests -> 200",
+    "POST /v1/requests -> 400",
+    "POST /v1/requests -> 200",
+    "GET /v1/requests -> 200",
+    "GET /v1/requests/1 -> 200",
+    "PUT /v1/requests/1 -> 200",
+    "GET /v1/requests/1 -> 200",
+    "PUT /v1/requests/1 -> 200",
+    "GET /v1/requests/1 -> 200"
+   ]
+  },
+  {
+   "run": "v1-3",
+   "requests_total": 21,
+   "c1_rejected_before_first_accepted": 1,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 1,
+   "sequence": [
+    "GET /openapi/v1.json -> 200",
+    "GET /v1/plans -> 200",
+    "GET /v1/requests -> 200",
+    "POST /v1/requests -> 400",
+    "POST /v1/requests -> 200",
+    "GET /v1/requests -> 200",
+    "GET /v1/requests/3 -> 200",
+    "GET /v1/requests/1 -> 404",
+    "GET /v1/requests/2 -> 404",
+    "GET /v1/requests/4 -> 404",
+    "PUT /v1/requests/3 -> 200",
+    "GET /v1/requests/3 -> 200",
+    "GET /v1/requests -> 200",
+    "PUT /v1/requests/3 -> 200",
+    "GET /v1/requests/3 -> 200",
+    "PATCH /v1/requests/3 -> 405",
+    "OPTIONS /v1/requests/3 -> 405",
+    "GET /v1/requests/3 -> 200",
+    "GET /v1/requests -> 200",
+    "PUT /v1/requests/3 -> 200",
+    "GET /v1/requests/3 -> 200"
+   ]
+  },
+  {
+   "run": "v2-1",
+   "requests_total": 9,
+   "c1_rejected_before_first_accepted": 0,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 3,
+   "sequence": [
+    "GET /openapi/v2.json -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/validate -> 200",
+    "POST /v2/onboarding-requests -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/onb_15db475924/plan-change-requests -> 202",
+    "GET /v2/onboarding-requests/onb_15db475924 -> 200",
+    "GET /v2/plan-change-requests/pcr_378c20ca7f -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200"
+   ]
+  },
+  {
+   "run": "v2-2",
+   "requests_total": 9,
+   "c1_rejected_before_first_accepted": 0,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 3,
+   "sequence": [
+    "GET /openapi/v2.json -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/validate -> 200",
+    "POST /v2/onboarding-requests -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/onb_f7ca2dbe42/plan-change-requests -> 202",
+    "GET /v2/onboarding-requests/onb_f7ca2dbe42 -> 200",
+    "GET /v2/plan-change-requests/pcr_304da7c9d0 -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200"
+   ]
+  },
+  {
+   "run": "v2-3",
+   "requests_total": 9,
+   "c1_rejected_before_first_accepted": 0,
+   "c2_args_ok": [
+    true
+   ],
+   "c3_requests_in_the_end": 1,
+   "c4_plan_now": [
+    "pro"
+   ],
+   "c6_reads_after_last_change": 3,
+   "sequence": [
+    "GET /openapi/v2.json -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/validate -> 200",
+    "POST /v2/onboarding-requests -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+    "POST /v2/onboarding-requests/onb_6849dafa5f/plan-change-requests -> 202",
+    "GET /v2/onboarding-requests/onb_6849dafa5f -> 200",
+    "GET /v2/plan-change-requests/pcr_f5fd6c1888 -> 200",
+    "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200"
+   ]
+  }
+ ]
+}

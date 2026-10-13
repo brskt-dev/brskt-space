@@ -1,0 +1,38 @@
+[
+ {
+  "run": "v1-1",
+  "contract": "v1",
+  "keyId": "run-v1-1",
+  "tenant": "tenant-run-v1-1"
+ },
+ {
+  "run": "v1-2",
+  "contract": "v1",
+  "keyId": "run-v1-2",
+  "tenant": "tenant-run-v1-2"
+ },
+ {
+  "run": "v1-3",
+  "contract": "v1",
+  "keyId": "run-v1-3",
+  "tenant": "tenant-run-v1-3"
+ },
+ {
+  "run": "v2-1",
+  "contract": "v2",
+  "keyId": "run-v2-1",
+  "tenant": "tenant-run-v2-1"
+ },
+ {
+  "run": "v2-2",
+  "contract": "v2",
+  "keyId": "run-v2-2",
+  "tenant": "tenant-run-v2-2"
+ },
+ {
+  "run": "v2-3",
+  "contract": "v2",
+  "keyId": "run-v2-3",
+  "tenant": "tenant-run-v2-3"
+ }
+]
