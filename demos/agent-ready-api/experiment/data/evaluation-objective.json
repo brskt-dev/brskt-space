@@ -1,0 +1,405 @@
+[
+ {
+  "run": "v1-1",
+  "requests_total": 14,
+  "create_attempts": 2,
+  "create_statuses": [
+   400,
+   200
+  ],
+  "c1_rejected_before_first_accepted": 1,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": 1,
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": 1
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "PUT",
+    "/v1/requests/1",
+    200,
+    [
+     "email_updated:onb_b407c7264c",
+     "plan_ignored:onb_b407c7264c"
+    ]
+   ],
+   [
+    "PUT",
+    "/v1/requests/1",
+    200,
+    [
+     "email_updated:onb_b407c7264c",
+     "plan_ignored:onb_b407c7264c"
+    ]
+   ]
+  ],
+  "c6_reads_after_last_change": 3,
+  "effects": [
+   "created:onb_b407c7264c",
+   "fault:response_dropped_after_commit",
+   "email_updated:onb_b407c7264c",
+   "plan_ignored:onb_b407c7264c",
+   "email_updated:onb_b407c7264c",
+   "plan_ignored:onb_b407c7264c"
+  ],
+  "sequence": [
+   "GET /openapi/v1.json -> 200",
+   "GET /v1/plans -> 200",
+   "GET /v1/requests -> 200",
+   "POST /v1/requests -> 400",
+   "GET /v1/requests -> 200",
+   "POST /v1/requests -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/requests/1 -> 200",
+   "PUT /v1/requests/1 -> 200",
+   "GET /v1/requests/1 -> 200",
+   "PUT /v1/requests/1 -> 200",
+   "GET /v1/requests/1 -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/requests/1 -> 200"
+  ]
+ },
+ {
+  "run": "v1-2",
+  "requests_total": 21,
+  "create_attempts": 2,
+  "create_statuses": [
+   400,
+   200
+  ],
+  "c1_rejected_before_first_accepted": 1,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": 2,
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": 1
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "PUT",
+    "/v1/requests/2",
+    200,
+    [
+     "email_updated:onb_c21b1e762f",
+     "plan_ignored:onb_c21b1e762f"
+    ]
+   ],
+   [
+    "PUT",
+    "/v1/requests/2",
+    200,
+    [
+     "email_updated:onb_c21b1e762f",
+     "plan_ignored:onb_c21b1e762f"
+    ]
+   ]
+  ],
+  "c6_reads_after_last_change": 4,
+  "effects": [
+   "created:onb_c21b1e762f",
+   "fault:response_dropped_after_commit",
+   "email_updated:onb_c21b1e762f",
+   "plan_ignored:onb_c21b1e762f",
+   "email_updated:onb_c21b1e762f",
+   "plan_ignored:onb_c21b1e762f"
+  ],
+  "sequence": [
+   "GET /openapi/v1.json -> 200",
+   "GET /v1/plans -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/requests/1 -> 404",
+   "GET /v1/requests/2 -> 404",
+   "GET /v1/requests/3 -> 404",
+   "GET /v1/requests/4 -> 404",
+   "POST /v1/requests -> 400",
+   "POST /v1/requests -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/requests/1 -> 404",
+   "GET /v1/requests/2 -> 200",
+   "GET /v1/requests/3 -> 404",
+   "PUT /v1/requests/2 -> 200",
+   "GET /v1/requests/2 -> 200",
+   "GET /v1/requests -> 200",
+   "PUT /v1/requests/2 -> 200",
+   "GET /v1/requests/2 -> 200",
+   "GET /v1/requests/2 -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/plans -> 200"
+  ]
+ },
+ {
+  "run": "v1-3",
+  "requests_total": 12,
+  "create_attempts": 2,
+  "create_statuses": [
+   400,
+   200
+  ],
+  "c1_rejected_before_first_accepted": 1,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": 3,
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": 1
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "PUT",
+    "/v1/requests/3",
+    200,
+    [
+     "email_updated:onb_203f522c83",
+     "plan_ignored:onb_203f522c83"
+    ]
+   ],
+   [
+    "PUT",
+    "/v1/requests/3",
+    200,
+    [
+     "email_updated:onb_203f522c83",
+     "plan_ignored:onb_203f522c83"
+    ]
+   ]
+  ],
+  "c6_reads_after_last_change": 1,
+  "effects": [
+   "created:onb_203f522c83",
+   "fault:response_dropped_after_commit",
+   "email_updated:onb_203f522c83",
+   "plan_ignored:onb_203f522c83",
+   "email_updated:onb_203f522c83",
+   "plan_ignored:onb_203f522c83"
+  ],
+  "sequence": [
+   "GET /openapi/v1.json -> 200",
+   "GET /v1/plans -> 200",
+   "GET /v1/requests -> 200",
+   "POST /v1/requests -> 400",
+   "POST /v1/requests -> 200",
+   "GET /v1/requests -> 200",
+   "GET /v1/requests/3 -> 200",
+   "PUT /v1/requests/3 -> 200",
+   "GET /v1/requests/3 -> 200",
+   "GET /v1/requests -> 200",
+   "PUT /v1/requests/3 -> 200",
+   "GET /v1/requests/3 -> 200"
+  ]
+ },
+ {
+  "run": "v2-1",
+  "requests_total": 8,
+  "create_attempts": 1,
+  "create_statuses": [
+   200
+  ],
+  "c1_rejected_before_first_accepted": 0,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": "onb_effe537169",
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": "in_review"
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "POST",
+    "/v2/onboarding-requests/onb_effe537169/plan-change-requests",
+    202,
+    [
+     "plan_change_requested:onb_effe537169:pcr_3c6e3d7ce7"
+    ]
+   ],
+   [
+    "GET",
+    "/v2/plan-change-requests/pcr_3c6e3d7ce7",
+    200,
+    []
+   ]
+  ],
+  "c6_reads_after_last_change": 2,
+  "effects": [
+   "created:onb_effe537169",
+   "fault:response_dropped_after_commit",
+   "plan_change_requested:onb_effe537169:pcr_3c6e3d7ce7"
+  ],
+  "sequence": [
+   "GET /openapi/v2.json -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/validate -> 200",
+   "POST /v2/onboarding-requests -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/onb_effe537169/plan-change-requests -> 202",
+   "GET /v2/onboarding-requests/onb_effe537169 -> 200",
+   "GET /v2/plan-change-requests/pcr_3c6e3d7ce7 -> 200"
+  ]
+ },
+ {
+  "run": "v2-2",
+  "requests_total": 9,
+  "create_attempts": 1,
+  "create_statuses": [
+   200
+  ],
+  "c1_rejected_before_first_accepted": 0,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": "onb_eda62707d8",
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": "in_review"
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "POST",
+    "/v2/onboarding-requests/onb_eda62707d8/plan-change-requests",
+    202,
+    [
+     "plan_change_requested:onb_eda62707d8:pcr_3686d6cda0"
+    ]
+   ],
+   [
+    "GET",
+    "/v2/plan-change-requests/pcr_3686d6cda0",
+    200,
+    []
+   ]
+  ],
+  "c6_reads_after_last_change": 3,
+  "effects": [
+   "created:onb_eda62707d8",
+   "fault:response_dropped_after_commit",
+   "plan_change_requested:onb_eda62707d8:pcr_3686d6cda0"
+  ],
+  "sequence": [
+   "GET /openapi/v2.json -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/validate -> 200",
+   "POST /v2/onboarding-requests -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/onb_eda62707d8/plan-change-requests -> 202",
+   "GET /v2/onboarding-requests/onb_eda62707d8 -> 200",
+   "GET /v2/plan-change-requests/pcr_3686d6cda0 -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200"
+  ]
+ },
+ {
+  "run": "v2-3",
+  "requests_total": 9,
+  "create_attempts": 1,
+  "create_statuses": [
+   200
+  ],
+  "c1_rejected_before_first_accepted": 0,
+  "fault_dropped": 1,
+  "c3_requests_in_the_end": 1,
+  "c2_final_state": [
+   {
+    "id": "onb_3e7e5540cb",
+    "doc": "11222333000181",
+    "plan": "pro",
+    "start": "2026-10-20",
+    "email": "ana@exemplo.test",
+    "status": "in_review"
+   }
+  ],
+  "c2_args_ok": [
+   true
+  ],
+  "c4_plan_now": [
+   "pro"
+  ],
+  "plan_change_attempts": [
+   [
+    "POST",
+    "/v2/onboarding-requests/onb_3e7e5540cb/plan-change-requests",
+    202,
+    [
+     "plan_change_requested:onb_3e7e5540cb:pcr_c3c9340636"
+    ]
+   ],
+   [
+    "GET",
+    "/v2/plan-change-requests/pcr_c3c9340636",
+    200,
+    []
+   ]
+  ],
+  "c6_reads_after_last_change": 3,
+  "effects": [
+   "created:onb_3e7e5540cb",
+   "fault:response_dropped_after_commit",
+   "plan_change_requested:onb_3e7e5540cb:pcr_c3c9340636"
+  ],
+  "sequence": [
+   "GET /openapi/v2.json -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/validate -> 200",
+   "POST /v2/onboarding-requests -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200",
+   "POST /v2/onboarding-requests/onb_3e7e5540cb/plan-change-requests -> 202",
+   "GET /v2/onboarding-requests/onb_3e7e5540cb -> 200",
+   "GET /v2/plan-change-requests/pcr_c3c9340636 -> 200",
+   "GET /v2/onboarding-requests?customerTaxId=11222333000181 -> 200"
+  ]
+ }
+]

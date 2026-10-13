@@ -1,0 +1,50 @@
+{
+ "run:v2-2": {
+  "tool_calls": 7,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 6
+  },
+  "flagged": []
+ },
+ "run:v1-3": {
+  "tool_calls": 10,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 9
+  },
+  "flagged": []
+ },
+ "run:v1-1": {
+  "tool_calls": 11,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 10
+  },
+  "flagged": []
+ },
+ "run:v1-2": {
+  "tool_calls": 12,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 11
+  },
+  "flagged": []
+ },
+ "run:v2-1": {
+  "tool_calls": 8,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 7
+  },
+  "flagged": []
+ },
+ "run:v2-3": {
+  "tool_calls": 7,
+  "by_tool": {
+   "StructuredOutput": 1,
+   "Bash": 6
+  },
+  "flagged": []
+ }
+}
