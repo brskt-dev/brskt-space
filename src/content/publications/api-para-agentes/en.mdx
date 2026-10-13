@@ -1,7 +1,7 @@
 ---
 type: article
 title: "Your API works for people. What about AI agents?"
-summary: "A fictional onboarding API in two versions, the same task for an AI agent, and what changes in the contract, errors, retries and permissions. Plus what the experiment showed and what it didn’t."
+summary: "A fictional onboarding API in two versions, and the same task given 12 times to an AI agent. What got in the way, what helped and what the test didn’t prove, with .NET code and the actual requests."
 date: 2026-10-13
 cover: ./media/cover-en.webp
 thumbnail: ./media/thumb-en.webp
@@ -10,20 +10,19 @@ draft: true
 ---
 
 import AgentApiFlow from '../../../components/diagrams/AgentApiFlow.astro';
+import AgentRunJourney from '../../../components/diagrams/AgentRunJourney.astro';
 
-On October 6, the Microsoft for Developers blog published [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), by Waldek Mastykarz. According to the post, AX is the experience an AI agent has when it discovers, chooses and uses a technology. One idea from the post guides this text: "a change that sounds agent-friendly can still make agents worse with your technology, or more expensive." Until you measure, it's a hypothesis.
+On October 6, Microsoft published [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), by Waldek Mastykarz. AX is the experience an AI agent has when it discovers, chooses and uses a technology. And the post is honest about one thing: plenty of changes that sound "agent-friendly" can make results worse, and until someone measures, they're just hypotheses.
 
-Here I only look at usage: how an agent calls an API and checks the result.
+I build .NET APIs day to day, so the question that stuck with me was a practical one: does an API that works fine for its frontend also work for an agent?
 
-Day to day, I build .NET APIs with contracts, authentication and permissions for different roles and applications, plus event-driven integrations. The examples below don't come from that work.
+To see it happen, I used Claude Code to put together a fictional customer-onboarding API, with synthetic data and two versions of the contract, and had an agent do the same task on both. The agent is also a Claude, and that matters for the results. Code, tests and data are [in the repository](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
 
-The material is a demo: a fictional customer-onboarding API in .NET 10, with synthetic data and two contracts, v1 and v2. In an experiment, an agent got the same task 12 times, 6 per contract; I cite the experiment's numbers along the way. Code, tests and data are [in the repository](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api). The demo and the experiment were built and run with Claude Code, from Anthropic, and the agent under test is also a Claude model, a limitation I come back to.
+## A 200 that changed nothing
 
-## Looks done. But did it work?
+The API's v1 grew around a web form. The form knows the plan ids, masks the CNPJ (the Brazilian company tax id) and doesn't even show a plan field on the edit screen. For the form, everything's fine.
 
-The v1 API grew around a web form that knows the plan ids, masks the CNPJ (the Brazilian company tax id) and has no plan field on its edit screen. For that form, it works.
-
-Now swap the form for a client that only has the contract. Padaria Exemplo Ltda, a fictional bakery, is on Pro (id 2) and asked for Enterprise (id 3). The agents in the experiment tried a PUT like this (captured from the demo, not from a run):
+Now take the form away and leave only the contract. Padaria Exemplo Ltda, a fictional bakery, is on the Pro plan (id 2) and asked to move to Enterprise (id 3). The agents tried a PUT like this:
 
 ```http
 PUT /v1/requests/1
@@ -38,99 +37,48 @@ Content-Type: application/json; charset=utf-8
 {"id":1,"name":"Padaria Exemplo Ltda","doc":"11222333000181","plan":2,"start":"2026-10-20","email":"ana@exemplo.test","st":0}
 ```
 
-`200 OK`, and the body still says `"plan":2`. A code comment explains: plan changes are done by account managers in the back office, "so anything else in the body is ignored." One agent summed it up (agents reported in Portuguese; my translations): "The API accepts the request and ignores the plan without returning an error."
+It's a 200, and the plan is still 2. A comment in the code explains that plan changes belong to account managers in the back office, so the API ignores the field. The response says none of that. One agent put it well (agents reported in Portuguese; translations are mine): "The API accepts the request and ignores the plan without returning an error."
 
-A 200 says the server answered, not that the goal was reached. Here the agent noticed, but nothing told it why.
+A 200 tells you the server answered. It doesn't tell you that what you wanted actually happened.
 
-In v1, if a create's response gets lost and the client resends, you get two onboarding requests. A demo test shows this; in the experiment, no agent resent.
+## What the frontend knows and the agent doesn't
 
-Hence the question: can an API serve a frontend well and still trip up an agent?
-
-## What changes when the caller is an agent
-
-The frontend carries what the contract doesn't write down: plan ids, CNPJ format, which field is editable. The agent, a model calling the API on its own, has the OpenAPI document and the responses. With those, it chooses the operation and arguments, whether to retry, and what to report. What's valid, what the credential may do and what actually changed are up to the server.
+A frontend carries a lot that the contract never writes down: the plan ids, the CNPJ format, which fields are editable. The agent only has the OpenAPI document and the responses, and that's what it uses to pick the operation, build the arguments, decide whether to retry and decide what to tell you at the end. What's valid, what the credential may do and what actually changed are up to the server.
 
 <AgentApiFlow lang="en" />
 
-Almost none of this is new. [OpenAPI](https://spec.openapis.org/oas/v3.2.1.html#introduction) presents itself as a way for humans and computers to understand a service without reading its code. A partner's script that only reads the docs hits the same walls. [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2) already says a client shouldn't automatically retry a non-idempotent request (where repeating repeats the effect) unless it can know the request is idempotent in practice, or that the original was never applied. The difference is a consumer that reads everything literally and then acts. "You can't change the model," the post says, but "everything the agent reads and calls is yours."
+And almost none of this is new. A partner's script that only has the docs hits the same walls. The difference is that an agent takes everything literally and then acts on it. You don't control the model. You do control the contract it reads.
 
-## The v1 contract and where it gets in the way
+## Where v1 gets in the way
 
-The v1 OpenAPI is generated from the C# records, with no descriptions (excerpt):
+The v1 OpenAPI document is generated straight from the C# records, with no descriptions at all. That alone creates almost every problem I wanted to test:
 
-```json
-"CreateBody": {
-  "required": ["name", "doc", "plan", "start", "email"],
-  "properties": {
-    "doc": { "type": ["null", "string"] },
-    "plan": {
-      "pattern": "^-?(?:0|[1-9]\\d*)$",
-      "type": ["integer", "string"],
-      "format": "int32"
-    },
-    "start": { "type": ["null", "string"] }
-  }
-},
-"UpdateBody": {
-  "required": ["email", "plan"]
-}
-```
+- **Ambiguous parameters.** The CNPJ is called `doc` and is just a string, with no format.
+- **Errors that don't help.** A CNPJ with punctuation gets `400 {"error":"Invalid data"}`. Which field? Invalid how?
+- **Docs that lie by accident.** The PUT marks `plan` as required and then ignores it.
+- **Responses that don't explain themselves.** The status is `st`, which is 0 or 1. One agent wrote: "I can't tell what stage the request is in."
+- **Retries that duplicate.** If the create response gets lost and the client sends it again, you get two requests.
+- **Hidden permissions.** Changing the plan depends on the back office, and the API never says so.
 
-`plan` takes a number or a string and lists no values (you have to find `GET /v1/plans`). `UpdateBody` requires `email` and `plan` because it describes the record, not the behavior: all 6 v1 runs resent the email on every PUT, and three said it was because the field is required. A formatted CNPJ gets `400 {"error":"Invalid data"}`: one rejected create in every v1 run.
+None of these are AI problems. They're contract problems that a well-built form hides.
 
-The PUT documents only the 200; the [spec](https://spec.openapis.org/oas/v3.2.1.html#responses-object) expects success and known errors.
-
-| Problem | In v1 | Where v2 handles it |
-|---|---|---|
-| Ambiguous parameter | `doc` and `start` with no format; `plan` with no valid values | Contract |
-| Incomplete docs | `plan` required, then ignored | Contract |
-| Hard-to-read response | `st` is 0 or 1 | Verification |
-| Error with no possible action | `Invalid data` | Errors |
-| Result you can't check | 200 with the plan ignored | Errors |
-| Retry that duplicates | resending creates another | Retries |
-| Misread permission | back office only, with no warning | Permissions |
-
-About `st`, one agent wrote: "I can't tell what stage the request is at." Nothing in this table is AI-specific.
-
-## What changes in v2, and why
-
-Same domain, contract rewritten for someone who only has the document and the responses. Each change answers one table row and has its limits.
+## What changed in v2
 
 ### A contract you can follow
 
-On create, the fields got clear names and descriptions:
+Fields got self-explanatory names, descriptions, formats and examples. In .NET 10, these attributes [become OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) and, with `AddValidation()`, are [checked before the handler runs](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0):
 
 ```csharp
-public sealed record CreateOnboardingRequest(
-    // ...
-    [property: Description("Customer's CNPJ: exactly 14 digits, no dots, slash or dash. Example: 45723174000110.")]
-    [property: Required, RegularExpression(@"^\d{14}$", ErrorMessage = "Use exactly 14 digits, without dots, slash or dash. Example: 45723174000110.")]
-    string CustomerTaxId,
-
-    [property: Description("Plan the customer starts on.")]
-    [property: Required(ErrorMessage = "Required. Use one of: basic, pro, enterprise.")]
-    Plan? Plan,
-
-    [property: Description("First day of service, as an ISO 8601 date (YYYY-MM-DD). Today or later, in UTC.")]
-    [property: Required(ErrorMessage = "Required. Use an ISO 8601 date: YYYY-MM-DD.")]
-    DateOnly? StartDate,
-    // ...
-    string ContactEmail);
+[property: Description("Customer's CNPJ: exactly 14 digits, no dots, slash or dash. Example: 45723174000110.")]
+[property: Required, RegularExpression(@"^\d{14}$", ErrorMessage = "Use exactly 14 digits, without dots, slash or dash. Example: 45723174000110.")]
+string CustomerTaxId,
 ```
 
-These attributes become [schema metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) and, with `AddValidation()` in .NET 10, are [checked before the handler](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-10.0); without that line, [nothing is validated](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0).
-
-The v2 API separates looking up (`GET /v2/onboarding-requests?customerTaxId=`), validating (`POST /v2/onboarding-requests/validate`, no side effects) and executing (the `POST`). All 6 v2 runs validated before creating, and no create was rejected.
-
-What this doesn't guarantee:
-
-- `format: date` is only an [annotation](https://spec.openapis.org/oas/v3.2.1.html#data-type-format), and `pattern` is [not implicitly anchored](https://json-schema.org/draft/2020-12/json-schema-validation#section-6.3.3): without `^` and `$`, a JSON Schema validator would accept 14 digits inside a longer string (the demo's `pattern` has both).
-- The ASP.NET Core 10 template [only serves the document in Development](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-10.0). The demo serves it on purpose: it's part of the contract.
-- The document the agents tested didn't mark `Idempotency-Key` as required (headers [are optional by default](https://spec.openapis.org/oas/v3.2.1.html#common-fixed-fields)). An independent review caught this after the experiment; the fix was a transformer and a test that checks that field in the document. The [OpenAPI guide](https://learn.openapis.org/best-practices.html#use-a-design-first-approach) goes further: CI tools that check whether the code follows the description.
+I also split three things that were one in v1: looking up (`GET /v2/onboarding-requests?customerTaxId=`), validating without creating anything (`POST /v2/onboarding-requests/validate`) and actually creating. It looks small, but it's what changed the agent's behavior the most.
 
 ### Errors that tell you the next step
 
-The v2 `PATCH` only changes `contactEmail`. If the body has `plan`:
+In v2, the PATCH only changes the contact e-mail. If someone tries to change the plan through it:
 
 ```http
 PATCH /v2/onboarding-requests/onb_560d8c1919
@@ -140,7 +88,6 @@ Content-Type: application/json
 
 HTTP/1.1 403 Forbidden
 Content-Type: application/problem+json
-X-Correlation-Id: c17d2db36ae44d41ea4899b814384b5f
 
 {
   "type": "https://example.com/problems/plan-change-requires-approval",
@@ -151,66 +98,17 @@ X-Correlation-Id: c17d2db36ae44d41ea4899b814384b5f
   "allowedAction": {
     "method": "POST",
     "href": "/v2/onboarding-requests/onb_560d8c1919/plan-change-requests"
-  },
-  "traceId": "00-c17d2db36ae44d41ea4899b814384b5f-492e51db2f1cff4f-00",
-  "correlationId": "c17d2db36ae44d41ea4899b814384b5f"
+  }
 }
 ```
 
-Nothing was changed. The body is Problem Details, from [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), which obsoletes 7807. `type` [identifies the problem](https://www.rfc-editor.org/rfc/rfc9457.html#section-3.1.1); `detail` is meant for people, and machines [shouldn't parse it](https://www.rfc-editor.org/rfc/rfc9457.html#section-3.1.4). Machine-readable data go in [extension members](https://www.rfc-editor.org/rfc/rfc9457.html#section-3.2), like `requiredScope` and `allowedAction`. Internal details [stay out](https://www.rfc-editor.org/rfc/rfc9457.html#section-5).
-
-| Status | In this demo | Retry? |
-|---|---|---|
-| 400 | invalid request | No, fix it |
-| 403 | missing scope, or there's another way | No |
-| 404 | wrong id, or an id from another tenant (the company that owns the credential) | No |
-| 409 | same key still being processed | Yes, after `Retry-After` |
-| 422 | same key, different body | No, use a new key |
-| 5xx | server error | Yes, same key |
-
-The same rule is in the v2 OpenAPI. RFC 9110 already asks clients [not to automatically repeat a 403](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.4) with the same credentials.
-
-v2 itself had two bugs, found while testing the demo: validation errors were keyed by the C# name (`CustomerTaxId`, not `customerTaxId`), and an invalid plan or date got a bare 400 "Bad Request" with no field. The fix goes through [CustomizeProblemDetails](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0) and, for the second one, letting the JSON read error reach exception handling; now `"plan":"premium"` comes back with `"field":"plan"`.
-
-The limit: no v2 agent sent `plan` through `PATCH`, and the operation's description already warned about the 403.
+That's Problem Details, from [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html). The `detail` is for humans, and anything meant for machines goes in extra fields like `requiredScope` and `allowedAction`. In a few lines, the error says nothing changed, what's missing and what the right path is. The OpenAPI document also says when a retry makes sense: 400 means fix the request, 403 and 404 won't change if you repeat them, 409 waits for `Retry-After`.
 
 ### Retrying without duplicating
 
-`POST` [isn't idempotent](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2). The fix: the client sends one key per operation and repeats it on retries; the server returns the first attempt's result. That's one of the "means to know" RFC 9110 allows, though it doesn't mention this header. The v2 API follows the [Idempotency-Key header draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), IETF work in progress, not a standard: revision 07 expired on April 18, 2026. No key: 400. Same key, different body: 422. Still in progress: 409 with `Retry-After: 1`. Already done: [the stored result](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html#section-2.6), with `Idempotent-Replayed: true`, as [Stripe](https://docs.stripe.com/error-low-level) does.
+`POST` isn't idempotent: send it twice, create twice. And the annoying case is when the response never arrives. Did it work or not? Do I resend or not?
 
-```csharp
-var tenant = user.TenantId();
-switch (idempotency.Begin(tenant, CreateOperation, idempotencyKey, IdempotencyStore.Fingerprint(body)))
-{
-    case IdempotencyStore.Outcome.Mismatch:
-        return Problems.IdempotencyKeyReused();
-    case IdempotencyStore.Outcome.InProgress:
-        return Problems.RequestInProgress(http);
-    case IdempotencyStore.Outcome.Replay(var done):
-        http.Response.Headers["Idempotent-Replayed"] = "true";
-        // ...
-        return TypedResults.Created(done.Location, (OnboardingRequestResource)done.Body!);
-    case IdempotencyStore.Outcome.Started(var entry):
-        OnboardingRequest created;
-        try
-        {
-            created = store.Create(tenant, /* ... */);
-        }
-        catch
-        {
-            // Nothing was created: free the key so a retry with it can go through
-            idempotency.Forget(tenant, CreateOperation, idempotencyKey);
-            throw;
-        }
-        var resource = created.ToResource(clock.GetUtcNow());
-        entry.Complete(StatusCodes.Status201Created, resource.Links.Self, resource);
-        // ...
-        return TypedResults.Created(resource.Links.Self, resource);
-    // ...
-}
-```
-
-Entries are keyed by tenant, operation and key, with a SHA-256 fingerprint of the body. In the tests, ten parallel requests with the same key create one onboarding request, and a retry after a lost response gets the stored one. In the demo, a retry (the 201 body, omitted, is the original) and a different body with the same key:
+v2 follows the IETF [Idempotency-Key header draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), which isn't a standard yet. The client sends one key per operation and repeats the same key if it needs to resend. The server stores the first result and, on a resend, returns the original:
 
 ```http
 POST /v2/onboarding-requests
@@ -218,41 +116,14 @@ Idempotency-Key: 4b1f0c6e-demo-0003
 
 HTTP/1.1 201 Created
 Location: /v2/onboarding-requests/onb_560d8c1919
-X-Correlation-Id: d97aeded577e11d400f606285e8a203f
 Idempotent-Replayed: true
-
-# same key, different body
-HTTP/1.1 422 Unprocessable Entity
-Content-Type: application/problem+json
-
-{
-  "type": "https://example.com/problems/idempotency-key-reused",
-  "title": "This Idempotency-Key was used with a different request.",
-  "status": 422,
-  "detail": "Nothing was created. Use a new key for a new request, or send exactly the same body to retry the original one.",
-  "traceId": "00-66e903d306cf839611612d182c0fae43-82eca95e4fa5fbef-00",
-  "correlationId": "66e903d306cf839611612d182c0fae43"
-}
 ```
 
-What this doesn't guarantee:
+Same key with a different body gets a 422. In the tests, ten parallel requests with the same key create a single onboarding request. But this isn't "exactly once": the key only covers resends that carry it, for 24 hours in the demo, and in production the record has to be written in the same transaction as the create. In the demo, it lives in memory.
 
-- **It isn't "exactly once."** The key only covers retries that reuse it, for 24 hours (`IdempotencyStore.Retention`). A new key is a new operation, and a 500 stays [indeterminate](https://docs.stripe.com/error-low-level#server-errors). And the draft asks you to publish the [expiration policy](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html#section-2.5.2) when there is one; the demo's contract doesn't say keys last 24 hours.
-- **A failure midway.** If the create fails before the effect, the demo frees the key and the retry goes through; a test forces that failure. If it failed after the effect, the retry would duplicate. The demo's first version trapped the key in that case: retries got 409 until it expired.
-- **Entries live in memory.** In production they must be durable and written in the same transaction as the effect. Something like this, illustrative and not part of the demo:
+### Permissions belong to the server
 
-```sql
-CREATE UNIQUE INDEX UX_IdempotencyKeys
-    ON IdempotencyKeys (TenantId, Operation, IdempotencyKey);
--- written in the same transaction as the onboarding request's INSERT
-```
-
-- **No response? Look it up before resending.** The agent did that in all 12 runs.
-- **The agents built readable keys**, like `onb-padaria-11222333000181-pro-20261020`: stable across attempts, but predictable and carrying the CNPJ. The draft warns that with low-entropy keys, attackers [may work out other keys and fetch other clients' stored responses](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html#section-5). Tenant scoping held: in round 2, two tenants sent the same key and each got its own onboarding request.
-
-### Permissions decided on the server
-
-Each credential (an `X-Api-Key`, demo-grade; a real system would use short-lived tokens) belongs to a tenant and has scopes. Scopes become [policies](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/security?view=aspnetcore-10.0) via `RequireAuthorization`, checked on the server on every call. `plan-change:apply` is never granted to integrations, and the document says so. The integration only requests the change:
+Each credential belongs to one customer and has scopes, checked on the server on every call. The scope that applies a plan change is never given to integrations. What an integration can do is ask for the change:
 
 ```http
 POST /v2/onboarding-requests/onb_560d8c1919/plan-change-requests
@@ -263,121 +134,102 @@ Content-Type: application/json
 
 HTTP/1.1 202 Accepted
 Location: /v2/plan-change-requests/pcr_45b0453bee
-X-Correlation-Id: 9bca068808bec485068b2b16dfa902f2
 
 {
   "id": "pcr_45b0453bee",
-  "onboardingRequestId": "onb_560d8c1919",
-  "requestedPlan": "enterprise",
   "status": "pending_approval",
-  "statusDescription": "Waiting for an account manager. The onboarding request keeps its current plan until this is approved.",
-  "createdAt": "2026-10-13T12:35:53.1168294+00:00",
-  "self": "/v2/plan-change-requests/pcr_45b0453bee"
+  "statusDescription": "Waiting for an account manager. The onboarding request keeps its current plan until this is approved."
 }
 ```
 
-The model can be sure the customer wants Enterprise. The credential still lacks the scope, and that's what counts.
+The model can be absolutely sure the customer wants Enterprise. The credential still doesn't have the scope, and that's what counts. A model's confidence isn't a permission.
 
-When a scope is missing, v2 says which one (`"requiredScope":["onboarding:write"]`) and that retrying won't help. That's guidance, not a grant.
-
-Every read filters by the credential's tenant, so another tenant's id gets 404, not 403, which [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.4) allows so as not to reveal that the resource exists.
-
-The [Principles of AX](https://agentexperience.ax/concepts/principles-of-ax/) call it an anti-pattern to require a human when not strictly necessary, but accept it depending on the action's sensitivity, and ask that the agent be able to continue afterwards. Here, it resumes through the change request's id.
+Every read is also filtered by the credential's customer: another customer's id returns 404, as if it didn't exist.
 
 ### How to know it worked
 
-The create returns a stable id (`onb_…`), `Location` and `links.self`; the change request, its own id (`pcr_…`) and a URL. States have names and a `statusDescription` instead of `st: 0`. `pending_approval` says the current plan stays until approval: the feedback the Principles of AX ask for on actions that happen later.
+In v1, the agent had `st: 0` and good luck. In v2, the onboarding request has a stable id (`onb_…`), the change request has its own (`pcr_…`), and every status has a name and a description. Responses carry an `X-Correlation-Id`, the same one in the audit log.
 
-Confirming means reading the state after the last change; the v2 runs did two or three such reads.
-
-`X-Correlation-Id` is the request's W3C trace id and reappears in the error body and the audit log. The log keeps the credential's id, never the `X-Api-Key`, and no bodies or emails. But it keeps path, query and `Idempotency-Key` as they arrived, and the CNPJ ended up there: `"query":"?customerTaxId=11222333000181"` and the keys the agents built. The experiment protocol said otherwise; the correction is in an amendment. In production, hash or redact: personal data [shouldn't be written to logs as plain text](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
-
-In the v2 reports, all six gave both ids and at least one `X-Correlation-Id`.
+Speaking of logs: it never stores the API key or request bodies, but the CNPJ ended up there anyway, in the lookup by CNPJ and in the `Idempotency-Key`s the agents built, like `onb-padaria-11222333000181-pro-20261020`. When a model builds the query and the key, customer data comes along, and in production that calls for [hashing or redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction) before it's written.
 
 ## Where MCP fits (and where you don't need it)
 
-MCP (Model Context Protocol) is a protocol for offering tools to a model. It isn't required: the agents in the experiment used `curl`. The demo's adapter separates four layers:
+MCP (Model Context Protocol) is a standard way to offer tools to a model. It isn't a requirement: the agents in the experiment used plain `curl`. But the demo has a small MCP adapter in C#, and it helps separate four layers that tend to blur together:
 
-1. **HTTP contract**: the OpenAPI document.
-2. **Tool shown to the model**: name, description, `inputSchema` and [annotations](https://modelcontextprotocol.io/specification/2026-07-28/server/tools). The adapter exposes three tools; none applies a plan change.
-3. **Client that makes the call**: holds the `X-Api-Key` (over stdio, credentials [come from the environment](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)), derives a stable `Idempotency-Key` from the arguments, and returns errors with `isError` and the Problem Details, so the model [can correct itself](https://modelcontextprotocol.io/specification/2026-07-28/schema).
-4. **Server**: the same authorization and rules as any HTTP call. The adapter adds no rules.
+1. **The HTTP contract**, which is the OpenAPI document.
+2. **The tool the model sees**: name, description and parameters. There are three, and none of them applies a plan change.
+3. **The client that executes**: it holds the API key, which the model never sees, and derives a stable `Idempotency-Key` from the arguments.
+4. **The server**, with the same rules as any other HTTP call.
 
-```csharp
-[McpServerTool(Name = "create_onboarding_request", Title = "Create onboarding request", Destructive = false, Idempotent = true, OpenWorld = false)]
-[Description("Creates one onboarding request. Calling it again with the same arguments returns the same request, so it is safe to retry after a timeout. Returns the request with its id and status.")]
-public Task<string> CreateOnboardingRequest(
-    // ...
-    [Description("CNPJ with exactly 14 digits, no punctuation. Example: 45723174000110.")] string customerTaxId,
-    // ...
-    CancellationToken ct)
-{
-    var body = new { customerLegalName, customerTaxId, plan, startDate, contactEmail };
-    return api.SendAsync(HttpMethod.Post, "/v2/onboarding-requests", body, OnboardingApiClient.IdempotencyKey("create", body), ct);
-}
+The create tool is marked `Idempotent = true`, but that's just a hint, and the [MCP spec](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) says to treat these annotations as untrusted. What protects the resend is the key and the API. The adapter passed a test script, but no model has used it yet.
 
-// Program.cs
-// The key comes from this server's configuration. The model never sees it and cannot pick another one.
-http.DefaultRequestHeaders.Add("X-Api-Key",
-    builder.Configuration["OnboardingApi:ApiKey"] ?? throw new InvalidOperationException("Set OnboardingApi:ApiKey."));
-```
+## The experiment
 
-`Idempotent = true` is a hint: clients MUST treat annotations as [untrusted](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) unless the server is trusted. What protects the retry is the argument-derived key and the API, and only within 24 hours. The cost: two legitimate, identical requests within 24 hours become one.
+The task was the same on both versions: open the bakery's onboarding request on the Pro plan, switch it to Enterprise and, at the end, report what got done and what's still pending. Each version ran 6 times, in two rounds of 3, with a Claude Code subagent using only `curl`.
 
-The adapter uses the ModelContextProtocol 2.2.0 package, from the [official C# SDK](https://csharp.sdk.modelcontextprotocol.io/v2/concepts/getting-started.html), and passed a stdio test script on the current MCP revision, [2026-07-28](https://modelcontextprotocol.io/docs/2026-07-28/learn/versioning), and the previous one, 2025-11-25: `create twice, same id: True`, `invalid tax id -> isError: True`, `plan now: pro`. I haven't tested it with a model calling those tools.
+To make it harder, the server had a deliberate fault: on the first accepted create, it saved the request and dropped the connection before answering. It's the classic "did it work or not?", and it happened in all 12 runs.
 
-## The experiment: what changed and what didn't
+The criteria were written before running anything, in a [protocol](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api/experiment) that lives in the repository along with the logs and each agent's report. The second round fixed two setup problems from the first and got the same result.
 
-The protocol and 8 criteria were written before any run. Two amendments record later changes: round 2's setup, and the counting of two criteria, redone for round 1 too. The question: with the same task, agent and failure, does v2 lead to fewer wrong effects and a more faithful report? The task: open the onboarding request on Pro, switch it to Enterprise, and report what was done and what's pending.
+### One run of each, side by side
 
-There were 2 rounds × 2 contracts × 3 runs, each with its own credential and tenant. All 12 had an injected failure: the server saved the first accepted create and dropped the connection before answering (`curl: (56) Connection reset`). The agent, a Claude Code subagent on the same model as the session, was told to use only `curl`, and it read no files (the transcripts confirm this). Round 2 fixed two setup problems (the session's task list showed up in the agent's context, and v2's CNPJ example was the task's CNPJ) and gave the same result on every criterion.
+<AgentRunJourney lang="en" />
 
-| Criterion | v1 | v2 |
+In v1, the agent sent the CNPJ formatted, the way a CNPJ shows up everywhere, and got `Invalid data`. It tried again with digits only, the connection dropped, and then it did the right thing: it checked the list before resending. After that, it spent four requests trying to change the plan, only to find that nothing had changed. It ended without knowing why.
+
+In v2, it looked up the CNPJ, validated and only then created. The connection dropped the same way, it looked up again and found the request. Then it asked for the change, got `202 pending_approval` and checked everything before reporting.
+
+### What changed
+
+| Across the 6 runs of each version | v1 | v2 |
 |---|---|---|
-| Creates rejected before the accepted one | 1 in each run | 0 |
-| Requests per run (including reading the OpenAPI) | 11 to 21 | 8 to 9 |
-| Duplicates, or plan changed without approval | 0 | 0 |
-| Report matches the server | 6 of 6 | 6 of 6 |
-| Understood the plan-change rule | 0 of 6 | 6 of 6 |
+| Rejected creates before the right one | 1 in each | none |
+| Requests per run | 11 to 21 | 8 or 9 |
+| Understood why the plan didn't change | 0 of 6 | 6 of 6 |
+| Who needs to act, per the report | "someone with access to the system" | an account manager, with the request id |
 
-From a v2 report: "I opened a plan change request, which is waiting for approval from an account manager."
+**The v1 rejection has a single cause: the CNPJ.** `Invalid data` didn't say which field, so the agent guessed and got it right on the second try. In v2, all 6 runs called `/validate` before creating, and the schema already said "14 digits, no punctuation".
 
-No difference in duplicates, because the agent was careful: after the drop, it looked the request up and never resent. An unapproved plan change couldn't happen: neither server allows it.
+**v1's extra requests are the agent investigating.** Repeating the PUT with the plan in another format, reading again to see if it changed, trying `PATCH` and `OPTIONS`, looking up ids that belonged to other customers. In v2, almost everything beyond the essentials was reads to confirm.
 
-Limits: 3 runs per contract per round; one model and one task; an API written for the article, with v1's problems known in advance; an assistant with a shell instead of typed tools; this site's CLAUDE.md in the agent's context (it doesn't mention the experiment); the failure always on the first create; cost not measured; the tested OpenAPI without `Idempotency-Key` marked as required. And the agent is a Claude model, the same kind that helped build the demo. As the post puts it, each result "holds for the scenarios and agent profile we measured"; this one doesn't show that v2 is better in general.
+**Understanding was the biggest difference.** In v1, all 6 runs noticed the plan hadn't changed, but none knew why. Their guesses were that status 0 blocked the change, or that the route didn't change plans. In v2, none tried the PATCH with a plan, because the operation's description already warned about the 403. One report sums it up: "I opened a plan change request, which is waiting for an account manager's approval."
+
+### What didn't change, and why
+
+**No duplicated requests, in all 12.** And not thanks to the `Idempotency-Key`. After the drop, every agent checked before resending, and none resent. The key went out with every v2 create, but it never had to do anything.
+
+**No plan change without approval.** It couldn't happen anyway: v1 ignores the plan and v2 refuses.
+
+**All 12 reports match the server.** Every run read the state back before reporting, v1 included, and v1 reported accurately that the change hadn't happened.
+
+### What to take from it
+
+What set v1 and v2 apart was the cheap, old stuff: a field name, a `pattern`, an example, an operation description, a validation route, a status with a name. The pricier protections, idempotency and the permission error, never even got tested by the agent, because it was careful and didn't fall into them.
+
+And the limits are big: few runs, a single task, an API written with v1's problems known in advance, and an agent from the same kind of model that helped build the demo. A more hurried agent, or a client that retries on its own, could behave very differently. This doesn't prove v2 is better in general. It shows how each contract helped or got in the way in this case.
 
 ## Questions for people who build APIs and agents
 
-- Do any of your operations return 200 and ignore part of the body?
-- If the response gets lost, can the client find out from the API alone whether the effect happened?
-- Which operations should wait for a person? Does the contract say so before the error does?
-- What customer data ends up in your logs when a model builds the query and the key?
-- For people building agents: does your client retry on its own? With which key?
+- Does any of your operations return 200 and ignore part of the body?
+- If the response gets lost, can a client find out from the API alone whether the effect happened?
+- Which operations should wait for a person, and does the contract say so before the error?
+- Does your agent retry on its own? With which key?
 
-If you've run into any of these, on either side, leave a comment below.
+If you've run into any of these, on either side, tell me in the comments below.
 
 ## Back to the plan change
 
-In v1, the API answered 200, the plan stayed on Pro, and the agent asked for someone with system access to check, because the API never said who could make the change. In v2, it finished with the change request's id, knowing an account manager has to approve it and that the plan stays on Pro until then.
+In v1, the API answered 200, the plan stayed Pro and the agent ended by asking someone to check. In v2, it ended with the request id in hand, knowing an account manager has to approve. In both cases the agent told the truth. The difference is that in v2 it knew what the next step was.
 
-In these 12 runs, what separated v1 and v2 was cheap and old: names, a `pattern`, a description, a separate operation, a named status. The costlier protections were only exercised outside the experiment: the `Idempotency-Key`, in the tests and the MCP script; the structured 403, only in the tests.
-
-Next tests, as hypotheses: a client that retries on its own, where the key should matter; other models; the MCP adapter driven by a model. Code, data and protocol are [in the repository](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
+What I'd like to see in the next tests: a client that retries on its own, where the idempotency key should make a difference, other models, and the MCP adapter in real use.
 
 ## References
 
 Accessed on October 13, 2026.
 
 - Waldek Mastykarz, [What is Agent Experience (AX)?](https://developer.microsoft.com/blog/what-is-agent-experience-ax/), Microsoft for Developers, October 6, 2026.
-- [Principles of AX](https://agentexperience.ax/concepts/principles-of-ax/), agentexperience.ax.
-- [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html), sections 9.2.2 and 15.5.4.
 - [RFC 9457: Problem Details for HTTP APIs](https://www.rfc-editor.org/rfc/rfc9457.html).
-- [draft-ietf-httpapi-idempotency-key-header-07](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html), expired Internet-Draft, work in progress ([datatracker](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/)).
-- Stripe, [Advanced error handling](https://docs.stripe.com/error-low-level).
-- [OpenAPI Specification 3.2.1](https://spec.openapis.org/oas/v3.2.1.html) and [OpenAPI Best Practices](https://learn.openapis.org/best-practices.html).
-- [JSON Schema 2020-12: Validation](https://json-schema.org/draft/2020-12/json-schema-validation).
-- ASP.NET Core 10: [Include OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0), [OpenAPI support](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-10.0), [Minimal APIs](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-10.0), [Validation](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0), [Handle errors](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0) and [Minimal API security](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/security?view=aspnetcore-10.0).
-- .NET: [Data redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
-- Model Context Protocol, revision 2026-07-28: [Versioning](https://modelcontextprotocol.io/docs/2026-07-28/learn/versioning), [Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools), [Schema](https://modelcontextprotocol.io/specification/2026-07-28/schema) and [Authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization).
-- MCP C# SDK: [v2 documentation](https://csharp.sdk.modelcontextprotocol.io/v2/concepts/getting-started.html) (ModelContextProtocol 2.2.0 package on NuGet).
+- [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), IETF Internet-Draft, work in progress.
+- ASP.NET Core 10: [Include OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0) and [Validation](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/validation?view=aspnetcore-10.0). .NET: [Data redaction](https://learn.microsoft.com/en-us/dotnet/core/extensions/data-redaction).
+- Model Context Protocol, revision 2026-07-28: [Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
 - Demo, tests, protocol and experiment data: [brskt-space/demos/agent-ready-api](https://github.com/brskt-dev/brskt-space/tree/main/demos/agent-ready-api).
