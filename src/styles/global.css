@@ -74,6 +74,14 @@ html {
   text-size-adjust: 100%;
   background: var(--bg);
   scroll-behavior: smooth;
+  /* focused elements and anchor targets clear the sticky header (two rows below 52rem) */
+  scroll-padding-top: 8rem;
+}
+
+@media (min-width: 52rem) {
+  html {
+    scroll-padding-top: 6rem;
+  }
 }
 
 body {
@@ -460,6 +468,11 @@ a:hover {
   margin-bottom: 0.6rem;
   font: 500 var(--fs-meta) / 1.4 var(--font-mono);
   color: var(--accent);
+}
+
+/* an anchored h2 brings its kicker along (on top of html's scroll-padding-top) */
+.kicker + h2 {
+  scroll-margin-top: 1.5rem;
 }
 
 .section-head h2 {
