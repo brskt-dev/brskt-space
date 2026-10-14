@@ -16,7 +16,8 @@ import photo from '../../assets/bruno-anhezini.jpg';
 import ogPt from '../../assets/og/dev-partner-pt.jpg';
 import ogEn from '../../assets/og/dev-partner-en.jpg';
 import { profile } from '../../data/profile';
-import { intlLocale, pathFor, t, type Lang } from '../../i18n/ui';
+import { pathFor, t, type Lang } from '../../i18n/ui';
+import { formatOffer } from '../../lib/offer';
 import { absoluteUrl } from '../../lib/url';
 
 interface Props {
@@ -29,8 +30,7 @@ if (!entry) throw new Error(`[dev-partner] Missing src/content/pages/dev-partner
 const d = entry.data;
 const msg = d.whatsappMessage;
 
-const price = `R$ ${d.offer.monthlyPrice.toLocaleString(intlLocale[lang])}`;
-const term = t(lang, 'service.term').replace('{n}', String(d.offer.months));
+const { price, term } = formatOffer(lang, d.offer);
 
 // Icons follow the order of the items in the copy (see the comments in the .md files).
 const recognizeIcons: IconName[] = ['repeat', 'unplug', 'sheet', 'wallet', 'lock', 'lightbulb'];
@@ -74,6 +74,7 @@ const jsonLd = {
   ref={{ kind: 'page', page: 'devPartner' }}
   ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: `${t(lang, 'service.ogAlt')} ${price} ${t(lang, 'service.perMonth')}, ${term}.` }}
   jsonLd={jsonLd}
+  planet="mars"
 >
   <div class="landing">
     <!-- Hero -->
@@ -418,7 +419,7 @@ const jsonLd = {
   .r2 {
     inset: 6%;
     border-style: solid;
-    border-color: color-mix(in srgb, var(--mint) 25%, transparent);
+    border-color: color-mix(in srgb, var(--hl) 25%, transparent);
     animation: spin 60s linear infinite;
   }
 
@@ -433,8 +434,8 @@ const jsonLd = {
     margin-left: -0.85rem;
     border-radius: 50%;
     background: var(--surface-2);
-    border: 1px solid var(--mint);
-    color: var(--mint);
+    border: 1px solid var(--hl);
+    color: var(--hl);
   }
 
   @keyframes spin {
@@ -452,14 +453,15 @@ const jsonLd = {
     gap: 0.35rem;
     border-radius: 50%;
     background:
-      radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 60%),
-      radial-gradient(circle at 50% 50%, var(--brand), var(--bg-2) 75%);
+      radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--accent) 75%, transparent), transparent 45%),
+      radial-gradient(circle at 50% 50%, var(--brand-hi), var(--brand) 62%, var(--bg-2) 96%);
     box-shadow:
       0 0 0 1px var(--border-hi),
       0 0 60px -10px color-mix(in srgb, var(--brand-hi) 80%, transparent);
-    color: var(--text);
+    color: var(--on-brand);
     font: 700 0.85rem / 1.2 var(--font-display);
     text-align: center;
+    text-shadow: 0 1px 6px color-mix(in srgb, var(--bg) 70%, transparent);
   }
 
   .o-chip {
@@ -606,8 +608,8 @@ const jsonLd = {
 
   .step-icon {
     background: var(--surface-2);
-    border: 1px solid color-mix(in srgb, var(--mint) 45%, transparent);
-    color: var(--mint);
+    border: 1px solid color-mix(in srgb, var(--hl) 45%, transparent);
+    color: var(--hl);
   }
 
   .loop {
@@ -616,14 +618,14 @@ const jsonLd = {
     gap: 0.5rem;
     margin-top: 1rem;
     padding: 0.45rem 0.85rem;
-    border: 1px dashed color-mix(in srgb, var(--mint) 50%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--hl) 50%, transparent);
     border-radius: var(--r-sm);
     font-size: var(--fs-meta);
     color: var(--text);
   }
 
   .loop :global(.icon) {
-    color: var(--mint);
+    color: var(--hl);
   }
 
   /* ---------- AI vs me ---------- */
@@ -644,8 +646,8 @@ const jsonLd = {
   }
 
   .me-col {
-    border: 1px solid color-mix(in srgb, var(--mint) 40%, transparent);
-    background: color-mix(in srgb, var(--mint) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hl) 40%, transparent);
+    background: color-mix(in srgb, var(--hl) 5%, transparent);
   }
 
   .split-label {
@@ -662,7 +664,7 @@ const jsonLd = {
   }
 
   .me-col .split-label {
-    color: var(--mint);
+    color: var(--hl);
   }
 
   .split-col ul {
@@ -703,7 +705,7 @@ const jsonLd = {
     object-fit: cover;
     box-shadow:
       0 0 0 3px var(--bg),
-      0 0 0 5px color-mix(in srgb, var(--mint) 60%, transparent);
+      0 0 0 5px color-mix(in srgb, var(--hl) 60%, transparent);
   }
 
   .who h2 {
@@ -786,7 +788,7 @@ const jsonLd = {
 
   .deal-points li :global(.icon) {
     margin-top: 0.15rem;
-    color: var(--mint);
+    color: var(--hl);
   }
 
   .deal-note {

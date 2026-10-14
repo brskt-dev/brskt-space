@@ -5,6 +5,7 @@ summary: "Consultoria e desenvolvimento contínuo pra empresas: entendo o que tr
 date: 2026-10-14
 status: available
 landing: devPartner
+planet: mars
 cover: ./media/cover-pt.webp
 thumbnail: ./media/thumb-pt.webp
 tags: ["Serviço", "Consultoria", "Automação", "Integrações"]

@@ -1,7 +1,9 @@
 ---
 /**
  * Site header: name (→ home of current language), main nav (sections only when they
- * have content), and the language switch pointing to the EQUIVALENT page.
+ * have content), the Dev parceiro link (its own Mars-coloured pill, next to the language
+ * switch, so it fits on phones without crowding the nav) and the language switch pointing
+ * to the EQUIVALENT page.
  */
 import Brand from './Brand.astro';
 import Icon, { type IconName } from './ui/Icon.astro';
@@ -62,6 +64,15 @@ const other = otherLang(lang);
       </ul>
     </nav>
 
+    <a
+      class="dp-link planet-mars"
+      href={pathFor(lang, 'devPartner')}
+      aria-current={ref.kind === 'page' && ref.page === 'devPartner' ? 'page' : undefined}
+    >
+      <span class="dp-planet" aria-hidden="true"></span>
+      <span>{t(lang, 'service.name')}</span>
+    </a>
+
     <a class="lang-switch" href={alternateUrl(lang, ref)} hreflang={htmlLang[other]} lang={htmlLang[other]}>
       <Icon name="globe" size={16} />
       <span>{t(lang, 'a11y.switchLangShort')}</span>
@@ -75,20 +86,20 @@ const other = otherLang(lang);
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgb(11 8 20 / 0.72);
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
     backdrop-filter: blur(14px) saturate(140%);
     -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border-bottom: 1px solid rgb(43 35 72 / 0.7);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   }
 
   .header-inner {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
-      'brand lang'
-      'nav nav';
+      'brand dp lang'
+      'nav nav nav';
     align-items: center;
-    column-gap: 1rem;
+    column-gap: 0.5rem;
     padding-block: 0.4rem 0.5rem;
   }
 
@@ -109,7 +120,7 @@ const other = otherLang(lang);
     padding: 0.25rem;
     border: 1px solid var(--border);
     border-radius: 999px;
-    background: rgb(21 16 38 / 0.6);
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
     width: max-content;
     max-width: 100%;
   }
@@ -141,8 +152,61 @@ const other = otherLang(lang);
   }
 
   .main-nav a[aria-current] {
-    color: #fff;
-    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: var(--on-brand);
+    background: var(--btn-primary-bg);
+  }
+
+  /* Dev parceiro: a small Mars-coloured pill (the class swaps the palette tokens) */
+  .dp-link {
+    grid-area: dp;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: var(--tap);
+    padding-inline: 0.8rem 0.95rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--brand) 22%, var(--bg));
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .dp-link:hover {
+    border-color: var(--accent-2);
+    background: color-mix(in srgb, var(--brand) 38%, var(--bg));
+    color: var(--text);
+  }
+
+  .dp-link[aria-current] {
+    border-color: transparent;
+    background: var(--btn-primary-bg);
+    color: var(--on-brand);
+  }
+
+  .dp-planet {
+    flex: none;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--hl), var(--accent-2) 45%, var(--brand) 100%);
+    box-shadow: 0 0 10px 1px color-mix(in srgb, var(--accent-2) 55%, transparent);
+  }
+
+  .dp-link:hover .dp-planet {
+    animation: spin-once 700ms var(--ease-out);
+  }
+
+  @media (forced-colors: active) {
+    .dp-link[aria-current] {
+      border: 2px solid CanvasText;
+    }
   }
 
   @media (forced-colors: active) {
@@ -188,10 +252,14 @@ const other = otherLang(lang);
 
   @media (min-width: 52rem) {
     .header-inner {
-      grid-template-columns: auto 1fr auto;
-      grid-template-areas: 'brand nav lang';
-      column-gap: 1.25rem;
+      grid-template-columns: auto 1fr auto auto;
+      grid-template-areas: 'brand nav dp lang';
+      column-gap: 0.6rem;
       padding-block: 0.6rem;
+    }
+
+    .main-nav {
+      margin-inline: 0.65rem;
     }
 
     .main-nav {
@@ -216,10 +284,58 @@ const other = otherLang(lang);
     }
   }
 
+  /* one-row header on tablets and small laptops: no room for the nav icons next to the pill */
+  @media (min-width: 52rem) and (max-width: 74.99rem) {
+    .main-nav a :global(.icon) {
+      display: none;
+    }
+
+    .main-nav a {
+      padding-inline: 0.75rem;
+    }
+  }
+
+  /* phones: the brand, the Dev parceiro pill and the language switch share the first row */
+  @media (max-width: 26rem) {
+    .lang-switch :global(.icon) {
+      display: none;
+    }
+
+    .lang-switch {
+      padding-inline: 0.7rem;
+    }
+
+    .dp-link {
+      padding-inline: 0.65rem 0.75rem;
+      font-size: 0.82rem;
+    }
+  }
+
   @media (max-width: 22.5rem) {
     .main-nav a {
       padding-inline: 0.5rem;
       font-size: 0.8125rem;
+    }
+
+    .dp-link {
+      gap: 0.35rem;
+      padding-inline: 0.55rem 0.65rem;
+      font-size: 0.78rem;
+    }
+  }
+
+  /* very narrow phones (320px) */
+  @media (max-width: 21rem) {
+    .header-inner {
+      column-gap: 0.3rem;
+    }
+
+    .dp-planet {
+      display: none;
+    }
+
+    .lang-switch {
+      padding-inline: 0.55rem;
     }
   }
 </style>

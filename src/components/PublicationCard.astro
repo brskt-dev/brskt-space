@@ -25,7 +25,7 @@ const minutes = pub.type === 'article' ? readingMinutes(pub.entries[lang].body) 
 const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask', service: 'briefcase' };
 ---
 
-<article class="card pub-card reveal">
+<article class:list={['card pub-card reveal', data.planet && `planet-${data.planet}`]}>
   <div class="card-media">
     {
       cardImage ? (

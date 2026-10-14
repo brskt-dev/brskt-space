@@ -30,9 +30,16 @@
   --accent-2: #9b7bff; /* 6.4:1 */
   --mint: #5eead4; /* "online" signals, small highlights: 13:1 */
   --sun: #fde68a; /* tiny highlights: 15:1 */
+  /* decorative highlight (rings, "stays with me" column...): mint here, the planet's own colour in a theme */
+  --hl: var(--mint);
+  /* body text inside .prose (a touch softer than --text) */
+  --prose: #dcd7ea;
+  /* primary button: gradient + text colour, kept at AA together */
+  --btn-primary-bg: linear-gradient(135deg, var(--brand), var(--brand-hi));
+  --on-brand: #fff;
 
   --brand-grad: linear-gradient(90deg, var(--brand), var(--brand-hi));
-  --glow: 0 0 0 1px var(--border-hi), 0 18px 50px -18px rgb(124 77 255 / 0.55);
+  --glow: 0 0 0 1px var(--border-hi), 0 18px 50px -18px color-mix(in srgb, var(--brand-hi) 55%, transparent);
 
   /* Type */
   --font-display: 'Bricolage Grotesque Variable', 'Geist Variable', system-ui, sans-serif;
@@ -53,6 +60,33 @@
   --r-lg: 24px;
   --tap: 44px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Planet themes: a class that swaps the palette tokens for one product (set on <html> by
+ * BaseLayout's `planet` prop, or on a single element such as a card). Mars = Dev parceiro.
+ * Contrast vs --bg in comments; --brand / --brand-hi stay decorative, and the primary button
+ * keeps white text on the darker rust gradient (5.2:1 at its lightest stop).
+ */
+.planet-mars {
+  --bg: #0d0806;
+  --bg-2: #150b07;
+  --surface: #1d110c;
+  --surface-2: #281710;
+  --border: #3d2318;
+  --border-hi: #6e3a22;
+  --text: #f6ece6; /* 17:1 */
+  --muted: #c7ada0; /* 9:1 */
+  --prose: #eadbd3;
+  --brand: #7c2d12; /* decorative */
+  --brand-hi: #c2410c; /* decorative */
+  --accent: #fdba74; /* links, focus: 11:1 */
+  --accent-2: #fb923c; /* 8:1 */
+  --hl: #fed7aa; /* 14:1 */
+  --brand-grad: linear-gradient(90deg, var(--brand), var(--brand-hi));
+  --btn-primary-bg: linear-gradient(135deg, #9a3412, #c2410c);
+  --on-brand: #fff;
+  --glow: 0 0 0 1px var(--border-hi), 0 18px 50px -18px color-mix(in srgb, var(--brand-hi) 60%, transparent);
 }
 
 @media (min-width: 48rem) {
@@ -150,7 +184,7 @@ a {
   color: var(--accent);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: rgb(179 157 255 / 0.45);
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
   text-underline-offset: 0.22em;
   transition:
     color 150ms ease,
@@ -176,9 +210,9 @@ a:hover {
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(60rem 40rem at 85% -10%, rgb(73 0 199 / 0.32), transparent 60%),
-    radial-gradient(45rem 35rem at -10% 30%, rgb(124 77 255 / 0.14), transparent 60%),
-    radial-gradient(50rem 30rem at 50% 115%, rgb(94 234 212 / 0.07), transparent 60%),
+    radial-gradient(60rem 40rem at 85% -10%, color-mix(in srgb, var(--brand) 32%, transparent), transparent 60%),
+    radial-gradient(45rem 35rem at -10% 30%, color-mix(in srgb, var(--brand-hi) 14%, transparent), transparent 60%),
+    radial-gradient(50rem 30rem at 50% 115%, color-mix(in srgb, var(--hl) 7%, transparent), transparent 60%),
     var(--bg);
 }
 
@@ -341,7 +375,7 @@ a:hover {
   color: var(--btn-fg);
   transform: translateY(-2px);
   border-color: var(--accent-2);
-  box-shadow: 0 10px 30px -12px rgb(124 77 255 / 0.7);
+  box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--brand-hi) 70%, transparent);
 }
 
 .btn:active {
@@ -361,8 +395,8 @@ a:hover {
 }
 
 .btn-primary {
-  --btn-bg: linear-gradient(135deg, var(--brand), var(--brand-hi));
-  --btn-fg: #fff;
+  --btn-bg: var(--btn-primary-bg);
+  --btn-fg: var(--on-brand);
   --btn-bd: transparent;
   background: var(--btn-bg);
 }
@@ -392,7 +426,7 @@ a:hover {
   padding: 0.22rem 0.65rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgb(21 16 38 / 0.7);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
   font: 500 0.78rem / 1.4 var(--font-mono);
   color: var(--muted);
   white-space: nowrap;
@@ -400,14 +434,14 @@ a:hover {
 
 .chip-accent {
   color: var(--accent);
-  border-color: rgb(179 157 255 / 0.35);
-  background: rgb(73 0 199 / 0.18);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
 }
 
 .chip-mint {
-  color: var(--mint);
-  border-color: rgb(94 234 212 / 0.35);
-  background: rgb(94 234 212 / 0.08);
+  color: var(--hl);
+  border-color: color-mix(in srgb, var(--hl) 35%, transparent);
+  background: color-mix(in srgb, var(--hl) 8%, transparent);
 }
 
 .tag-list {
@@ -424,7 +458,7 @@ a:hover {
   height: 8px;
   flex: none;
   border-radius: 50%;
-  background: var(--mint);
+  background: var(--hl);
 }
 
 .pulse::after {
@@ -432,7 +466,7 @@ a:hover {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--mint);
+  background: var(--hl);
   animation: pulse 2s ease-out infinite;
 }
 
@@ -603,7 +637,7 @@ a:hover {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  background: rgb(11 8 20 / 0.7);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
   color: var(--text);
   backdrop-filter: blur(6px);
   transition:
@@ -619,7 +653,7 @@ a:hover {
 /* ---------- Skeletons (reserved slots, clearly not content) ---------- */
 .skeleton {
   border-style: dashed;
-  background: rgb(21 16 38 / 0.55);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
 .skeleton:hover {
@@ -725,7 +759,7 @@ a:hover {
 /* ---------- Prose (markdown bodies) ---------- */
 .prose {
   max-width: var(--measure);
-  color: #dcd7ea;
+  color: var(--prose);
 }
 
 .prose > * + * {

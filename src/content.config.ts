@@ -49,6 +49,8 @@ const publications = defineCollection({
         status: z.enum(ALL_STATUS).optional(),
         /** service only: the landing page this entry points to (a PageKey with its own route). */
         landing: z.enum(['devPartner']).optional(),
+        /** Planet theme for this publication's page and card (palette swap, see .planet-* in global.css). */
+        planet: z.enum(['mars']).optional(),
         tags: z.array(z.string().min(1)).default([]),
         links: z
           .array(

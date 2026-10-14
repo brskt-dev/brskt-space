@@ -31,6 +31,8 @@ interface Props {
   ogImage?: { src: ImageMetadata; alt: string };
   /** Structured data (schema.org), rendered as application/ld+json. Data only, no script runs. */
   jsonLd?: Record<string, unknown>;
+  /** Browser UI colour (address bar on phones); follows a planet theme. */
+  themeColor?: string;
 }
 
 const {
@@ -44,6 +46,7 @@ const {
   canonical = true,
   ogImage: pageOg,
   jsonLd,
+  themeColor = '#0B0814',
 } = Astro.props;
 
 const site = Astro.site ?? 'https://brskt-dev.github.io';
@@ -57,7 +60,7 @@ const wide = og.width > og.height;
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark" />
-<meta name="theme-color" content="#0B0814" />
+<meta name="theme-color" content={themeColor} />
 <title>{title}</title>
 <meta name="description" content={description} />
 <meta name="author" content="Bruno Anhezini" />

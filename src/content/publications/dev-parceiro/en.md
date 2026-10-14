@@ -5,6 +5,7 @@ summary: "Ongoing consulting and development for companies in Brazil: I figure o
 date: 2026-10-14
 status: available
 landing: devPartner
+planet: mars
 cover: ./media/cover-en.webp
 thumbnail: ./media/thumb-en.webp
 tags: ["Service", "Consulting", "Automation", "Integrations"]

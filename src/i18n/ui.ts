@@ -216,8 +216,7 @@ const strings = {
   'service.conditionsKicker': { pt: '// combinado não sai caro', en: '// the deal, upfront' },
   'service.faqKicker': { pt: '// perguntas frequentes', en: '// frequently asked' },
   'service.howLink': { pt: 'Ver como funciona', en: 'See how it works' },
-  'service.homeCallout': { pt: 'Dev parceiro: desenvolvimento contínuo para empresas', en: 'Dev partner: ongoing development for companies' },
-  'service.homeCalloutNew': { pt: 'novo', en: 'new' },
+  'service.homeCta': { pt: 'Conhecer o Dev parceiro', en: 'Explore Dev partner' },
 
   'notfound.title': { pt: 'Perdido no espaço', en: 'Lost in space' },
   'notfound.text': {

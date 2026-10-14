@@ -96,6 +96,8 @@ async function loadAndValidate(): Promise<Publication[]> {
       mismatches.push(`date (pt: ${iso(pt.data.date)}, en: ${iso(en.data.date)})`);
     if (pt.data.status !== en.data.status)
       mismatches.push(`status (pt: "${pt.data.status ?? '—'}", en: "${en.data.status ?? '—'}")`);
+    if (pt.data.planet !== en.data.planet)
+      mismatches.push(`planet (pt: "${pt.data.planet ?? '—'}", en: "${en.data.planet ?? '—'}")`);
     if (pt.data.landing !== en.data.landing)
       mismatches.push(`landing (pt: "${pt.data.landing ?? '—'}", en: "${en.data.landing ?? '—'}")`);
     if (pt.data.updated?.getTime() !== en.data.updated?.getTime())

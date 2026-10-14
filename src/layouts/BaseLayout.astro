@@ -19,9 +19,11 @@ interface Props {
   ogType?: 'website' | 'article' | 'profile';
   ogImage?: { src: ImageMetadata; alt: string };
   jsonLd?: Record<string, unknown>;
+  /** Planet theme for the whole page (palette swap, see .planet-* in global.css). */
+  planet?: 'mars';
 }
 
-const { lang, title, rawTitle = false, description, ref, ogType = 'website', ogImage, jsonLd } = Astro.props;
+const { lang, title, rawTitle = false, description, ref, ogType = 'website', ogImage, jsonLd, planet } = Astro.props;
 const fullTitle = rawTitle ? title : `${title} · Brskt Space`;
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
@@ -30,7 +32,7 @@ const alternates = [
 ---
 
 <!doctype html>
-<html lang={htmlLang[lang]} dir="ltr">
+<html lang={htmlLang[lang]} dir="ltr" class:list={[planet && `planet-${planet}`]}>
   <head>
     <BaseHead
       title={fullTitle}
@@ -42,6 +44,7 @@ const alternates = [
       ogType={ogType}
       ogImage={ogImage}
       jsonLd={jsonLd}
+      themeColor={planet === 'mars' ? '#0D0806' : undefined}
     />
   </head>
   <body>

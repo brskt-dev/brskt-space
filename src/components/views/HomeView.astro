@@ -1,6 +1,7 @@
 ---
 /**
- * Home: hero (photo in orbit, terminal greeting, intro, availability, CTAs, Dev parceiro callout) →
+ * Home: hero (photo in orbit, terminal greeting, intro, availability, CTAs) → featured service
+ * (Dev parceiro, Mars banner) →
  * Projects (a row of 4: real projects + skeleton slots) → Articles (a 4×2 grid:
  * real articles + skeleton slots, "View all" enabled once one exists) →
  * onboard gear (stack marquee). Copy comes from src/content/pages/home/<lang>.md.
@@ -15,7 +16,8 @@ import Icon from '../ui/Icon.astro';
 import ExternalLink from '../ExternalLink.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import { profile } from '../../data/profile';
-import { pathFor, t, type Lang } from '../../i18n/ui';
+import { pathFor, statusLabel, t, typeLabel, type Lang } from '../../i18n/ui';
+import { formatOffer } from '../../lib/offer';
 import { getSection } from '../../lib/publications';
 
 interface Props {
@@ -36,8 +38,12 @@ const shownProjects = projects.slice(0, PROJECT_SLOTS);
 const shownArticles = articles.slice(0, ARTICLE_SLOTS);
 const projectSkeletons = Math.max(0, PROJECT_SLOTS - shownProjects.length);
 const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
-// The Dev parceiro callout shows only while its Projects entry says it is available.
-const serviceAvailable = projects.some((p) => p.type === 'service' && p.status === 'available');
+// Featured service (Dev parceiro): a Mars-coloured banner under the hero, only while its
+// Projects entry says it is available. Summary from the entry, price/term from the landing's `offer`.
+const service = projects.find((p) => p.type === 'service' && p.status === 'available' && p.entries[lang].data.landing);
+const serviceData = service?.entries[lang].data;
+const serviceOffer = service ? (await getEntry('devPartner', lang))?.data.offer : undefined;
+const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
 ---
 
 <BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
@@ -80,17 +86,6 @@ const serviceAvailable = projects.some((p) => p.type === 'service' && p.status =
           </ExternalLink>
         </li>
       </ul>
-      {
-        serviceAvailable && (
-          <a class="callout" href={pathFor(lang, 'devPartner')}>
-            <span class="chip chip-mint callout-new">{t(lang, 'service.homeCalloutNew')}</span>
-            <span class="callout-text">
-              {t(lang, 'service.homeCallout')}
-              <Icon name="arrow-right" size={16} class="icon-move" />
-            </span>
-          </a>
-        )
-      }
     </div>
 
     <div class="hero-visual" aria-hidden="true">
@@ -118,6 +113,47 @@ const serviceAvailable = projects.some((p) => p.type === 'service' && p.status =
       </div>
     </div>
   </section>
+
+  {
+    service && serviceData?.landing && (
+      <section class="featured wrap" aria-labelledby="featured-title">
+        <div class="featured-card planet-mars reveal">
+          <div class="featured-text">
+            <p class="featured-badges">
+              <span class="chip chip-accent">
+                <Icon name="briefcase" size={13} />
+                {typeLabel(lang, 'service')}
+              </span>
+              <span class="chip chip-mint">
+                <span class="sr-only">{t(lang, 'meta.status')}: </span>
+                <span class="pulse" aria-hidden="true" />
+                {statusLabel(lang, 'available')}
+              </span>
+            </p>
+            <h2 id="featured-title">{serviceData.title}</h2>
+            <p class="featured-lead">{serviceData.summary}</p>
+            {
+              offer && (
+                <p class="featured-price mono">
+                  <span>{offer.price}</span> {offer.perMonth} · {offer.term}
+                </p>
+              )
+            }
+            <a class="btn btn-primary" href={pathFor(lang, serviceData.landing)}>
+              <Icon name="rocket" />
+              {t(lang, 'service.homeCta')}
+              <Icon name="arrow-right" size={16} class="icon-move" />
+            </a>
+          </div>
+          <div class="featured-visual" aria-hidden="true">
+            <span class="m-orbit m-o1"><span class="moon m1"></span></span>
+            <span class="m-orbit m-o2"><span class="moon m2"></span></span>
+            <span class="mars"></span>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <section class="section" aria-labelledby="projects-title">
     <div class="wrap">
@@ -182,56 +218,163 @@ const serviceAvailable = projects.some((p) => p.type === 'service' && p.status =
 </BaseLayout>
 
 <style>
-  /* ---------- Service callout (under the hero CTAs) ---------- */
-  .callout {
-    display: inline-flex;
+  /* ---------- Featured service (Dev parceiro, Mars palette via .planet-mars) ---------- */
+  .featured {
+    padding-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .featured-card {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
     align-items: center;
-    gap: 0.6rem;
-    min-height: var(--tap);
-    margin-top: 1.1rem;
-    padding: 0.4rem 0.9rem 0.4rem 0.45rem;
+    overflow: hidden;
+    padding: clamp(1.4rem, 4vw, 2.5rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(34rem 20rem at 100% 0%, color-mix(in srgb, var(--brand-hi) 30%, transparent), transparent 70%),
+      radial-gradient(26rem 16rem at 0% 100%, color-mix(in srgb, var(--brand) 35%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
+    box-shadow: var(--glow);
+    color: var(--text);
+  }
+
+  @media (min-width: 48rem) {
+    .featured-card {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    }
+  }
+
+  .featured-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .featured-card h2 {
+    margin-top: 0.8rem;
+    font-size: clamp(2.2rem, 1.6rem + 2.6vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .featured-lead {
+    margin-top: 0.6rem;
+    max-width: 36rem;
+    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .featured-price {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0 1.25rem;
+    padding: 0.45rem 0.85rem;
     border: 1px dashed var(--border-hi);
-    border-radius: var(--r);
-    color: var(--text);
-    font-size: var(--fs-small);
-    font-weight: 500;
-    text-decoration: none;
-    transition:
-      border-color 180ms ease,
-      background-color 180ms ease;
+    border-radius: var(--r-sm);
+    font-size: var(--fs-meta);
+    color: var(--muted);
   }
 
-  .callout:hover {
-    border-color: var(--mint);
-    background: color-mix(in srgb, var(--mint) 6%, transparent);
-    color: var(--text);
+  .featured-price span {
+    font-weight: 700;
+    color: var(--sun);
   }
 
-  .callout:hover :global(.icon-move) {
-    transform: translateX(3px);
+  .featured-text .btn {
+    display: flex;
+    width: fit-content;
   }
 
-  .callout-new {
-    flex: none;
-    padding-block: 0.1rem;
-    font-size: 0.72rem;
+  /* Mars with its two moons */
+  .featured-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 13rem;
   }
 
-  .callout-text :global(.icon) {
-    display: inline-block;
-    margin-left: 0.3rem;
-    vertical-align: -0.2em;
+  .mars {
+    position: relative;
+    width: clamp(8.5rem, 20vw, 13rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--hl) 85%, transparent) 0 6%, transparent 7%),
+      radial-gradient(circle at 62% 58%, color-mix(in srgb, var(--brand) 70%, transparent) 0 9%, transparent 10%),
+      radial-gradient(circle at 40% 70%, color-mix(in srgb, var(--brand) 55%, transparent) 0 6%, transparent 7%),
+      radial-gradient(circle at 72% 34%, color-mix(in srgb, var(--brand) 45%, transparent) 0 5%, transparent 6%),
+      radial-gradient(circle at 35% 30%, var(--accent), var(--accent-2) 35%, var(--brand-hi) 62%, var(--brand) 90%);
+    box-shadow:
+      inset -22px -16px 40px color-mix(in srgb, var(--bg) 70%, transparent),
+      0 0 70px -6px color-mix(in srgb, var(--accent-2) 55%, transparent);
   }
 
-  /* one line: a pill */
-  @media (min-width: 36rem) {
-    .callout {
-      border-radius: 999px;
+  .m-orbit {
+    position: absolute;
+    border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 50%;
+    animation: m-spin 26s linear infinite;
+  }
+
+  .m-o1 {
+    width: clamp(12rem, 28vw, 18rem);
+    aspect-ratio: 1;
+  }
+
+  .m-o2 {
+    width: clamp(15rem, 34vw, 22rem);
+    aspect-ratio: 1;
+    animation-duration: 44s;
+    animation-direction: reverse;
+  }
+
+  .moon {
+    position: absolute;
+    top: 50%;
+    left: -0.3rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--hl), var(--muted) 70%);
+  }
+
+  .m1 {
+    width: 0.65rem;
+    height: 0.65rem;
+  }
+
+  .m2 {
+    width: 0.45rem;
+    height: 0.45rem;
+  }
+
+  @keyframes m-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .featured-visual {
+      position: absolute;
+      top: -2.5rem;
+      right: -3rem;
+      min-height: 0;
+      opacity: 0.55;
+    }
+
+    .featured-text {
+      position: relative;
+      z-index: 1;
     }
   }
 
   /* ---------- Hero ---------- */
   .hero {
+    /* the outer orbit of the photo may run past the screen edge (1024-1150px): clip it, no sideways scroll */
+    overflow-x: clip;
     display: grid;
     gap: 2.5rem;
     align-items: center;
