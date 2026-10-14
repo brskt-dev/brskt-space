@@ -655,9 +655,14 @@ a:hover {
 }
 
 /* ---------- Scroll reveal (progressive: only where scroll timelines exist) ---------- */
+/* The timeline lives in a separate, more specific rule: the build minifier folds longhands of
+   the same rule into an `animation` shorthand with the timeline inside, which Chromium drops. */
 @supports (animation-timeline: view()) {
   .reveal {
     animation: reveal linear both;
+  }
+
+  body .reveal {
     animation-timeline: view();
     animation-range: entry 0% entry 35%;
   }
