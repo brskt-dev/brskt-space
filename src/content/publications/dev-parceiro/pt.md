@@ -1,25 +1,23 @@
 ---
 type: service
 title: "Dev parceiro"
-summary: "Consultoria e desenvolvimento contínuo pra empresas: entendo o problema, proponho a solução, desenvolvo e mantenho rodando. Uma mensalidade, contrato de 6 meses."
+summary: "Consultoria e desenvolvimento contínuo pra empresas: entendo o que trava a operação, proponho a solução, desenvolvo e mantenho funcionando. Uma mensalidade, contrato de 6 meses."
 date: 2026-10-14
 status: available
 landing: devPartner
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
 tags: ["Serviço", "Consultoria", "Automação", "Integrações"]
 ---
 
-## A ideia
+Dev parceiro é o jeito que eu encontrei de trabalhar direto com empresas. Entro como dev e responsável técnico: entendo o que trava a operação, procuro oportunidades, proponho a solução, desenho, construo e mantenho funcionando.
 
-Toda empresa tem aquela tarefa repetitiva, aqueles sistemas que não conversam e aquela planilha que só uma pessoa entende. O Dev parceiro é o meu jeito de ajudar com isso: atuo de forma contínua como o dev e o responsável técnico pelas soluções da empresa.
-
-## Como eu trabalho
-
-Você chega com um problema ou com uma ideia. Eu ajudo a entender a necessidade, proponho a solução, desenho a arquitetura, desenvolvo e cuido pra ela continuar funcionando. Pode ser automação, integração entre sistemas, melhoria num sistema que já existe ou uma plataforma nova.
+A empresa pode chegar com um problema ou só com uma ideia, e eu ajudo a entender do que ela precisa. Pode ser automatizar uma tarefa repetitiva, fazer dois sistemas conversarem, tirar um processo da planilha, revisar o que se paga em ferramentas, melhorar um sistema que já existe ou criar um novo.
 
 Uso bastante Claude Code, Codex e outras ferramentas de IA pra acelerar o desenvolvimento. A direção, as decisões técnicas, a revisão e a validação continuam comigo.
 
 ## Condições
 
-Uma mensalidade única de R$ 3.000, com contrato de 6 meses e sem cobrança separada por etapa. As prioridades a gente combina junto, e cada demanda ganha uma estimativa depois que eu entendo o que ela envolve.
+É uma mensalidade única de R$ 3.000, com contrato de 6 meses e sem cobrança separada por etapa. As prioridades a gente combina junto, e cada demanda ganha uma estimativa depois que eu entendo o que ela envolve.
 
-O que entra, como funciona e as perguntas mais comuns estão na página completa do Dev parceiro.
+Os detalhes, respostas pra algumas dúvidas e o contato estão na página completa do Dev parceiro.

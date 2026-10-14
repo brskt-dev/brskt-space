@@ -503,7 +503,7 @@ const jsonLd = {
     height: 2.4rem;
     border-radius: 12px;
     background: linear-gradient(135deg, var(--brand), var(--brand-hi));
-    color: #fff;
+    color: var(--text);
   }
 
   .tile h3,
@@ -868,7 +868,7 @@ const jsonLd = {
     border-radius: 999px;
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(10px);
-    box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.6);
+    box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--bg) 90%, transparent);
   }
 
   .sticky-cta p {
