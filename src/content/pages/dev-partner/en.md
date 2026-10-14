@@ -2,8 +2,8 @@
 # Copy of the Dev parceiro landing (/en/services/dev-partner/).
 # Icons follow the item order: recognize = repeat, unplug, sheet, wallet, lock, lightbulb;
 # does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh.
-title: "Dev partner: consulting and development for companies in Brazil"
-description: "Automation, system integrations, improvements and new systems, with a dev who understands the problem and keeps the solution running. R$ 3,000/month, 6-month contract."
+title: "Dev partner · consulting and development"
+description: "Ongoing consulting and development for companies in Brazil: automation, integrations, improvements and new systems. R$ 3,000/month, 6-month contract."
 offer:
   monthlyPrice: 3000
   currency: BRL
@@ -11,7 +11,7 @@ offer:
 hero:
   kicker: "Dev partner · a service for companies in Brazil"
   title: "Is your team spending time on things a system could be doing for them?"
-  lead: "I’m Bruno. I work with you personally, as the developer and the one technically responsible: I figure out what’s holding the operation back, propose the solution, build it and keep it working."
+  lead: "I’m Bruno. I work with you directly, as your developer and the person accountable for the technical side: I figure out what’s holding the operation back, propose the solution, build it and keep it working."
   ctaNote: "First we talk and see if it makes sense for both of us."
   orbit:
     - "automation"
@@ -83,14 +83,14 @@ who:
   text: "I’m a developer based in Americana, São Paulo, Brazil. I work mainly with C#/.NET, Angular and SQL Server, and my strength is taking care of what runs behind the screens and keeping systems working day to day. I’ve worked on accounting and tax systems, APIs and automations, a solution that connects physical devices to an online platform and a system full of integrations. With Dev partner, I’m the one who does the work and answers for it."
 conditions:
   title: "What it costs"
-  intro: "One price per month, with no separate charges to understand, build and maintain."
+  intro: "One monthly price. Understanding the problem, building and maintaining aren’t billed separately."
   points:
     - "Priorities agreed with you"
     - "A delivery estimate for each request, once I understand what it involves"
     - "Work on different needs of the business throughout the contract"
     - "Code, accounts and access in your company’s name"
     - "Tools, cloud, licenses and services the solutions use are paid separately by the company"
-    - "Remote work for companies in Brazil, with only a few companies at a time"
+    - "Remote work, for companies in Brazil, with only a few clients at a time"
   note: "After the 6 months, we can renew if it makes sense for both sides."
 faq:
   title: "Before you ask"

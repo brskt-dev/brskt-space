@@ -173,7 +173,7 @@ const strings = {
   'pub.gallery': { pt: 'Por dentro', en: 'Inside' },
   'pub.stackKicker': { pt: '// equipamento da missão', en: '// mission gear' },
   'pub.stack': { pt: 'Stack', en: 'Stack' },
-  'pub.serviceLanding': { pt: 'Ver a proposta completa', en: 'See the full proposal' },
+  'pub.serviceLanding': { pt: 'Ver todos os detalhes', en: 'See all the details' },
   'meta.type': { pt: 'tipo', en: 'type' },
   'meta.status': { pt: 'status', en: 'status' },
   'meta.date': { pt: 'publicado', en: 'published' },
@@ -199,9 +199,10 @@ const strings = {
   'service.perMonth': { pt: 'por mês', en: 'per month' },
   'service.term': { pt: 'contrato de {n} meses', en: '{n}-month contract' },
   'service.orbitCore': { pt: 'sua empresa', en: 'your company' },
+  /** The view appends the price and the term, e.g. "R$ 3.000 por mês, contrato de 6 meses." */
   'service.ogAlt': {
-    pt: 'Dev parceiro: consultoria e desenvolvimento contínuo com Bruno Anhezini',
-    en: 'Dev partner: ongoing consulting and development with Bruno Anhezini',
+    pt: 'Dev parceiro, disponível para contratação: consultoria e desenvolvimento contínuo com Bruno Anhezini.',
+    en: 'Dev partner, available for hire: ongoing consulting and development with Bruno Anhezini.',
   },
   'service.sticky': { pt: 'Bora conversar?', en: 'Shall we talk?' },
   'service.recognizeKicker': { pt: '// sinais de que dá pra melhorar', en: '// signs it could be better' },

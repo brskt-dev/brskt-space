@@ -36,6 +36,8 @@ const shownProjects = projects.slice(0, PROJECT_SLOTS);
 const shownArticles = articles.slice(0, ARTICLE_SLOTS);
 const projectSkeletons = Math.max(0, PROJECT_SLOTS - shownProjects.length);
 const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
+// The Dev parceiro callout shows only while its Projects entry says it is available.
+const serviceAvailable = projects.some((p) => p.type === 'service' && p.status === 'available');
 ---
 
 <BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
@@ -78,11 +80,17 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
           </ExternalLink>
         </li>
       </ul>
-      <a class="callout" href={pathFor(lang, 'devPartner')}>
-        <span class="chip chip-mint callout-new">{t(lang, 'service.homeCalloutNew')}</span>
-        <span>{t(lang, 'service.homeCallout')}</span>
-        <Icon name="arrow-right" size={16} class="icon-move" />
-      </a>
+      {
+        serviceAvailable && (
+          <a class="callout" href={pathFor(lang, 'devPartner')}>
+            <span class="chip chip-mint callout-new">{t(lang, 'service.homeCalloutNew')}</span>
+            <span class="callout-text">
+              {t(lang, 'service.homeCallout')}
+              <Icon name="arrow-right" size={16} class="icon-move" />
+            </span>
+          </a>
+        )
+      }
     </div>
 
     <div class="hero-visual" aria-hidden="true">
@@ -177,14 +185,13 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
   /* ---------- Service callout (under the hero CTAs) ---------- */
   .callout {
     display: inline-flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 0.6rem;
     min-height: var(--tap);
     margin-top: 1.1rem;
     padding: 0.4rem 0.9rem 0.4rem 0.45rem;
     border: 1px dashed var(--border-hi);
-    border-radius: 999px;
+    border-radius: var(--r);
     color: var(--text);
     font-size: var(--fs-small);
     font-weight: 500;
@@ -205,8 +212,22 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
   }
 
   .callout-new {
+    flex: none;
     padding-block: 0.1rem;
     font-size: 0.72rem;
+  }
+
+  .callout-text :global(.icon) {
+    display: inline-block;
+    margin-left: 0.3rem;
+    vertical-align: -0.2em;
+  }
+
+  /* one line: a pill */
+  @media (min-width: 36rem) {
+    .callout {
+      border-radius: 999px;
+    }
   }
 
   /* ---------- Hero ---------- */

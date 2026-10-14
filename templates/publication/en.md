@@ -12,6 +12,8 @@
 #   product    → product; listed under Projects (/en/projects/)
 #   experiment → experiment; listed under Projects (/en/projects/)
 #   article    → technical article; listed under Articles (/en/articles/)
+#   service    → a service for hire; listed under Projects (status available or paused). If it has its own
+#                landing (a route in src/i18n/ui.ts), point to it with `landing:` (today only devPartner).
 type: product
 
 # Title of the page, the cards and the browser tab.

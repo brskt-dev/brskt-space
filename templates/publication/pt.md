@@ -12,6 +12,8 @@
 #   product    → produto; aparece em Projetos (/pt/projetos/)
 #   experiment → experimento; aparece em Projetos (/pt/projetos/)
 #   article    → artigo técnico; aparece em Artigos (/pt/artigos/)
+#   service    → serviço contratável; aparece em Projetos (status available ou paused). Se tiver uma landing
+#                própria (uma rota em src/i18n/ui.ts), aponte para ela com `landing:` (hoje só devPartner).
 type: product
 
 # Título da página, dos cards e da aba do navegador.

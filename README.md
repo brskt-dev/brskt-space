@@ -64,6 +64,7 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `date` | sim | Dia em que entra no site, `AAAA-MM-DD` (ex.: `2026-10-01`). Outro formato, como `01/10/2026`, faz o build falhar. |
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
 | `status` | em product, experiment e service | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Serviços usam `available` (disponível para contratação) ou `paused`. Em artigos, apague a linha. |
+| `landing` | não (só em service) | A landing do serviço, quando existe: `devPartner`. A página do projeto ganha os botões "Conversar pelo WhatsApp" e "Ver todos os detalhes". |
 | `thumbnail` | não | Imagem do card na home e nas listagens. Sem ela, o card usa a `cover`. |
 
 > **Artigos:** o tempo de leitura é calculado sozinho a partir do texto (cerca de 200 palavras por minuto), não precisa preencher. Para diagramas e ilustrações animadas, use `pt.mdx`/`en.mdx` em vez de `.md` e importe componentes de `src/components/diagrams/` (veja o artigo `interface-como-integracao` como exemplo). Blocos de código ganham moldura de terminal automaticamente.
@@ -117,8 +118,13 @@ Sempre mexa nos dois idiomas juntos.
   `code`, `terminal`, `sparkles`). O texto abaixo é a introdução.
 - **Dev parceiro (serviço):** a landing fica em `src/content/pages/dev-partner/{pt,en}.md`: título, situações,
   passos, condições, perguntas frequentes e a mensagem que já vem escrita no WhatsApp (`whatsappMessage`). O
-  valor e o prazo são números em `offer` (`monthlyPrice`, `months`); a página formata e usa os mesmos números
-  nos dados estruturados para o Google. A entrada em Projetos é `src/content/publications/dev-parceiro/`
+  valor e o prazo em `offer` (`monthlyPrice`, `months`) alimentam o quadro de preço, a linha de preço do topo,
+  o texto alternativo da imagem de compartilhamento e os dados estruturados para o Google. **Se o valor ou o
+  prazo mudarem**, eles também aparecem escritos à mão: em `description`, nas condições e nas perguntas
+  frequentes da landing, no `summary` e no texto de `src/content/publications/dev-parceiro/{pt,en}.md`, e
+  desenhados nas imagens `src/assets/og/dev-partner-{pt,en}.jpg` e nas miniaturas/capas da pasta `media/`
+  da publicação (gere de novo). Para tirar a oferta do ar, use `status: paused` (some o destaque da home e
+  o selo vira "pausado"; a landing continua no ar) ou `draft: true` na publicação. A entrada em Projetos é `src/content/publications/dev-parceiro/`
   (`type: service`, `landing: devPartner`). Os botões de WhatsApp contam cliques no GoatCounter como
   `whatsapp-<lugar>-<idioma>` (ex.: `whatsapp-dev-parceiro-hero-pt`). A imagem de compartilhamento da landing
   fica em `src/assets/og/dev-partner-{pt,en}.jpg` (1200×630).

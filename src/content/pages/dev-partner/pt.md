@@ -2,8 +2,8 @@
 # Copy of the Dev parceiro landing (/pt/servicos/dev-parceiro/).
 # Icons follow the item order: recognize = repeat, unplug, sheet, wallet, lock, lightbulb;
 # does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh.
-title: "Dev parceiro: consultoria e desenvolvimento para empresas"
-description: "Automação, integração entre sistemas, melhorias e sistemas novos, com um dev que entende o problema e mantém a solução rodando. R$ 3.000/mês, contrato de 6 meses."
+title: "Dev parceiro · consultoria e desenvolvimento"
+description: "Consultoria e desenvolvimento contínuo pra empresas: automação, integrações, melhorias e sistemas novos. R$ 3.000/mês, contrato de 6 meses."
 offer:
   monthlyPrice: 3000
   currency: BRL
@@ -90,7 +90,7 @@ conditions:
     - "Trabalho em diferentes necessidades do negócio ao longo do contrato"
     - "Código, contas e acessos no nome da sua empresa"
     - "Ferramentas, nuvem, licenças e serviços usados pelas soluções são pagos à parte pela empresa"
-    - "Trabalho remoto, com poucas empresas por vez"
+    - "Trabalho remoto, para empresas no Brasil, com poucos clientes por vez"
   note: "Depois dos 6 meses, dá pra renovar se fizer sentido pros dois lados."
 faq:
   title: "Antes que você pergunte"

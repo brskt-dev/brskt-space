@@ -45,7 +45,6 @@ const jsonLd = {
   name: t(lang, 'service.name'),
   description: d.description,
   url: absoluteUrl(pathFor(lang, 'devPartner'), site),
-  inLanguage: lang === 'pt' ? 'pt-BR' : 'en',
   areaServed: { '@type': 'Country', name: lang === 'pt' ? 'Brasil' : 'Brazil' },
   provider: {
     '@type': 'Person',
@@ -64,7 +63,6 @@ const jsonLd = {
       unitCode: 'MON',
       referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
     },
-    eligibleDuration: { '@type': 'QuantitativeValue', value: d.offer.months, unitCode: 'MON' },
   },
 };
 ---
@@ -74,7 +72,7 @@ const jsonLd = {
   title={d.title}
   description={d.description}
   ref={{ kind: 'page', page: 'devPartner' }}
-  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: t(lang, 'service.ogAlt') }}
+  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: `${t(lang, 'service.ogAlt')} ${price} ${t(lang, 'service.perMonth')}, ${term}.` }}
   jsonLd={jsonLd}
 >
   <div class="landing">
@@ -166,7 +164,7 @@ const jsonLd = {
       <SectionHeading id="dp-how" kicker={t(lang, 'service.howKicker')} icon="orbit" sub={d.how.intro}>
         {d.how.title}
       </SectionHeading>
-      <ol class="steps">
+      <ol class="steps" style={`--steps:${d.how.steps.length}`}>
         {
           d.how.steps.map((st, i) => (
             <li class="step reveal">
@@ -190,10 +188,9 @@ const jsonLd = {
 
     <!-- IA + eu -->
     <section class="section wrap" aria-labelledby="dp-ai">
-      <SectionHeading id="dp-ai" kicker={t(lang, 'service.aiKicker')} icon="sparkles">
+      <SectionHeading id="dp-ai" kicker={t(lang, 'service.aiKicker')} icon="sparkles" sub={d.ai.text}>
         {d.ai.title}
       </SectionHeading>
-      <p class="ai-text">{d.ai.text}</p>
       <div class="split">
         <div class="split-col ai-col reveal">
           <p class="split-label mono"><Icon name="sparkles" size={14} />{t(lang, 'service.aiLabel')}</p>
@@ -305,9 +302,15 @@ const jsonLd = {
     padding-bottom: clamp(1rem, 4vw, 2rem);
   }
 
-  /* anchors (#dp-how) clear the sticky header */
+  /* anchors (#dp-how) clear the sticky header (two rows below 52rem) and the kicker above the h2 */
   .landing :global(h2) {
-    scroll-margin-top: 6rem;
+    scroll-margin-top: 9.5rem;
+  }
+
+  @media (min-width: 52rem) {
+    .landing :global(h2) {
+      scroll-margin-top: 7rem;
+    }
   }
 
   /* ---------- Hero ---------- */
@@ -393,8 +396,21 @@ const jsonLd = {
     }
   }
 
+  /* two-column hero: the picture shrinks to its column (selectors outrank the base rules below) */
+  @media (min-width: 64rem) {
+    .hero .orbit {
+      --size: min(26rem, 31vw);
+      --reach: 0.4;
+    }
+
+    .hero .o-chip {
+      font-size: 0.7rem;
+    }
+  }
+
   .orbit {
     --size: min(26rem, 86vw);
+    --reach: 0.44;
     position: relative;
     width: var(--size);
     aspect-ratio: 1;
@@ -462,7 +478,7 @@ const jsonLd = {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(calc(var(--size) * 0.44)) rotate(calc(var(--angle) * -1));
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(calc(var(--size) * var(--reach))) rotate(calc(var(--angle) * -1));
     background: var(--surface-2);
     color: var(--text);
     font-size: 0.74rem;
@@ -556,7 +572,28 @@ const jsonLd = {
     gap: 1rem;
     padding: 0;
     counter-reset: none;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* 2 + 2 + 1: the last step takes the whole row */
+    .step:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .steps {
+      grid-template-columns: repeat(var(--steps, 5), minmax(0, 1fr));
+    }
+
+    .step:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
   }
 
   .step {
@@ -601,17 +638,9 @@ const jsonLd = {
   }
 
   /* ---------- AI vs me ---------- */
-  .ai-text {
-    max-width: 44rem;
-    color: var(--muted);
-    font-size: 1.05rem;
-    line-height: 1.6;
-  }
-
   .split {
     display: grid;
     gap: 1rem;
-    margin-top: 1.5rem;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
 
@@ -877,9 +906,14 @@ const jsonLd = {
   }
 
   /* where scroll timelines exist, the bar shows up once the hero CTA has scrolled away */
+  /* the timeline lives in a separate, more specific rule: the build minifier folds longhands
+     of the same rule into an `animation` shorthand with the timeline inside, which Chromium drops */
   @supports (animation-timeline: scroll()) {
     .sticky-cta {
       animation: sticky-in linear both;
+    }
+
+    .landing .sticky-cta {
       animation-timeline: scroll(root);
       animation-range: 520px 680px;
     }
@@ -914,7 +948,7 @@ const jsonLd = {
     }
   }
 
-  @media (max-width: 22.5rem) {
+  @media (max-width: 26rem) {
     .sticky-cta p {
       display: none;
     }
