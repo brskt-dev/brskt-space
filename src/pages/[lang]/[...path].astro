@@ -9,6 +9,7 @@ import HomeView from '../../components/views/HomeView.astro';
 import AboutView from '../../components/views/AboutView.astro';
 import SectionView from '../../components/views/SectionView.astro';
 import PublicationView from '../../components/views/PublicationView.astro';
+import DevPartnerView from '../../components/views/DevPartnerView.astro';
 import { getSiteRoutes, type RouteView } from '../../lib/routes';
 import type { Lang } from '../../i18n/ui';
 
@@ -30,5 +31,6 @@ const { lang, route } = Astro.props;
 
 {route.view === 'home' && <HomeView lang={lang} />}
 {route.view === 'about' && <AboutView lang={lang} />}
+{route.view === 'devPartner' && <DevPartnerView lang={lang} />}
 {route.view === 'section' && <SectionView lang={lang} section={route.section} />}
 {route.view === 'publication' && <PublicationView lang={lang} slug={route.slug} />}

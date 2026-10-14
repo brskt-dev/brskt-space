@@ -9,6 +9,7 @@ import { getPublications, type Publication } from './publications';
 export type RouteView =
   | { view: 'home' }
   | { view: 'about' }
+  | { view: 'devPartner' }
   | { view: 'section'; section: SectionKey }
   | { view: 'publication'; slug: string };
 
@@ -37,6 +38,12 @@ export async function getSiteRoutes(): Promise<SiteRoute[]> {
       path: restParam(segments.about[lang]),
       ref: { kind: 'page', page: 'about' },
       route: { view: 'about' },
+    });
+    routes.push({
+      lang,
+      path: restParam(segments.devPartner[lang]),
+      ref: { kind: 'page', page: 'devPartner' },
+      route: { view: 'devPartner' },
     });
 
     for (const section of sections) {

@@ -59,6 +59,13 @@ import {
   TriangleAlert,
   Unplug,
   UserCheck,
+  Handshake,
+  Hammer,
+  Lightbulb,
+  Plug,
+  Repeat,
+  Sheet,
+  Wallet,
 } from '@lucide/astro';
 
 const lucide = {
@@ -116,6 +123,13 @@ const lucide = {
   'triangle-alert': TriangleAlert,
   'unplug': Unplug,
   'user-check': UserCheck,
+  handshake: Handshake,
+  hammer: Hammer,
+  lightbulb: Lightbulb,
+  plug: Plug,
+  repeat: Repeat,
+  sheet: Sheet,
+  wallet: Wallet,
 } as const;
 
 export type IconName = keyof typeof lucide | 'github' | 'linkedin';

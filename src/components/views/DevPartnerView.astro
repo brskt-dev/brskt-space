@@ -1,0 +1,926 @@
+---
+/**
+ * Landing of the "Dev parceiro" service: hero (offer + WhatsApp CTA, orbit visual) →
+ * "você se reconhece?" situations → what I do → how the ongoing work goes → AI vs me →
+ * who I am → conditions (price and term from `offer`) → FAQ → closing CTA, plus a
+ * sticky CTA bar on phones. All copy lives in src/content/pages/dev-partner/<lang>.md;
+ * the price and term are numbers in `offer`, also used by the JSON-LD.
+ */
+import { getEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import WhatsAppLink from '../WhatsAppLink.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import photo from '../../assets/bruno-anhezini.jpg';
+import ogPt from '../../assets/og/dev-partner-pt.jpg';
+import ogEn from '../../assets/og/dev-partner-en.jpg';
+import { profile } from '../../data/profile';
+import { intlLocale, pathFor, t, type Lang } from '../../i18n/ui';
+import { absoluteUrl } from '../../lib/url';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('devPartner', lang);
+if (!entry) throw new Error(`[dev-partner] Missing src/content/pages/dev-partner/${lang}.md`);
+const d = entry.data;
+const msg = d.whatsappMessage;
+
+const price = `R$ ${d.offer.monthlyPrice.toLocaleString(intlLocale[lang])}`;
+const term = t(lang, 'service.term').replace('{n}', String(d.offer.months));
+
+// Icons follow the order of the items in the copy (see the comments in the .md files).
+const recognizeIcons: IconName[] = ['repeat', 'unplug', 'sheet', 'wallet', 'lock', 'lightbulb'];
+const doesIcons: IconName[] = ['zap', 'plug', 'list-checks', 'receipt', 'wrench', 'rocket'];
+const stepIcons: IconName[] = ['message', 'telescope', 'list-checks', 'hammer', 'refresh'];
+const icon = (list: IconName[], i: number): IconName => list[i % list.length];
+
+const site = Astro.site ?? 'https://brskt-dev.github.io';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: t(lang, 'service.name'),
+  description: d.description,
+  url: absoluteUrl(pathFor(lang, 'devPartner'), site),
+  inLanguage: lang === 'pt' ? 'pt-BR' : 'en',
+  areaServed: { '@type': 'Country', name: lang === 'pt' ? 'Brasil' : 'Brazil' },
+  provider: {
+    '@type': 'Person',
+    name: profile.name,
+    url: absoluteUrl(pathFor(lang, 'about'), site),
+    sameAs: [profile.contact.linkedin, profile.contact.github],
+  },
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: d.offer.currency,
+    price: String(d.offer.monthlyPrice),
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: String(d.offer.monthlyPrice),
+      priceCurrency: d.offer.currency,
+      unitCode: 'MON',
+      referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
+    },
+    eligibleDuration: { '@type': 'QuantitativeValue', value: d.offer.months, unitCode: 'MON' },
+  },
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={d.title}
+  description={d.description}
+  ref={{ kind: 'page', page: 'devPartner' }}
+  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: t(lang, 'service.ogAlt') }}
+  jsonLd={jsonLd}
+>
+  <div class="landing">
+    <!-- Hero -->
+    <section class="hero wrap" aria-labelledby="dp-title">
+      <div class="hero-text">
+        <p class="chip chip-mint kick"><span class="pulse" aria-hidden="true"></span>{d.hero.kicker}</p>
+        <h1 id="dp-title">{d.hero.title}</h1>
+        <p class="lead">{d.hero.lead}</p>
+        <ul class="ctas">
+          <li><WhatsAppLink lang={lang} message={msg} place="dev-parceiro-hero" /></li>
+          <li>
+            <a class="btn btn-ghost" href="#dp-how">
+              {t(lang, 'service.howLink')}
+              <Icon name="arrow-right" size={16} class="icon-move" />
+            </a>
+          </li>
+        </ul>
+        <p class="cta-note">{d.hero.ctaNote}</p>
+        <p class="price-peek mono">
+          <span>{price}</span>
+          {t(lang, 'service.perMonth')} · {term}
+        </p>
+      </div>
+
+      <div class="orbit-box" aria-hidden="true">
+        <div class="orbit">
+          <span class="ring r1"></span>
+          <span class="ring r2"><span class="sat"><Icon name="satellite" size={16} /></span></span>
+          <div class="core">
+            <Icon name="briefcase" size={26} />
+            <span>{t(lang, 'service.orbitCore')}</span>
+          </div>
+          {
+            d.hero.orbit.map((label, i) => (
+              <span class="o-chip chip" style={`--i:${i};--n:${d.hero.orbit.length}`}>
+                {label}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Você se reconhece? -->
+    <section class="section wrap" aria-labelledby="dp-recognize">
+      <SectionHeading id="dp-recognize" kicker={t(lang, 'service.recognizeKicker')} icon="eye" sub={d.recognize.intro}>
+        {d.recognize.title}
+      </SectionHeading>
+      <ul class="cards">
+        {
+          d.recognize.items.map((it, i) => (
+            <li class="card tile reveal">
+              <span class="tile-icon" aria-hidden="true">
+                <Icon name={icon(recognizeIcons, i)} size={20} />
+              </span>
+              <h3>{it.title}</h3>
+              <p>{it.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- O que eu faço -->
+    <section class="section wrap" aria-labelledby="dp-does">
+      <SectionHeading id="dp-does" kicker={t(lang, 'service.doesKicker')} icon="wrench" sub={d.does.intro}>
+        {d.does.title}
+      </SectionHeading>
+      <ul class="does">
+        {
+          d.does.items.map((it, i) => (
+            <li class="does-item reveal">
+              <span class="does-icon" aria-hidden="true">
+                <Icon name={icon(doesIcons, i)} size={18} />
+              </span>
+              <div>
+                <h3>{it.title}</h3>
+                <p>{it.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- Como funciona -->
+    <section class="section wrap" aria-labelledby="dp-how">
+      <SectionHeading id="dp-how" kicker={t(lang, 'service.howKicker')} icon="orbit" sub={d.how.intro}>
+        {d.how.title}
+      </SectionHeading>
+      <ol class="steps">
+        {
+          d.how.steps.map((st, i) => (
+            <li class="step reveal">
+              <span class="step-n mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="step-icon" aria-hidden="true">
+                <Icon name={icon(stepIcons, i)} size={18} />
+              </span>
+              <h3>{st.title}</h3>
+              <p>{st.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="loop mono">
+        <Icon name="refresh" size={15} />
+        {d.how.loop}
+      </p>
+    </section>
+
+    <!-- IA + eu -->
+    <section class="section wrap" aria-labelledby="dp-ai">
+      <SectionHeading id="dp-ai" kicker={t(lang, 'service.aiKicker')} icon="sparkles">
+        {d.ai.title}
+      </SectionHeading>
+      <p class="ai-text">{d.ai.text}</p>
+      <div class="split">
+        <div class="split-col ai-col reveal">
+          <p class="split-label mono"><Icon name="sparkles" size={14} />{t(lang, 'service.aiLabel')}</p>
+          <ul>{d.ai.aiPart.map((x) => <li>{x}</li>)}</ul>
+        </div>
+        <div class="split-col me-col reveal">
+          <p class="split-label mono"><Icon name="shield-check" size={14} />{t(lang, 'service.meLabel')}</p>
+          <ul>{d.ai.mePart.map((x) => <li>{x}</li>)}</ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quem sou -->
+    <section class="section wrap" aria-labelledby="dp-who">
+      <div class="who card">
+        <div class="who-photo">
+          <Picture
+            src={photo}
+            alt={t(lang, 'about.photoAlt')}
+            formats={['avif', 'webp']}
+            fallbackFormat="jpg"
+            width={320}
+            height={320}
+            widths={[160, 240, 320]}
+            sizes="10rem"
+          />
+        </div>
+        <div>
+          <p class="kicker"><Icon name="user" size={15} />{t(lang, 'service.whoKicker')}</p>
+          <h2 id="dp-who">{d.who.title}</h2>
+          <p class="who-text">{d.who.text}</p>
+          <a class="btn btn-ghost" href={pathFor(lang, 'about')}>
+            {t(lang, 'service.whoLink')}
+            <Icon name="arrow-right" size={16} class="icon-move" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Condições -->
+    <section class="section wrap" aria-labelledby="dp-conditions">
+      <SectionHeading id="dp-conditions" kicker={t(lang, 'service.conditionsKicker')} icon="handshake" sub={d.conditions.intro}>
+        {d.conditions.title}
+      </SectionHeading>
+      <div class="deal card">
+        <div class="deal-price">
+          <p class="price">
+            <span class="price-v">{price}</span>
+            <span class="price-u">{t(lang, 'service.perMonth')}</span>
+          </p>
+          <p class="chip chip-accent term"><Icon name="clock" size={13} />{term}</p>
+          <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-condicoes" />
+        </div>
+        <div class="deal-points">
+          <ul>
+            {
+              d.conditions.points.map((p) => (
+                <li>
+                  <Icon name="circle-check" size={18} />
+                  <span>{p}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="deal-note">{d.conditions.note}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section wrap" aria-labelledby="dp-faq">
+      <SectionHeading id="dp-faq" kicker={t(lang, 'service.faqKicker')} icon="message">
+        {d.faq.title}
+      </SectionHeading>
+      <div class="faq">
+        {
+          d.faq.items.map((f) => (
+            <details class="faq-item">
+              <summary>
+                <span>{f.q}</span>
+                <Icon name="arrow-right" size={16} class="faq-arrow" />
+              </summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Fechamento -->
+    <section class="section wrap" aria-labelledby="dp-closing">
+      <div class="closing">
+        <h2 id="dp-closing">{d.closing.title}</h2>
+        <p>{d.closing.text}</p>
+        <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-final" />
+      </div>
+    </section>
+
+    <!-- Phones: the CTA stays at hand -->
+    <div class="sticky-cta">
+      <p>{t(lang, 'service.sticky')}</p>
+      <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-barra" />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .landing {
+    padding-bottom: clamp(1rem, 4vw, 2rem);
+  }
+
+  /* anchors (#dp-how) clear the sticky header */
+  .landing :global(h2) {
+    scroll-margin-top: 6rem;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+    padding-top: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+
+  .kick {
+    white-space: normal;
+  }
+
+  .hero h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.3rem, 1.4rem + 3.6vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .lead {
+    margin-top: 1rem;
+    max-width: 38rem;
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.3rem);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .ctas {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+    padding: 0;
+  }
+
+  .cta-note {
+    margin-top: 0.75rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .price-peek {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px dashed var(--border-hi);
+    border-radius: var(--r-sm);
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .price-peek span {
+    font-weight: 700;
+    color: var(--sun);
+  }
+
+  /* orbit: "your company" at the center, the kinds of work around it */
+  .orbit-box {
+    display: none;
+    place-items: center;
+    padding-block: 1rem;
+    overflow-x: clip;
+  }
+
+  /* the picture needs room for its labels; phones go straight to the content */
+  @media (min-width: 40rem) {
+    .orbit-box {
+      display: grid;
+    }
+  }
+
+  .orbit {
+    --size: min(26rem, 86vw);
+    position: relative;
+    width: var(--size);
+    aspect-ratio: 1;
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px dashed color-mix(in srgb, var(--accent-2) 55%, transparent);
+  }
+
+  .r1 {
+    inset: 22%;
+  }
+
+  .r2 {
+    inset: 6%;
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--mint) 25%, transparent);
+    animation: spin 60s linear infinite;
+  }
+
+  .sat {
+    position: absolute;
+    top: -0.85rem;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    margin-left: -0.85rem;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--mint);
+    color: var(--mint);
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .core {
+    position: absolute;
+    inset: 33%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.35rem;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 60%),
+      radial-gradient(circle at 50% 50%, var(--brand), var(--bg-2) 75%);
+    box-shadow:
+      0 0 0 1px var(--border-hi),
+      0 0 60px -10px color-mix(in srgb, var(--brand-hi) 80%, transparent);
+    color: var(--text);
+    font: 700 0.85rem / 1.2 var(--font-display);
+    text-align: center;
+  }
+
+  .o-chip {
+    --angle: calc(360deg / var(--n) * var(--i) - 90deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(calc(var(--size) * 0.44)) rotate(calc(var(--angle) * -1));
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 0.74rem;
+  }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .tile {
+    gap: 0.6rem;
+    padding: 1.2rem 1.25rem 1.35rem;
+  }
+
+  .tile-icon,
+  .does-icon,
+  .step-icon {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: #fff;
+  }
+
+  .tile h3,
+  .does-item h3,
+  .step h3 {
+    font-size: 1.12rem;
+    line-height: 1.3;
+  }
+
+  .tile p,
+  .does-item p,
+  .step p {
+    color: var(--muted);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+
+  /* ---------- What I do ---------- */
+  .does {
+    list-style: none;
+    display: grid;
+    gap: 1.25rem 2rem;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  }
+
+  .does-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px dashed var(--border-hi);
+  }
+
+  .does-item p {
+    margin-top: 0.3rem;
+  }
+
+  .does-icon {
+    flex: none;
+    background: var(--surface-2);
+    border: 1px solid var(--border-hi);
+    color: var(--accent);
+  }
+
+  /* ---------- Steps ---------- */
+  .steps {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    counter-reset: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  }
+
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.1rem 1.15rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .step-n {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .step-icon {
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--mint) 45%, transparent);
+    color: var(--mint);
+  }
+
+  .loop {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px dashed color-mix(in srgb, var(--mint) 50%, transparent);
+    border-radius: var(--r-sm);
+    font-size: var(--fs-meta);
+    color: var(--text);
+  }
+
+  .loop :global(.icon) {
+    color: var(--mint);
+  }
+
+  /* ---------- AI vs me ---------- */
+  .ai-text {
+    max-width: 44rem;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .split {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  .split-col {
+    padding: 1.2rem 1.3rem 1.3rem;
+    border-radius: var(--r-lg);
+  }
+
+  .ai-col {
+    border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+
+  .me-col {
+    border: 1px solid color-mix(in srgb, var(--mint) 40%, transparent);
+    background: color-mix(in srgb, var(--mint) 5%, transparent);
+  }
+
+  .split-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.8rem;
+    font-size: var(--fs-meta);
+    font-weight: 600;
+  }
+
+  .ai-col .split-label {
+    color: var(--accent);
+  }
+
+  .me-col .split-label {
+    color: var(--mint);
+  }
+
+  .split-col ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .split-col li {
+    line-height: 1.5;
+  }
+
+  /* ---------- Who ---------- */
+  .who {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .who:hover,
+  .who:focus-within {
+    transform: none;
+  }
+
+  @media (min-width: 40rem) {
+    .who {
+      grid-template-columns: 10rem minmax(0, 1fr);
+    }
+  }
+
+  .who-photo :global(img) {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 5px color-mix(in srgb, var(--mint) 60%, transparent);
+  }
+
+  .who h2 {
+    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem);
+  }
+
+  .who-text {
+    margin: 0.75rem 0 1rem;
+    max-width: 44rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Conditions ---------- */
+  .deal {
+    display: grid;
+    gap: 1.75rem;
+    padding: clamp(1.25rem, 3.5vw, 2.25rem);
+    border-color: var(--border-hi);
+    background:
+      radial-gradient(30rem 16rem at 0% 0%, color-mix(in srgb, var(--brand) 30%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deal:hover,
+  .deal:focus-within {
+    transform: none;
+  }
+
+  @media (min-width: 52rem) {
+    .deal {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: center;
+    }
+  }
+
+  .deal-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .price-v {
+    font: 800 clamp(2.6rem, 2rem + 2.6vw, 3.8rem) / 1 var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .price-u {
+    font-size: 1.05rem;
+    color: var(--muted);
+  }
+
+  .term {
+    white-space: normal;
+  }
+
+  .deal-points ul {
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+    padding: 0;
+  }
+
+  .deal-points li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  .deal-points li :global(.icon) {
+    margin-top: 0.15rem;
+    color: var(--mint);
+  }
+
+  .deal-note {
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--border-hi);
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 52rem;
+  }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .faq-item[open] {
+    border-color: var(--border-hi);
+  }
+
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: var(--tap);
+    padding: 0.85rem 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary :global(.faq-arrow) {
+    color: var(--accent);
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .faq-item[open] summary :global(.faq-arrow) {
+    transform: rotate(90deg);
+  }
+
+  .faq-item p {
+    padding: 0 1.1rem 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Closing ---------- */
+  .closing {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    padding: clamp(2rem, 6vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(28rem 14rem at 50% 0%, color-mix(in srgb, var(--brand) 45%, transparent), transparent 75%),
+      var(--surface);
+    text-align: center;
+  }
+
+  .closing h2 {
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+    text-wrap: balance;
+  }
+
+  .closing p {
+    max-width: 36rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Sticky CTA (phones only) ---------- */
+  .sticky-cta {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: calc(100% - 2 * var(--gutter));
+    margin: 2rem auto 0;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.6);
+  }
+
+  .sticky-cta p {
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+
+  /* where scroll timelines exist, the bar shows up once the hero CTA has scrolled away */
+  @supports (animation-timeline: scroll()) {
+    .sticky-cta {
+      animation: sticky-in linear both;
+      animation-timeline: scroll(root);
+      animation-range: 520px 680px;
+    }
+
+    @keyframes sticky-in {
+      from {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(1rem);
+      }
+      to {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+    }
+  }
+
+  .sticky-cta :global(.btn) {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 47.99rem) {
+    :global(html:has(.sticky-cta)) {
+      scroll-padding-bottom: 5.5rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+
+  @media (max-width: 22.5rem) {
+    .sticky-cta p {
+      display: none;
+    }
+
+    .sticky-cta {
+      justify-content: center;
+    }
+  }
+</style>

@@ -1,0 +1,29 @@
+---
+/**
+ * "Chat on WhatsApp" button for the service pages (the Dev parceiro landing and its
+ * Projects entry). The owner allowed WhatsApp here on top of the About page.
+ * Opens wa.me with a pre-filled message, in a new tab; GoatCounter counts each
+ * placement as its own event (`whatsapp-<place>`) so the dashboard shows which CTA works.
+ */
+import ExternalLink from './ExternalLink.astro';
+import Icon from './ui/Icon.astro';
+import { profile } from '../data/profile';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Pre-filled text of the conversation. */
+  message: string;
+  /** Where the button sits, e.g. "dev-parceiro-hero" → event "whatsapp-dev-parceiro-hero-pt". */
+  place: string;
+  class?: string;
+}
+
+const { lang, message, place, class: className = 'btn btn-primary' } = Astro.props;
+const href = `${profile.contact.whatsapp}?text=${encodeURIComponent(message)}`;
+---
+
+<ExternalLink class={className} href={href} lang={lang} event={`whatsapp-${place}-${lang}`}>
+  <Icon name="message" size={18} />
+  <slot>{t(lang, 'service.whatsapp')}</slot>
+</ExternalLink>

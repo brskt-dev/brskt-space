@@ -22,7 +22,7 @@ const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = publicationUrl(lang, pub.type, pub.slug);
 const cardImage = data.thumbnail ?? data.cover;
 const minutes = pub.type === 'article' ? readingMinutes(pub.entries[lang].body) : undefined;
-const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
+const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask', service: 'briefcase' };
 ---
 
 <article class="card pub-card reveal">
@@ -31,7 +31,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       cardImage ? (
         <Image src={cardImage} alt="" widths={[400, 640, 800]} sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 45vw, 100vw" />
       ) : (
-        <Cover seed={pub.slug} kind={pub.type} />
+        <Cover seed={pub.slug} kind={pub.type === 'service' ? 'product' : pub.type} />
       )
     }
     <span class="card-go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>

@@ -6,6 +6,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import type { ImageMetadata } from 'astro';
 import { htmlLang, LANGS, ogLocale, otherLang, rootUrl, t, urlFor, type Lang, type PageRef } from '../i18n/ui';
 
 interface Props {
@@ -16,9 +17,11 @@ interface Props {
   description: string;
   ref: PageRef;
   ogType?: 'website' | 'article' | 'profile';
+  ogImage?: { src: ImageMetadata; alt: string };
+  jsonLd?: Record<string, unknown>;
 }
 
-const { lang, title, rawTitle = false, description, ref, ogType = 'website' } = Astro.props;
+const { lang, title, rawTitle = false, description, ref, ogType = 'website', ogImage, jsonLd } = Astro.props;
 const fullTitle = rawTitle ? title : `${title} · Brskt Space`;
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
@@ -37,6 +40,8 @@ const alternates = [
       localeAlternates={[ogLocale[otherLang(lang)]]}
       alternates={alternates}
       ogType={ogType}
+      ogImage={ogImage}
+      jsonLd={jsonLd}
     />
   </head>
   <body>
