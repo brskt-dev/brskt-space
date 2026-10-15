@@ -64,8 +64,8 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `date` | sim | Dia em que entra no site, `AAAA-MM-DD` (ex.: `2026-10-01`). Outro formato, como `01/10/2026`, faz o build falhar. |
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
 | `status` | em product, experiment e service | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Serviços usam `available` (disponível para contratação) ou `paused`. Em artigos, apague a linha. |
-| `planet` | não | Tema de cor de um planeta para a página e o card da publicação: hoje só `mars` (o Dev parceiro). |
-| `landing` | não (só em service) | A landing do serviço, quando existe: `devPartner`. A página do projeto ganha os botões "Conversar pelo WhatsApp" e "Ver todos os detalhes". |
+| `planet` | não | Tema de cor de um planeta para a página e o card da publicação: hoje só `mars` (o Dev parceiro). Igual nos dois idiomas. |
+| `landing` | não (só em service) | A landing do serviço, quando existe: `devPartner` (igual nos dois idiomas). A página do projeto ganha os botões "Conversar pelo WhatsApp" e "Ver todos os detalhes". |
 | `thumbnail` | não | Imagem do card na home e nas listagens. Sem ela, o card usa a `cover`. |
 
 > **Artigos:** o tempo de leitura é calculado sozinho a partir do texto (cerca de 200 palavras por minuto), não precisa preencher. Para diagramas e ilustrações animadas, use `pt.mdx`/`en.mdx` em vez de `.md` e importe componentes de `src/components/diagrams/` (veja o artigo `interface-como-integracao` como exemplo). Blocos de código ganham moldura de terminal automaticamente.
@@ -78,7 +78,7 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `cover` | não | Imagem de capa na mesma pasta, por exemplo `./cover.png`. Só se a imagem existir. |
 | `draft` | não (padrão: `false`) | `true` = rascunho, fica fora do site. `false` ou sem a linha = publicada. Os modelos começam em `true`, então apagar a linha publica. |
 
-`type`, `date`, `updated`, `status` e `draft` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
+`type`, `date`, `updated`, `status`, `draft`, `landing` e `planet` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
 são traduzidos.
 
 **4. Escreva o texto** em Markdown, abaixo do frontmatter. O modelo traz um roteiro de seções para cada tipo:
@@ -128,7 +128,9 @@ Sempre mexa nos dois idiomas juntos.
   o selo vira "pausado"; a landing e o link do cabeçalho continuam no ar) ou `draft: true` na publicação.
   O Dev parceiro tem a cor de Marte (laranja-ferrugem): a classe `.planet-mars` em `src/styles/global.css` troca a
   paleta. Ela vale na landing, na página e no card do projeto (`planet: mars` no frontmatter), no banner da home e no
-  link do cabeçalho. Para mudar o tom, mexa só nesse bloco (cada cor tem o contraste anotado). A entrada em Projetos é `src/content/publications/dev-parceiro/`
+  link do cabeçalho. Para mudar o tom, mexa nesse bloco (as cores de texto têm o contraste anotado), no `planetThemeColor` de
+  `src/layouts/BaseLayout.astro` (cor da barra do navegador), em `public/giscus-theme-mars.css` (comentários) e gere de novo
+  as imagens de compartilhamento, capa e miniatura. A entrada em Projetos é `src/content/publications/dev-parceiro/`
   (`type: service`, `landing: devPartner`). Os botões de WhatsApp contam cliques no GoatCounter como
   `whatsapp-<lugar>-<idioma>` (ex.: `whatsapp-dev-parceiro-hero-pt`). A imagem de compartilhamento da landing
   fica em `src/assets/og/dev-partner-{pt,en}.jpg` (1200×630).
@@ -260,7 +262,7 @@ De onde vem cada parte:
 | Mensagem (trecho) | O que fazer |
 |---|---|
 | `[publications] Publication "x" is missing …/x/en.md` | Falta a tradução. Crie o arquivo ou deixe `draft: true` no que existe. |
-| `pt.md and en.md disagree on type / date / updated / status` | Deixe esses campos iguais nos dois arquivos. |
+| `pt.md and en.md disagree on type / date / updated / status / landing / planet` | Deixe esses campos iguais nos dois arquivos. |
 | `"draft" differs between pt.md … and en.md` | `draft` precisa ser igual nos dois. |
 | `"status" is required for type "product"` | Adicione `status` (veja os valores na tabela acima). |
 | `status "running" is not allowed for type "product"` | `running` e `concluded` são só para experimentos. |

@@ -25,6 +25,8 @@ interface Props {
 
 const { lang, title, rawTitle = false, description, ref, ogType = 'website', ogImage, jsonLd, planet } = Astro.props;
 const fullTitle = rawTitle ? title : `${title} · Brskt Space`;
+/** Browser UI colour per planet theme: the theme's --bg (see .planet-* in global.css). */
+const planetThemeColor: Record<NonNullable<Props['planet']>, string> = { mars: '#0D0806' };
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
   { hreflang: 'x-default', href: rootUrl() },
@@ -44,7 +46,7 @@ const alternates = [
       ogType={ogType}
       ogImage={ogImage}
       jsonLd={jsonLd}
-      themeColor={planet === 'mars' ? '#0D0806' : undefined}
+      themeColor={planet ? planetThemeColor[planet] : undefined}
     />
   </head>
   <body>

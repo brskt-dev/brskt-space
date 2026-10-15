@@ -5,7 +5,7 @@
 #   1. Copie pt.md e en.md para src/content/publications/<slug>/
 #      O nome da pasta é o slug: entra na URL dos dois idiomas, por exemplo
 #      /pt/projetos/<slug>/ e /en/projects/<slug>/. Use só letras minúsculas, números e hífens.
-#   2. Preencha os dois arquivos. type, date, updated, status e draft precisam ser IGUAIS em pt.md e en.md.
+#   2. Preencha os dois arquivos. type, date, updated, status, draft, landing e planet precisam ser IGUAIS em pt.md e en.md.
 #   3. Quando os dois idiomas estiverem prontos, mude draft para false nos dois.
 #
 # Tipo (igual nos dois idiomas):

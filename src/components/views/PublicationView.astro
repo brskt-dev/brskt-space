@@ -221,7 +221,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       )
     }
 
-    <Reactions lang={lang} slug={slug} />
+    <Reactions lang={lang} slug={slug} planet={data.planet} />
   </article>
 </BaseLayout>
 
@@ -271,7 +271,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
     padding: clamp(1.25rem, 3vw, 2rem);
     border: 1px solid var(--border-hi);
     border-radius: var(--r-lg);
-    background: rgb(21 16 38 / 0.92);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(10px);
   }
 

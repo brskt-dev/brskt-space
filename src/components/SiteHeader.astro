@@ -207,6 +207,10 @@ const other = otherLang(lang);
     .dp-link[aria-current] {
       border: 2px solid CanvasText;
     }
+
+    .dp-planet {
+      display: none;
+    }
   }
 
   @media (forced-colors: active) {
@@ -219,6 +223,8 @@ const other = otherLang(lang);
     grid-area: lang;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: var(--tap);
     gap: 0.4rem;
     min-height: var(--tap);
     padding-inline: 0.85rem;
@@ -324,10 +330,18 @@ const other = otherLang(lang);
     }
   }
 
-  /* very narrow phones (320px) */
-  @media (max-width: 21rem) {
+  /* narrow phones (320-375px): the first row must fit brand + pill + language inside the gutters */
+  @media (max-width: 23.5rem) {
     .header-inner {
       column-gap: 0.3rem;
+    }
+
+    .header-inner > :global(.brand) {
+      gap: 0.4rem;
+    }
+
+    .header-inner :global(.brand-name) {
+      font-size: 1.05rem;
     }
 
     .dp-planet {

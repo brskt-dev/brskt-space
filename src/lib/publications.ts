@@ -10,7 +10,7 @@
  *   - src/content/publications/<slug>/ must contain exactly pt AND en (.md or .mdx);
  *   - `type`, `date`, `updated` and `status` must match between pt and en;
  *   - `status` is required for product / experiment / service (also enforced by the schema);
- *   - `landing` (service only) must match between pt and en;
+ *   - `landing` (service only) and `planet` must match between pt and en;
  *   - `draft` must match between pt and en; draft: true on both → excluded entirely.
  */
 import { getCollection, type CollectionEntry } from 'astro:content';

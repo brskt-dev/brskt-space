@@ -26,7 +26,7 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 ## Rules
 - **Bilingual, always.** Every page and publication exists in both languages with the same facts and tone
   (natural English, not literal). A publication ships only when both files exist; `type`, `date`, `updated`,
-  `status` and `draft` must match. The language switch links to the equivalent page, never to home.
+  `status`, `draft`, `landing` and `planet` must match. The language switch links to the equivalent page, never to home.
   Sections with no content (e.g. Articles today) have no route and no nav link. On the home (and section
   pages) empty slots are filled with `SkeletonCard` placeholders, which the owner asked for: they carry no
   invented title or text, are `aria-hidden`, and the section says in words that more is coming.

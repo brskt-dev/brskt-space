@@ -135,7 +135,7 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
             {
               offer && (
                 <p class="featured-price mono">
-                  <span>{offer.price}</span> {offer.perMonth} · {offer.term}
+                  <span>{offer.price}</span> {offer.perMonth}
                 </p>
               )
             }
@@ -368,6 +368,11 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
     .featured-text {
       position: relative;
       z-index: 1;
+    }
+
+    /* the planet sits behind the badges here: give them a solid backing (AA contrast) */
+    .featured-badges .chip {
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
     }
   }
 
