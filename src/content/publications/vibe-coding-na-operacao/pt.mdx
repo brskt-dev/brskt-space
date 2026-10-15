@@ -1,0 +1,65 @@
+---
+type: article
+title: "Vibe coding funcionou. Quem responde quando ele vira operação?"
+summary: "Uma ferramenta feita com IA num fim de semana dá certo e vira o jeito como a empresa trabalha. O que o software raiz e o vibe coding acertam, o que cada lado subestima e um caminho do meio pra usar a velocidade da IA com decisões técnicas na medida do risco."
+date: 2026-10-15
+tags: ["Vibe coding", "IA", "Pequenas e médias empresas", "Desenvolvimento de software"]
+draft: false
+---
+
+import { pathFor, publicationUrl } from '../../../i18n/ui';
+
+Um exemplo hipotético, mas que talvez você reconheça. Numa distribuidora com uns trinta funcionários, os pedidos chegam pelo WhatsApp dos vendedores, viram linha numa planilha compartilhada e esperam alguém do financeiro aprovar o desconto antes de seguir pro estoque. A coordenadora comercial conhece cada gargalo desse caminho, porque passa o dia resolvendo os problemas dele. Num fim de semana, ela descreve o fluxo pra uma ferramenta de IA e sai de lá com um aplicativo: o vendedor lança o pedido, o financeiro aprova com um clique e o estoque vê a fila do dia.
+
+Na segunda-feira, ela mostra pra equipe e funciona. Em duas semanas, ninguém mais abre a planilha.
+
+Nada quebrou, e eu não vou inventar um desastre pra deixar a história mais didática. O que me interessa é outra coisa: em algum momento entre a demonstração e a segunda semana, aquilo deixou de ser um experimento e passou a ser o jeito como a empresa vende. Ninguém decidiu essa mudança. Ela aconteceu porque a ferramenta era boa.
+
+## Do que a gente está falando
+
+Essa história cai no meio de uma briga barulhenta. De um lado, quem diz que agora qualquer pessoa cria software conversando com uma IA e que boa parte do desenvolvimento tradicional virou burocracia. Do outro, desenvolvedores que olham pra esses aplicativos e enxergam uma fila de problemas esperando a hora de acontecer.
+
+O termo do momento é vibe coding. Ele apareceu num [post do Andrej Karpathy](https://x.com/karpathy/status/1886192184808149383), em fevereiro de 2025, descrevendo um jeito de programar em que você aceita o que a IA gera sem ler o código e vai se guiando pelo resultado. O próprio Karpathy dizia que isso servia pra projetos descartáveis de fim de semana. Desde então o termo se espalhou e ganhou sentidos diferentes, então vale dizer como eu uso aqui: vibe coding é gerar e alterar software por instruções, sem necessariamente entender ou verificar como ele foi implementado. Um desenvolvedor usar IA e revisar, testar e validar o que ela produziu é outra coisa, uma distinção que o Simon Willison defende bem [num texto do mesmo ano](https://simonwillison.net/2025/Mar/19/vibe-coding/). Eu uso Claude Code e Codex todo dia, e o que vai pro ar passa por mim antes.
+
+## O que cada lado vê bem, e o que deixa passar
+
+Os desenvolvedores que desconfiam têm razão em muita coisa. Segurança, manutenção e confiabilidade separam uma ferramenta que ajuda de uma que expõe dado de cliente ou some com um pedido. Mas tem hora em que esse rigor vira reflexo. Quando a resposta pra qualquer ideia é "isso precisa de uma arquitetura decente", quando a solução proposta é maior que o problema, ou quando quem montou o app é tratado como alguém que não sabe o que está fazendo, o debate perde justamente a pessoa que mais entende do processo. E costuma ficar de fora um detalhe: código escrito à mão também tem falha. O que deixa um sistema confiável são as decisões, os controles e a verificação, e não quem digitou cada linha.
+
+Do outro lado, quem empreende enxerga uma coisa que muito dev não vê, que é a dor. A coordenadora sabia exatamente onde o pedido travava, quais descontos precisavam de aprovação e o que o estoque precisava ver primeiro. A IA baixou muito o custo de transformar esse conhecimento numa ferramenta que dá pra testar na prática, e isso tem valor real, inclusive pra quem nunca vai programar. O que fica fácil de subestimar não tem nada a ver com inteligência: uma tela funcionando mostra só a parte da solução que está à vista.
+
+## O que a tela não mostra
+
+Volta pra distribuidora. O aplicativo funciona, mas tem perguntas que a demonstração não responde.
+
+Um vendedor consegue ver os pedidos e os clientes da carteira de outro? Se consegue, isso pode virar disputa de comissão ou cliente sendo abordado duas vezes. O app manda o pedido aprovado pro sistema que emite as notas. Se essa integração falhar no meio do caminho, ou rodar duas vezes, alguém percebe antes de o cliente receber duas cobranças? Se um pedido for apagado por engano, dá pra recuperar, ou ele só existia ali? Daqui a um mês, quando a coordenadora pedir pra IA mudar a regra de frete, como ela vai saber que o cálculo de desconto, que funcionava, continua funcionando? E o código, a conta onde o app roda e as senhas estão no nome de quem? Se estiverem no e-mail pessoal dela e ela sair da empresa, a empresa fica com o processo e perde a ferramenta.
+
+Nenhuma dessas perguntas parte do princípio de que o app está errado. Elas ganham peso quando outras pessoas passam a depender dele. Enquanto era a coordenadora testando com pedidos de mentira, uma falha custava uma tarde. Agora custa venda, dinheiro e a confiança do cliente.
+
+## Experimento ou operação
+
+Por isso eu não acho que todo experimento com IA precise de um profissional por perto. Um protótipo com dados fictícios, usado por uma pessoa e que dá pra refazer em um dia se quebrar, pode ser feito sem pedir licença a ninguém. É assim que se descobre se uma ideia presta.
+
+O cuidado precisa crescer junto com o tamanho do estrago que uma falha pode causar. Alguns sinais de que a ferramenta mudou de categoria: outras pessoas dependem dela pra trabalhar; ela guarda dados reais de clientes ou informação financeira; funcionários com papéis diferentes acessam as mesmas coisas; ela grava em outros sistemas, em vez de só consultar; ninguém conseguiria reconstruí-la rápido se ela sumisse. Quanto mais desses sinais aparecem, mais caro fica não ter ninguém olhando por dentro.
+
+## Um caminho do meio, sem nada de inédito
+
+A polarização esconde um arranjo que já funciona em muito lugar. A empresa entra com o conhecimento do negócio e as prioridades. A IA acelera a experimentação e o desenvolvimento. E alguém técnico entende o problema, avalia as alternativas, conduz a construção, revisa, valida e acompanha a ferramenta depois. Chamar isso de metodologia seria exagero: é o desenvolvimento de software de sempre, agora com uma ferramenta bem mais rápida na mão.
+
+Nesse arranjo, o papel técnico vai além de fiscalizar código gerado e começa antes de qualquer linha: o problema merece um sistema? Uma ferramenta pronta resolve? Basta ligar dois sistemas que a empresa já tem? Na distribuidora, uma resposta possível é que o sistema de gestão que ela já paga tenha um módulo de pedidos com aprovação que nunca foi configurado. Aí a melhor decisão é não manter software novo: configurar o que existe, talvez fazer uma integração pequena e aposentar o app. Mesmo assim ele não foi desperdício, porque descreveu o processo com mais precisão do que qualquer reunião teria conseguido. E quando o sistema que já existe não tem API, ainda há jeitos de integrar sem reescrever tudo, como contei <a href={publicationUrl('pt', 'article', 'interface-como-integracao')}>neste outro artigo</a>.
+
+Quando construir faz sentido, o trabalho continua durante a construção, usando IA pra ir mais rápido sem abrir mão de entender o que vai pro ar, e segue depois da entrega, porque a regra de frete muda, o volume de pedidos cresce e o sistema de notas troca de versão. Testes automatizados (programas pequenos que conferem se o que funcionava continua funcionando), backups que alguém já tentou restaurar e acessos separados por função entram na medida do risco, e não porque estão num checklist.
+
+E é bom ser honesto sobre o limite disso tudo. Ter um profissional envolvido não elimina falhas, nem torna viável qualquer projeto. O que muda é a qualidade das decisões, a existência de verificação e o fato de ter alguém com nome e sobrenome responsável pela evolução da ferramenta. Pra muita empresa, é isso que separa um app que todo mundo usa torcendo pra não dar problema de um sistema que ela sabe como manter.
+
+## Onde eu entro nisso
+
+Esse raciocínio é o que orienta meu trabalho no <a href={pathFor('pt', 'devPartner')}>Dev parceiro</a>. Eu entendo o problema, combino as prioridades com a empresa e proponho a solução adequada, que nem sempre é construir algo novo. Depois desenvolvo automações, integrações, melhorias ou sistemas novos, com a IA acelerando o trabalho e as decisões, a revisão e a validação comigo, e sigo cuidando do que foi feito e das próximas demandas.
+
+E se você está do lado de quem constrói com IA, ou de quem desconfia dela: em que momento você acha que uma ferramenta deixa de ser experimento? Conta aqui nos comentários.
+
+## Referências
+
+Consultadas em 15 de outubro de 2026.
+
+- Andrej Karpathy, [post no X](https://x.com/karpathy/status/1886192184808149383) em que usa o termo "vibe coding", 2 de fevereiro de 2025.
+- Simon Willison, [Not all AI-assisted programming is vibe coding (but vibe coding rocks)](https://simonwillison.net/2025/Mar/19/vibe-coding/), 19 de março de 2025.
