@@ -22,8 +22,8 @@ export const intlLocale: Record<Lang, string> = { pt: 'pt-BR', en: 'en-US' };
 /* Route segments                                                             */
 /* -------------------------------------------------------------------------- */
 
-export type PageKey = 'home' | 'about' | 'projects' | 'articles';
-export type PublicationType = 'product' | 'article' | 'experiment';
+export type PageKey = 'home' | 'about' | 'projects' | 'articles' | 'devPartner';
+export type PublicationType = 'product' | 'article' | 'experiment' | 'service';
 /** Listing section a publication type belongs to. */
 export type SectionKey = 'projects' | 'articles';
 
@@ -32,6 +32,8 @@ export const segments: Record<PageKey, Record<Lang, string>> = {
   about: { pt: 'sobre', en: 'about' },
   projects: { pt: 'projetos', en: 'projects' },
   articles: { pt: 'artigos', en: 'articles' },
+  /** Landing of the "Dev parceiro" service (copy in src/content/pages/dev-partner/). */
+  devPartner: { pt: 'servicos/dev-parceiro', en: 'services/dev-partner' },
 };
 
 export const sectionForType = (type: PublicationType): SectionKey =>
@@ -171,6 +173,7 @@ const strings = {
   'pub.gallery': { pt: 'Por dentro', en: 'Inside' },
   'pub.stackKicker': { pt: '// equipamento da missão', en: '// mission gear' },
   'pub.stack': { pt: 'Stack', en: 'Stack' },
+  'pub.serviceLanding': { pt: 'Ver todos os detalhes', en: 'See all the details' },
   'meta.type': { pt: 'tipo', en: 'type' },
   'meta.status': { pt: 'status', en: 'status' },
   'meta.date': { pt: 'publicado', en: 'published' },
@@ -180,6 +183,7 @@ const strings = {
   'type.product': { pt: 'produto', en: 'product' },
   'type.article': { pt: 'artigo', en: 'article' },
   'type.experiment': { pt: 'experimento', en: 'experiment' },
+  'type.service': { pt: 'serviço', en: 'service' },
 
   'status.in-development': { pt: 'em desenvolvimento', en: 'in development' },
   'status.demo': { pt: 'demo no ar', en: 'demo live' },
@@ -188,6 +192,31 @@ const strings = {
   'status.archived': { pt: 'arquivado', en: 'archived' },
   'status.running': { pt: 'em andamento', en: 'running' },
   'status.concluded': { pt: 'concluído', en: 'concluded' },
+  'status.available': { pt: 'disponível para contratação', en: 'available for hire' },
+
+  'service.name': { pt: 'Dev parceiro', en: 'Dev partner' },
+  'service.whatsapp': { pt: 'Conversar pelo WhatsApp', en: 'Chat on WhatsApp' },
+  'service.perMonth': { pt: 'por mês', en: 'per month' },
+  'service.ogAlt': {
+    pt: 'Dev parceiro, disponível para contratação: consultoria e desenvolvimento contínuo com Bruno Anhezini.',
+    en: 'Dev partner, available for hire: ongoing consulting and development with Bruno Anhezini.',
+  },
+  'service.sticky': { pt: 'Bora conversar?', en: 'Shall we talk?' },
+  'service.recognizeKicker': { pt: '// sinais de que dá pra melhorar', en: '// signs it could be better' },
+  'service.doesKicker': { pt: '// o que entra no trabalho', en: '// what the work covers' },
+  'service.howKicker': { pt: '// como a missão anda', en: '// how the mission runs' },
+  'service.aiKicker': { pt: '// IA no time, decisão comigo', en: '// AI on the team, decisions with me' },
+  'service.aiLabel': { pt: 'a IA acelera', en: 'AI speeds up' },
+  'service.meLabel': { pt: 'fica comigo', en: 'stays with me' },
+  'service.whoKicker': { pt: '// quem pilota', en: '// who’s flying' },
+  'service.whoLink': { pt: 'Minha trajetória', en: 'My background' },
+  'service.conditionsKicker': { pt: '// combinado não sai caro', en: '// the deal, upfront' },
+  /** HUD label on the hero picture (decorative). */
+  'service.roverHud': { pt: 'rover em missão', en: 'rover on a mission' },
+  'service.sourceLabel': { pt: 'Fonte', en: 'Source' },
+  'service.faqKicker': { pt: '// perguntas frequentes', en: '// frequently asked' },
+  'service.howLink': { pt: 'Ver como funciona', en: 'See how it works' },
+  'service.homeCta': { pt: 'Conhecer o Dev parceiro', en: 'Explore Dev partner' },
 
   'notfound.title': { pt: 'Perdido no espaço', en: 'Lost in space' },
   'notfound.text': {

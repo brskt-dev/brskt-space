@@ -5,13 +5,15 @@
 #   1. Copy pt.md and en.md to src/content/publications/<slug>/
 #      The folder name is the slug: it goes into the URL in both languages, e.g.
 #      /pt/projetos/<slug>/ and /en/projects/<slug>/. Lowercase letters, digits and hyphens only.
-#   2. Fill in both files. type, date, updated, status and draft must be IDENTICAL in pt.md and en.md.
+#   2. Fill in both files. type, date, updated, status, draft, landing and planet must be IDENTICAL in pt.md and en.md.
 #   3. When both languages are ready, set draft to false in both.
 #
 # Type (same in both languages):
 #   product    → product; listed under Projects (/en/projects/)
 #   experiment → experiment; listed under Projects (/en/projects/)
 #   article    → technical article; listed under Articles (/en/articles/)
+#   service    → a service for hire; listed under Projects (status available or paused). If it has its own
+#                landing (a route in src/i18n/ui.ts), point to it with `landing:` (today only devPartner).
 type: product
 
 # Title of the page, the cards and the browser tab.

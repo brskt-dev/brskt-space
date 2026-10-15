@@ -1,9 +1,11 @@
 ---
-/** A single publication (product / experiment / article): cover banner, chips, title, lead, body. */
-import { render } from 'astro:content';
+/** A single publication (product / experiment / article / service): cover banner, chips, title, lead, body.
+ * A service with a `landing` also gets the WhatsApp and "see all the details" CTAs. */
+import { getEntry, render } from 'astro:content';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ExternalLink from '../ExternalLink.astro';
+import WhatsAppLink from '../WhatsAppLink.astro';
 import Reactions from '../Reactions.astro';
 import SectionHeading from '../SectionHeading.astro';
 import Cover from '../ui/Cover.astro';
@@ -27,7 +29,10 @@ const { Content, headings } = await render(entry);
 const toc = headings.filter((h) => h.depth === 2);
 const minutes = pub.type === 'article' ? readingMinutes(entry.body) : undefined;
 const backKey = pub.section === 'articles' ? 'pub.back.articles' : 'pub.back.projects';
-const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask' };
+// A service links to its landing and opens a WhatsApp conversation with the landing's pre-filled message.
+const landing = pub.type === 'service' ? data.landing : undefined;
+const landingCopy = landing === 'devPartner' ? (await getEntry('devPartner', lang))?.data : undefined;
+const typeIcon: Record<PublicationType, IconName> = { product: 'package', article: 'file-text', experiment: 'flask', service: 'briefcase' };
 ---
 
 <BaseLayout
@@ -36,6 +41,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
   description={data.summary}
   ref={{ kind: 'publication', type: pub.type, slug }}
   ogType="article"
+  planet={data.planet}
 >
   <article class="wrap pub">
     <p class="back-top">
@@ -50,7 +56,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
         data.cover ? (
           <Image src={data.cover} alt="" widths={[800, 1200, 1600]} sizes="(min-width: 76rem) 76rem, 100vw" />
         ) : (
-          <Cover seed={pub.slug} kind={pub.type} />
+          <Cover seed={pub.slug} kind={pub.type === 'service' ? 'product' : pub.type} />
         )
       }
     </div>
@@ -96,6 +102,21 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
             {data.tags.map((tag) => (
               <li class="chip">#{tag}</li>
             ))}
+          </ul>
+        )
+      }
+      {
+        landing && landingCopy && (
+          <ul class="pub-links" aria-label={t(lang, 'pub.links')}>
+            <li>
+              <WhatsAppLink lang={lang} message={landingCopy.whatsappMessage} place={`${slug}-projeto`} />
+            </li>
+            <li>
+              <a class="btn" href={pathFor(lang, landing)}>
+                {t(lang, 'pub.serviceLanding')}
+                <Icon name="arrow-right" size={16} class="icon-move" />
+              </a>
+            </li>
           </ul>
         )
       }
@@ -200,7 +221,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
       )
     }
 
-    <Reactions lang={lang} slug={slug} />
+    <Reactions lang={lang} slug={slug} planet={data.planet} />
   </article>
 </BaseLayout>
 
@@ -250,7 +271,7 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
     padding: clamp(1.25rem, 3vw, 2rem);
     border: 1px solid var(--border-hi);
     border-radius: var(--r-lg);
-    background: rgb(21 16 38 / 0.92);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(10px);
   }
 
@@ -412,11 +433,6 @@ const typeIcon: Record<PublicationType, IconName> = { product: 'package', articl
   .stack-chip {
     padding: 0.4rem 0.8rem;
     font-size: 0.82rem;
-  }
-
-  /* anchor targets clear the sticky header */
-  .pub-body :global(h2) {
-    scroll-margin-top: 6rem;
   }
 
   @media (max-width: 40rem) {

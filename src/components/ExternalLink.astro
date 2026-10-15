@@ -1,7 +1,7 @@
 ---
 /**
  * Link that leaves the site: opens in a new tab (rel="noopener noreferrer") + visual and screen-reader hint.
- * Clicks are counted by GoatCounter as `ext-<host>` events (src/data/analytics.ts).
+ * Clicks are counted by GoatCounter as `ext-<host>` events (src/data/analytics.ts), or as `event` when given.
  */
 import { t, type Lang } from '../i18n/ui';
 import { EXT_ICON_PATH, clickEvent } from '../lib/markdown-external-links.mjs';
@@ -12,11 +12,13 @@ interface Props {
   class?: string;
   /** Override the sr-only hint (bilingual 404 footer). */
   hint?: string;
+  /** GoatCounter event name; defaults to `ext-<host>`. */
+  event?: string;
   [attr: string]: unknown;
 }
 
-const { href, lang, class: className, hint, ...rest } = Astro.props;
-const event = clickEvent(href);
+const { href, lang, class: className, hint, event: eventName, ...rest } = Astro.props;
+const event = eventName ?? clickEvent(href);
 ---
 
 <a href={href} target="_blank" rel="noopener noreferrer" class={className} data-goatcounter-click={event} {...rest}

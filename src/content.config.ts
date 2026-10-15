@@ -9,7 +9,7 @@ import { z } from 'astro/zod';
  *   Entry id = "<slug>/<lang>" (folder + file name). Pairing/consistency between
  *   the two languages is enforced at build time by src/lib/publications.ts.
  *
- * home / about: src/content/pages/<page>/{pt,en}.md  (entry id = "pt" | "en")
+ * home / about / dev-partner: src/content/pages/<page>/{pt,en}.md  (entry id = "pt" | "en")
  */
 
 const stripMd = (entry: string) => entry.replace(/\.(md|mdx)$/i, '');
@@ -28,6 +28,9 @@ const isoDate = z
 
 const PRODUCT_STATUS = ['in-development', 'demo', 'live', 'paused', 'archived'] as const;
 const EXPERIMENT_STATUS = [...PRODUCT_STATUS, 'running', 'concluded'] as const;
+/** A service the owner offers (listed under Projects). */
+const SERVICE_STATUS = ['available', 'paused'] as const;
+const ALL_STATUS = [...EXPERIMENT_STATUS, 'available'] as const;
 
 const publications = defineCollection({
   loader: glob({
@@ -38,12 +41,16 @@ const publications = defineCollection({
   schema: ({ image }) =>
     z
       .object({
-        type: z.enum(['product', 'article', 'experiment']),
+        type: z.enum(['product', 'article', 'experiment', 'service']),
         title: z.string().min(1),
         summary: z.string().min(1),
         date: isoDate,
         updated: isoDate.optional(),
-        status: z.enum(EXPERIMENT_STATUS).optional(),
+        status: z.enum(ALL_STATUS).optional(),
+        /** service only: the landing page this entry points to (a PageKey with its own route). */
+        landing: z.enum(['devPartner']).optional(),
+        /** Planet theme for this publication's page and card (palette swap, see .planet-* in global.css). */
+        planet: z.enum(['mars']).optional(),
         tags: z.array(z.string().min(1)).default([]),
         links: z
           .array(
@@ -74,23 +81,27 @@ const publications = defineCollection({
         draft: z.boolean().default(false),
       })
       .superRefine((data, ctx) => {
-        if (data.type === 'product' || data.type === 'experiment') {
+        if (data.type === 'product' || data.type === 'experiment' || data.type === 'service') {
           if (!data.status) {
             ctx.addIssue({
               code: 'custom',
               path: ['status'],
               message: `"status" is required for type "${data.type}"`,
             });
-          } else if (
-            data.type === 'product' &&
-            !(PRODUCT_STATUS as readonly string[]).includes(data.status)
-          ) {
-            ctx.addIssue({
-              code: 'custom',
-              path: ['status'],
-              message: `status "${data.status}" is not allowed for type "product" (use one of: ${PRODUCT_STATUS.join(', ')})`,
-            });
+          } else {
+            const allowed: readonly string[] =
+              data.type === 'product' ? PRODUCT_STATUS : data.type === 'service' ? SERVICE_STATUS : EXPERIMENT_STATUS;
+            if (!allowed.includes(data.status)) {
+              ctx.addIssue({
+                code: 'custom',
+                path: ['status'],
+                message: `status "${data.status}" is not allowed for type "${data.type}" (use one of: ${allowed.join(', ')})`,
+              });
+            }
           }
+        }
+        if (data.landing && data.type !== 'service') {
+          ctx.addIssue({ code: 'custom', path: ['landing'], message: '"landing" is only for type "service"' });
         }
       }),
 });
@@ -134,4 +145,78 @@ const about = defineCollection({
   }),
 });
 
-export const collections = { publications, home, about };
+/** A card in the Dev parceiro landing: short title + one or two sentences. */
+const card = z.object({ title: z.string().min(1), text: z.string().min(1) });
+const block = { title: z.string().min(1), intro: z.string().min(1) };
+
+/**
+ * dev-partner: src/content/pages/dev-partner/{pt,en}.md: all the copy of the "Dev parceiro"
+ * service landing (frontmatter only). The WhatsApp CTA label lives in src/i18n/ui.ts.
+ */
+const devPartner = defineCollection({
+  loader: glob({
+    pattern: '*.md',
+    base: './src/content/pages/dev-partner',
+    generateId: ({ entry }) => stripMd(entry),
+  }),
+  schema: z.object({
+    /** <title> (without the " · Brskt Space" suffix) and meta description. */
+    title: z.string().min(1).max(70),
+    description: z.string().min(1).max(170),
+    hero: z.object({
+      kicker: z.string().min(1),
+      title: z.string().min(1),
+      lead: z.string().min(1),
+      ctaNote: z.string().min(1),
+      /** Short labels around "your company" in the hero picture (decorative). */
+      orbit: z.array(z.string().min(1).max(24)).min(3).max(8),
+    }),
+    recognize: z.object({ ...block, items: z.array(card).min(3) }),
+    does: z.object({ ...block, items: z.array(card).min(3) }),
+    how: z.object({ ...block, steps: z.array(card).min(3), loop: z.string().min(1) }),
+    ai: z.object({
+      title: z.string().min(1),
+      text: z.string().min(1),
+      aiPart: z.array(z.string().min(1)).min(1),
+      mePart: z.array(z.string().min(1)).min(1),
+    }),
+    who: z.object({ title: z.string().min(1), text: z.string().min(1) }),
+    conditions: z.object({
+      ...block,
+      points: z.array(z.string().min(1)).min(1),
+      /** Market comparison: other ways to hire, with public reference prices and their sources. */
+      compare: z.object({
+        title: z.string().min(1),
+        me: z.object({ label: z.string().min(1), text: z.string().min(1) }),
+        others: z
+          .array(
+            z.object({
+              label: z.string().min(1),
+              price: z.string().min(1),
+              unit: z.string().min(1),
+              text: z.string().min(1),
+              /** Index in `sources`. */
+              source: z.number().int().nonnegative(),
+            }),
+          )
+          .min(1),
+        note: z.string().min(1),
+        sources: z.array(z.object({ label: z.string().min(1), url: z.url() })).min(1),
+      }),
+    }),
+    faq: z.object({
+      title: z.string().min(1),
+      items: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(1),
+    }),
+    closing: z.object({ title: z.string().min(1), text: z.string().min(1) }),
+    /** The commercial terms as numbers: shown on the page (formatted per language) and in the JSON-LD. */
+    offer: z.object({
+      monthlyPrice: z.number().int().positive(),
+      currency: z.literal('BRL'),
+    }),
+    /** Pre-filled text of the WhatsApp conversation (wa.me ?text=). */
+    whatsappMessage: z.string().min(1).max(300),
+  }),
+});
+
+export const collections = { publications, home, about, devPartner };

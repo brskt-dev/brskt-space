@@ -24,6 +24,7 @@ site no GitHub Pages.
 | `src/content/publications/<slug>/pt.md` e `en.md` | Publicações: produtos, experimentos e artigos. Uma pasta = uma publicação, nos dois idiomas. |
 | `src/content/pages/home/{pt,en}.md` | Texto da home. |
 | `src/content/pages/about/{pt,en}.md` | Texto da página Sobre. |
+| `src/content/pages/dev-partner/{pt,en}.md` | Todo o texto da landing do Dev parceiro (o valor em `offer`, a comparação com o mercado em `conditions.compare`). |
 | `src/data/profile.ts` | Dados do currículo: contatos, experiência, competências, formação, idiomas. |
 | `src/i18n/ui.ts` | Textos da interface (menu, rodapé, rótulos de status e tipo), nomes das rotas e funções de URL. |
 | `src/lib/url.ts` | Montagem de URLs com o prefixo `/brskt-space/`. |
@@ -57,12 +58,14 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 
 | Campo | Obrigatório | O que é |
 |---|---|---|
-| `type` | sim | `product` (produto), `experiment` (experimento) ou `article` (artigo). Produtos e experimentos aparecem em Projetos; artigos, em Artigos. |
+| `type` | sim | `product` (produto), `experiment` (experimento), `article` (artigo) ou `service` (serviço contratável). Produtos, experimentos e serviços aparecem em Projetos; artigos, em Artigos. |
 | `title` | sim | Título da página e dos cards. |
 | `summary` | sim | Uma ou duas frases. Vai nos cards e na meta description. |
 | `date` | sim | Dia em que entra no site, `AAAA-MM-DD` (ex.: `2026-10-01`). Outro formato, como `01/10/2026`, faz o build falhar. |
 | `updated` | não | Dia da última atualização relevante, `AAAA-MM-DD`. |
-| `status` | em product e experiment | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Em artigos, apague a linha. |
+| `status` | em product, experiment e service | `in-development`, `demo` (demo pública no ar), `live`, `paused`, `archived`. Experimentos também aceitam `running` e `concluded`. Serviços usam `available` (disponível para contratação) ou `paused`. Em artigos, apague a linha. |
+| `planet` | não | Tema de cor de um planeta para a página e o card da publicação: hoje só `mars` (o Dev parceiro). Igual nos dois idiomas. |
+| `landing` | não (só em service) | A landing do serviço, quando existe: `devPartner` (igual nos dois idiomas). A página do projeto ganha os botões "Conversar pelo WhatsApp" e "Ver todos os detalhes". |
 | `thumbnail` | não | Imagem do card na home e nas listagens. Sem ela, o card usa a `cover`. |
 
 > **Artigos:** o tempo de leitura é calculado sozinho a partir do texto (cerca de 200 palavras por minuto), não precisa preencher. Para diagramas e ilustrações animadas, use `pt.mdx`/`en.mdx` em vez de `.md` e importe componentes de `src/components/diagrams/` (veja o artigo `interface-como-integracao` como exemplo). Blocos de código ganham moldura de terminal automaticamente.
@@ -75,7 +78,7 @@ campo em comentários. Troque todo `TODO` dos modelos; o `npm run verify` (e o d
 | `cover` | não | Imagem de capa na mesma pasta, por exemplo `./cover.png`. Só se a imagem existir. |
 | `draft` | não (padrão: `false`) | `true` = rascunho, fica fora do site. `false` ou sem a linha = publicada. Os modelos começam em `true`, então apagar a linha publica. |
 
-`type`, `date`, `updated`, `status` e `draft` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
+`type`, `date`, `updated`, `status`, `draft`, `landing` e `planet` precisam ser **iguais** em `pt.md` e `en.md`. Título, resumo, tags e texto
 são traduzidos.
 
 **4. Escreva o texto** em Markdown, abaixo do frontmatter. O modelo traz um roteiro de seções para cada tipo:
@@ -114,6 +117,29 @@ Sempre mexa nos dois idiomas juntos.
 - **Sobre:** `src/content/pages/about/{pt,en}.md`. Frontmatter com `title`, `description` e `story` (os cards
   da "versão curta": `when`, `title`, `text` e `icon`, um de `receipt`, `cpu`, `server`, `bot`, `rocket`,
   `code`, `terminal`, `sparkles`). O texto abaixo é a introdução.
+- **Dev parceiro (serviço):** a landing fica em `src/content/pages/dev-partner/{pt,en}.md`: título, situações,
+  passos, condições, perguntas frequentes e a mensagem que já vem escrita no WhatsApp (`whatsappMessage`). O
+  **valor aparece só na seção "Quanto custa"** da landing: vem de `offer.monthlyPrice` e é mostrado no quadro de
+  preço e no primeiro card da comparação. Ele não aparece no topo da landing, no banner da home, na entrada de
+  Projetos, nas imagens de compartilhamento nem nos dados estruturados. **O prazo do contrato não aparece em
+  lugar nenhum do site**: ele é passado no WhatsApp, depois da primeira conversa. A comparação ("Comparando com
+  outros jeitos de contratar") fica em `conditions.compare`: valores de referência publicados por terceiros,
+  cada um com a fonte (`source` aponta para a lista `sources`, que vira a lista numerada com links). Ao trocar
+  um valor de referência, troque a fonte junto e confira as contas do texto (ex.: 40 horas × valor/hora).
+  O mascote do serviço é um rover marciano (`src/components/mascot/Rover.astro`, SVG desenhado com as cores do
+  tema): `pose` (`wave`, `point`, `build`, `scan`, `flag`, `think`, `drive`, `rest`) e `mood` (`happy`,
+  `curious`, `focused`, `excited`, `thinking`, `wink`, `neutral`). Ele aparece ao longo da landing, no banner da
+  home (em cima de Marte) e nas imagens de compartilhamento. É decorativo (`aria-hidden`), e a animação para
+  com "reduzir movimento". Para tirar a oferta do ar, use `status: paused` (some o banner da home e
+  o selo vira "pausado"; a landing e o link do cabeçalho continuam no ar) ou `draft: true` na publicação.
+  O Dev parceiro tem a cor de Marte (laranja-ferrugem): a classe `.planet-mars` em `src/styles/global.css` troca a
+  paleta. Ela vale na landing, na página e no card do projeto (`planet: mars` no frontmatter), no banner da home e no
+  link do cabeçalho. Para mudar o tom, mexa nesse bloco (as cores de texto têm o contraste anotado), no `planetThemeColor` de
+  `src/layouts/BaseLayout.astro` (cor da barra do navegador), em `public/giscus-theme-mars.css` (comentários) e gere de novo
+  as imagens de compartilhamento, capa e miniatura. A entrada em Projetos é `src/content/publications/dev-parceiro/`
+  (`type: service`, `landing: devPartner`). Os botões de WhatsApp contam cliques no GoatCounter como
+  `whatsapp-<lugar>-<idioma>` (ex.: `whatsapp-dev-parceiro-hero-pt`). A imagem de compartilhamento da landing
+  fica em `src/assets/og/dev-partner-{pt,en}.jpg` (1200×630).
 - **Faixa de ferramentas da home:** lista `stack` em `src/data/profile.ts`.
 - **Currículo** (experiência, competências, formação, idiomas, contatos): `src/data/profile.ts`. Cada texto
   traduzível é um objeto `{ pt: '…', en: '…' }`. Nomes de empresas e tecnologias ficam como estão.
@@ -138,7 +164,7 @@ O endereço local inclui `/brskt-space/`; `http://localhost:4321/` sozinho dá 4
 
 `npm run verify` falha (e lista o que corrigir) se encontrar link quebrado, URL sem o prefixo
 `/brskt-space/`, página sem título, `h1`, descrição ou canonical, página sem o par no outro idioma, link
-`#âncora` para um id inexistente, telefone fora da página Sobre, ou texto de rascunho no HTML (`STUB`,
+`#âncora` para um id inexistente, telefone fora das páginas permitidas, ou texto de rascunho no HTML (`STUB`,
 `TODO`, `FIXME`, `lorem ipsum`, `undefined`, `NaN`, `[object Object]`). Blocos de código são ignorados nessa
 última checagem. Para testar também os links externos (só avisa, não falha):
 
@@ -194,6 +220,7 @@ Os caminhos abaixo vêm depois de `https://brskt-dev.github.io/brskt-space`.
 | Sobre | `/pt/sobre/` | `/en/about/` |
 | Projetos (lista) | `/pt/projetos/` | `/en/projects/` |
 | Projeto | `/pt/projetos/<slug>/` | `/en/projects/<slug>/` |
+| Dev parceiro (landing do serviço) | `/pt/servicos/dev-parceiro/` | `/en/services/dev-partner/` |
 | Artigos (lista) | `/pt/artigos/` | `/en/articles/` |
 | Artigo | `/pt/artigos/<slug>/` | `/en/articles/<slug>/` |
 | Página não encontrada | `/404.html` (bilíngue) | (mesma) |
@@ -241,7 +268,7 @@ De onde vem cada parte:
 | Mensagem (trecho) | O que fazer |
 |---|---|
 | `[publications] Publication "x" is missing …/x/en.md` | Falta a tradução. Crie o arquivo ou deixe `draft: true` no que existe. |
-| `pt.md and en.md disagree on type / date / updated / status` | Deixe esses campos iguais nos dois arquivos. |
+| `pt.md and en.md disagree on type / date / updated / status / landing / planet` | Deixe esses campos iguais nos dois arquivos. |
 | `"draft" differs between pt.md … and en.md` | `draft` precisa ser igual nos dois. |
 | `"status" is required for type "product"` | Adicione `status` (veja os valores na tabela acima). |
 | `status "running" is not allowed for type "product"` | `running` e `concluded` são só para experimentos. |
@@ -264,7 +291,7 @@ De onde vem cada parte:
 | `"STUB"` / `"TODO"` / `"lorem"` … | Texto provisório esquecido no conteúdo. |
 | `"undefined"` / `"NaN"` / `"[object Object]"` | Um valor ausente foi interpolado num texto (ex.: título da 404) ou falta um campo no frontmatter. |
 | `no element with id=…` | Link `#âncora` para uma seção que não existe (ou mudou de nome). |
-| `phone/WhatsApp links belong only on …` | Telefone e WhatsApp aparecem só na página Sobre. |
+| `phone/WhatsApp links belong only on …` | Telefone e WhatsApp aparecem só na página Sobre e nas páginas do Dev parceiro (lista em `scripts/verify-dist.mjs`). |
 
 **No deploy (aba Actions):**
 

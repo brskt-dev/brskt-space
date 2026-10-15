@@ -5,13 +5,15 @@
 #   1. Copie pt.md e en.md para src/content/publications/<slug>/
 #      O nome da pasta é o slug: entra na URL dos dois idiomas, por exemplo
 #      /pt/projetos/<slug>/ e /en/projects/<slug>/. Use só letras minúsculas, números e hífens.
-#   2. Preencha os dois arquivos. type, date, updated, status e draft precisam ser IGUAIS em pt.md e en.md.
+#   2. Preencha os dois arquivos. type, date, updated, status, draft, landing e planet precisam ser IGUAIS em pt.md e en.md.
 #   3. Quando os dois idiomas estiverem prontos, mude draft para false nos dois.
 #
 # Tipo (igual nos dois idiomas):
 #   product    → produto; aparece em Projetos (/pt/projetos/)
 #   experiment → experimento; aparece em Projetos (/pt/projetos/)
 #   article    → artigo técnico; aparece em Artigos (/pt/artigos/)
+#   service    → serviço contratável; aparece em Projetos (status available ou paused). Se tiver uma landing
+#                própria (uma rota em src/i18n/ui.ts), aponte para ela com `landing:` (hoje só devPartner).
 type: product
 
 # Título da página, dos cards e da aba do navegador.

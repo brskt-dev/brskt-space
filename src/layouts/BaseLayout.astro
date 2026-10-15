@@ -6,6 +6,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import type { ImageMetadata } from 'astro';
 import { htmlLang, LANGS, ogLocale, otherLang, rootUrl, t, urlFor, type Lang, type PageRef } from '../i18n/ui';
 
 interface Props {
@@ -16,10 +17,16 @@ interface Props {
   description: string;
   ref: PageRef;
   ogType?: 'website' | 'article' | 'profile';
+  ogImage?: { src: ImageMetadata; alt: string };
+  jsonLd?: Record<string, unknown>;
+  /** Planet theme for the whole page (palette swap, see .planet-* in global.css). */
+  planet?: 'mars';
 }
 
-const { lang, title, rawTitle = false, description, ref, ogType = 'website' } = Astro.props;
+const { lang, title, rawTitle = false, description, ref, ogType = 'website', ogImage, jsonLd, planet } = Astro.props;
 const fullTitle = rawTitle ? title : `${title} · Brskt Space`;
+/** Browser UI colour per planet theme: the theme's --bg (see .planet-* in global.css). */
+const planetThemeColor: Record<NonNullable<Props['planet']>, string> = { mars: '#0D0806' };
 const alternates = [
   ...LANGS.map((l) => ({ hreflang: htmlLang[l], href: urlFor(l, ref) })),
   { hreflang: 'x-default', href: rootUrl() },
@@ -27,7 +34,7 @@ const alternates = [
 ---
 
 <!doctype html>
-<html lang={htmlLang[lang]} dir="ltr">
+<html lang={htmlLang[lang]} dir="ltr" class:list={[planet && `planet-${planet}`]}>
   <head>
     <BaseHead
       title={fullTitle}
@@ -37,6 +44,9 @@ const alternates = [
       localeAlternates={[ogLocale[otherLang(lang)]]}
       alternates={alternates}
       ogType={ogType}
+      ogImage={ogImage}
+      jsonLd={jsonLd}
+      themeColor={planet ? planetThemeColor[planet] : undefined}
     />
   </head>
   <body>

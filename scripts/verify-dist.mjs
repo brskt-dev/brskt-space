@@ -18,7 +18,7 @@
 //   - placeholder / debug text: STUB, TODO, FIXME, lorem, ipsum, undefined, NaN, Invalid Date,
 //     [object Object] in visible text or attribute values (<pre>/<code> blocks are skipped)
 //   - #fragment link to an id that does not exist on the target page
-//   - tel: / WhatsApp link outside the About pages; required file missing
+//   - tel: / WhatsApp link outside the About and Dev parceiro pages; required file missing
 // WARNINGS (printed, never fail): page link without trailing slash, external <a> without
 //   rel="noopener", duplicate ids, missing x-default alternate, external link failures (--external).
 
@@ -39,7 +39,16 @@ const SECTIONS = [
   { dir: 'pt/', lang: 'pt-BR', counterpart: 'en' },
   { dir: 'en/', lang: 'en', counterpart: 'pt-BR' },
 ];
-const PHONE_ALLOWED_PAGES = new Set(['pt/sobre/index.html', 'en/about/index.html']);
+// About, plus the Dev parceiro service pages (landing and its Projects entry), where the owner
+// asked for "Conversar pelo WhatsApp" CTAs.
+const PHONE_ALLOWED_PAGES = new Set([
+  'pt/sobre/index.html',
+  'en/about/index.html',
+  'pt/servicos/dev-parceiro/index.html',
+  'en/services/dev-partner/index.html',
+  'pt/projetos/dev-parceiro/index.html',
+  'en/projects/dev-parceiro/index.html',
+]);
 const MARKERS = [
   [/\bSTUB\b/, 'STUB'],
   [/\bTODO\b/, 'TODO'],
@@ -64,7 +73,7 @@ const CATEGORY_TITLES = {
   head: 'Page metadata (lang, title, h1, description, canonical)',
   hreflang: 'Language alternates (hreflang / language switch)',
   marker: 'Placeholder or debug text in the output',
-  phone: 'Phone / WhatsApp outside the About page',
+  phone: 'Phone / WhatsApp outside the allowed pages',
   url: 'Suspicious URLs',
   ids: 'Duplicate ids',
   external: 'External links (--external)',
@@ -269,7 +278,7 @@ function checkRefs(src, refs) {
     const r = resolveRef(src, ref.value);
     const phoneLink = r.kind === 'scheme' ? ['tel', 'sms', 'whatsapp'].includes(r.scheme) : WHATSAPP_RE.test(ref.value.trim());
     if (phoneLink && src.isHtml && !PHONE_ALLOWED_PAGES.has(src.rel)) {
-      error('phone', src.rel, `${where}: phone/WhatsApp links belong only on ${[...PHONE_ALLOWED_PAGES].join(' and ')}`);
+      error('phone', src.rel, `${where}: phone/WhatsApp links belong only on ${[...PHONE_ALLOWED_PAGES].join(', ')}`);
     }
     switch (r.kind) {
       case 'empty':

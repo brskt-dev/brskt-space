@@ -14,10 +14,12 @@ import { absoluteUrl, assetPath } from '../lib/url';
 interface Props {
   lang: Lang;
   slug: string;
+  /** Planet theme of the page: the embed loads the matching giscus theme. */
+  planet?: 'mars';
 }
 
-const { lang, slug } = Astro.props;
-const theme = absoluteUrl(assetPath('giscus-theme.css'));
+const { lang, slug, planet } = Astro.props;
+const theme = absoluteUrl(assetPath(planet ? `giscus-theme-${planet}.css` : 'giscus-theme.css'));
 const discussionsUrl = `https://github.com/${giscus.repo}/discussions`;
 ---
 

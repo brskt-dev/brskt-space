@@ -1,0 +1,1321 @@
+---
+/**
+ * Landing of the "Dev parceiro" service: hero (WhatsApp CTA, orbit visual) →
+ * "você se reconhece?" situations → what I do → how the ongoing work goes → AI vs me →
+ * who I am → conditions ("Quanto custa": the only place with the price, from `offer`, and the
+ * market comparison) → FAQ → closing CTA, plus a sticky CTA bar on phones. All copy lives in
+ * src/content/pages/dev-partner/<lang>.md. The contract term is never shown (owner's choice:
+ * it is told over WhatsApp).
+ */
+import { getEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import WhatsAppLink from '../WhatsAppLink.astro';
+import ExternalLink from '../ExternalLink.astro';
+import Rover from '../mascot/Rover.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import photo from '../../assets/bruno-anhezini.jpg';
+import ogPt from '../../assets/og/dev-partner-pt.jpg';
+import ogEn from '../../assets/og/dev-partner-en.jpg';
+import { profile } from '../../data/profile';
+import { pathFor, t, type Lang } from '../../i18n/ui';
+import { formatOffer } from '../../lib/offer';
+import { absoluteUrl } from '../../lib/url';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const entry = await getEntry('devPartner', lang);
+if (!entry) throw new Error(`[dev-partner] Missing src/content/pages/dev-partner/${lang}.md`);
+const d = entry.data;
+const msg = d.whatsappMessage;
+
+const { price, perMonth } = formatOffer(lang, d.offer);
+
+// Icons follow the order of the items in the copy (see the comments in the .md files).
+const recognizeIcons: IconName[] = ['repeat', 'unplug', 'sheet', 'wallet', 'lock', 'lightbulb'];
+const doesIcons: IconName[] = ['zap', 'plug', 'list-checks', 'receipt', 'wrench', 'rocket'];
+const stepIcons: IconName[] = ['message', 'telescope', 'list-checks', 'hammer', 'refresh'];
+const orbitIcons: IconName[] = ['zap', 'plug', 'sheet', 'wallet', 'rocket', 'wrench'];
+const icon = (list: IconName[], i: number): IconName => list[i % list.length];
+
+const site = Astro.site ?? 'https://brskt-dev.github.io';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: t(lang, 'service.name'),
+  description: d.description,
+  url: absoluteUrl(pathFor(lang, 'devPartner'), site),
+  areaServed: { '@type': 'Country', name: lang === 'pt' ? 'Brasil' : 'Brazil' },
+  provider: {
+    '@type': 'Person',
+    name: profile.name,
+    url: absoluteUrl(pathFor(lang, 'about'), site),
+    sameAs: [profile.contact.linkedin, profile.contact.github],
+  },
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={d.title}
+  description={d.description}
+  ref={{ kind: 'page', page: 'devPartner' }}
+  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: t(lang, 'service.ogAlt') }}
+  jsonLd={jsonLd}
+  planet="mars"
+>
+  <div class="landing">
+    <!-- Hero -->
+    <section class="hero wrap" aria-labelledby="dp-title">
+      <div class="hero-text">
+        <p class="chip chip-mint kick"><span class="pulse" aria-hidden="true"></span>{d.hero.kicker}</p>
+        <h1 id="dp-title">{d.hero.title}</h1>
+        <p class="lead">{d.hero.lead}</p>
+        <ul class="ctas">
+          <li><WhatsAppLink lang={lang} message={msg} place="dev-parceiro-hero" /></li>
+          <li>
+            <a class="btn btn-ghost" href="#dp-how">
+              {t(lang, 'service.howLink')}
+              <Icon name="arrow-right" size={16} class="icon-move" />
+            </a>
+          </li>
+        </ul>
+        <p class="cta-note">{d.hero.ctaNote}</p>
+      </div>
+
+      <!-- Orbit: a small Mars with the rover on top; the kinds of work ride a tilted ring around it -->
+      <div class="orbit-box" aria-hidden="true">
+        <div class="orbit">
+          <span class="stars"></span>
+          <span class="halo"></span>
+          <div class="plane">
+            <span class="ring ring-outer"></span>
+            <span class="ring ring-inner"></span>
+            <span class="trail"></span>
+            <div class="spinner spinner-tags">
+              {
+                d.hero.orbit.map((label, i) => (
+                  <div class="slot" style={`--a:${(360 / d.hero.orbit.length) * i}deg`}>
+                    <span class="face">
+                      <span class="tag">
+                        <Icon name={icon(orbitIcons, i)} size={13} />
+                        {label}
+                      </span>
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="spinner spinner-sat">
+              <div class="slot slot-sat" style="--a:200deg">
+                <span class="face"><span class="sat"><Icon name="satellite" size={14} /></span></span>
+              </div>
+            </div>
+            <div class="stand">
+              <div class="planet-rover"><Rover pose="wave" mood="happy" size="100%" /></div>
+              <div class="planet"></div>
+            </div>
+          </div>
+        </div>
+        <ul class="tags-flat">
+          {
+            d.hero.orbit.map((label, i) => (
+              <li class="tag">
+                <Icon name={icon(orbitIcons, i)} size={13} />
+                {label}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <!-- Você se reconhece? -->
+    <section class="section wrap" aria-labelledby="dp-recognize">
+      <SectionHeading id="dp-recognize" kicker={t(lang, 'service.recognizeKicker')} icon="eye" sub={d.recognize.intro}>
+        {d.recognize.title}
+        <div slot="action" class="rv-spot"><Rover pose="scan" mood="curious" size="100%" /></div>
+      </SectionHeading>
+      <ul class="cards">
+        {
+          d.recognize.items.map((it, i) => (
+            <li class="card tile reveal">
+              <span class="tile-icon" aria-hidden="true">
+                <Icon name={icon(recognizeIcons, i)} size={20} />
+              </span>
+              <h3>{it.title}</h3>
+              <p>{it.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- O que eu faço -->
+    <section class="section wrap" aria-labelledby="dp-does">
+      <SectionHeading id="dp-does" kicker={t(lang, 'service.doesKicker')} icon="wrench" sub={d.does.intro}>
+        {d.does.title}
+        <div slot="action" class="rv-spot"><Rover pose="build" mood="focused" size="100%" /></div>
+      </SectionHeading>
+      <ul class="does">
+        {
+          d.does.items.map((it, i) => (
+            <li class="does-item reveal">
+              <span class="does-icon" aria-hidden="true">
+                <Icon name={icon(doesIcons, i)} size={18} />
+              </span>
+              <div>
+                <h3>{it.title}</h3>
+                <p>{it.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- Como funciona -->
+    <section class="section wrap" aria-labelledby="dp-how">
+      <SectionHeading id="dp-how" kicker={t(lang, 'service.howKicker')} icon="orbit" sub={d.how.intro}>
+        {d.how.title}
+      </SectionHeading>
+      <ol class="steps" style={`--steps:${d.how.steps.length}`}>
+        {
+          d.how.steps.map((st, i) => (
+            <li class="step reveal">
+              <span class="step-n mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="step-icon" aria-hidden="true">
+                <Icon name={icon(stepIcons, i)} size={18} />
+              </span>
+              <h3>{st.title}</h3>
+              <p>{st.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="loop-row">
+        <p class="loop mono">
+          <Icon name="refresh" size={15} />
+          {d.how.loop}
+        </p>
+        <Rover pose="drive" mood="happy" size="6.5rem" class="loop-rover" />
+      </div>
+    </section>
+
+    <!-- IA + eu -->
+    <section class="section wrap" aria-labelledby="dp-ai">
+      <SectionHeading id="dp-ai" kicker={t(lang, 'service.aiKicker')} icon="sparkles" sub={d.ai.text}>
+        {d.ai.title}
+        <div slot="action" class="rv-spot"><Rover pose="rest" mood="wink" size="100%" /></div>
+      </SectionHeading>
+      <div class="split">
+        <div class="split-col ai-col reveal">
+          <p class="split-label mono"><Icon name="sparkles" size={14} />{t(lang, 'service.aiLabel')}</p>
+          <ul>{d.ai.aiPart.map((x) => <li>{x}</li>)}</ul>
+        </div>
+        <div class="split-col me-col reveal">
+          <p class="split-label mono"><Icon name="shield-check" size={14} />{t(lang, 'service.meLabel')}</p>
+          <ul>{d.ai.mePart.map((x) => <li>{x}</li>)}</ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quem sou -->
+    <section class="section wrap" aria-labelledby="dp-who">
+      <div class="who card">
+        <div class="who-photo">
+          <Picture
+            src={photo}
+            alt={t(lang, 'about.photoAlt')}
+            formats={['avif', 'webp']}
+            fallbackFormat="jpg"
+            width={320}
+            height={320}
+            widths={[160, 240, 320]}
+            sizes="10rem"
+          />
+        </div>
+        <div>
+          <p class="kicker"><Icon name="user" size={15} />{t(lang, 'service.whoKicker')}</p>
+          <h2 id="dp-who">{d.who.title}</h2>
+          <p class="who-text">{d.who.text}</p>
+          <a class="btn btn-ghost" href={pathFor(lang, 'about')}>
+            {t(lang, 'service.whoLink')}
+            <Icon name="arrow-right" size={16} class="icon-move" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Condições -->
+    <section class="section wrap" aria-labelledby="dp-conditions">
+      <SectionHeading id="dp-conditions" kicker={t(lang, 'service.conditionsKicker')} icon="handshake" sub={d.conditions.intro}>
+        {d.conditions.title}
+      </SectionHeading>
+      <div class="deal card">
+        <div class="deal-price">
+          <div class="price-row">
+            <Rover pose="point" mood="excited" size="7rem" class="price-rover" />
+            <p class="price">
+              <span class="price-v">{price}</span>
+              <span class="price-u">{perMonth}</span>
+            </p>
+          </div>
+          <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-condicoes" />
+        </div>
+        <div class="deal-points">
+          <ul>
+            {
+              d.conditions.points.map((p) => (
+                <li>
+                  <Icon name="circle-check" size={18} />
+                  <span>{p}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="compare">
+        <h3 class="compare-title">{d.conditions.compare.title}</h3>
+        <ul class="compare-list">
+          <li class="compare-item is-me">
+            <p class="compare-label mono"><Icon name="rocket" size={14} />{d.conditions.compare.me.label}</p>
+            <p class="compare-price">{price}</p>
+            <p class="compare-unit">{perMonth}</p>
+            <p class="compare-text">{d.conditions.compare.me.text}</p>
+          </li>
+          {
+            d.conditions.compare.others.map((o) => (
+              <li class="compare-item">
+                <p class="compare-label mono">{o.label}</p>
+                <p class="compare-price">{o.price}</p>
+                <p class="compare-unit">{o.unit}</p>
+                <p class="compare-text">
+                  {o.text}
+                  <sup class="compare-ref mono">
+                    <a href={`#dp-src-${o.source + 1}`} aria-label={`${t(lang, 'service.sourceLabel')} ${o.source + 1}`}>
+                      [{o.source + 1}]
+                    </a>
+                  </sup>
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="compare-note">{d.conditions.compare.note}</p>
+        <ol class="compare-sources">
+          {
+            d.conditions.compare.sources.map((src, i) => (
+              <li id={`dp-src-${i + 1}`}>
+                <ExternalLink href={src.url} lang={lang}>
+                  {src.label}
+                </ExternalLink>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section wrap" aria-labelledby="dp-faq">
+      <SectionHeading id="dp-faq" kicker={t(lang, 'service.faqKicker')} icon="message">
+        {d.faq.title}
+        <div slot="action" class="rv-spot rv-narrow"><Rover pose="think" mood="thinking" size="100%" /></div>
+      </SectionHeading>
+      <div class="faq-wrap">
+      <div class="faq">
+        {
+          d.faq.items.map((f) => (
+            <details class="faq-item">
+              <summary>
+                <span>{f.q}</span>
+                <Icon name="arrow-right" size={16} class="faq-arrow" />
+              </summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+      <div class="faq-rover"><Rover pose="think" mood="thinking" size="100%" /></div>
+      </div>
+    </section>
+
+    <!-- Fechamento -->
+    <section class="section wrap" aria-labelledby="dp-closing">
+      <div class="closing">
+        <Rover pose="flag" mood="excited" size="9rem" />
+        <h2 id="dp-closing">{d.closing.title}</h2>
+        <p>{d.closing.text}</p>
+        <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-final" />
+      </div>
+    </section>
+
+    <!-- Phones: the CTA stays at hand -->
+    <div class="sticky-cta">
+      <p>{t(lang, 'service.sticky')}</p>
+      <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-barra" />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .landing {
+    padding-bottom: clamp(1rem, 4vw, 2rem);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+    padding-top: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+
+  .kick {
+    white-space: normal;
+  }
+
+  .hero h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.3rem, 1.4rem + 3.6vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .lead {
+    margin-top: 1rem;
+    max-width: 38rem;
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.3rem);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .ctas {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+    padding: 0;
+  }
+
+  .cta-note {
+    margin-top: 0.75rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  /* ---------- Hero orbit (3D): a tilted ring turning around a small Mars ----------
+     The ring lies on a plane tilted back (rotateX). Each tag sits on the ring and is turned
+     back to face the viewer ("billboard"), so it stays upright and readable while the ring
+     turns; tags on the far side pass behind the planet. Without motion it is a still picture. */
+  /* tags at the sides of the ring may reach into the page gutter, never past the screen */
+  .orbit-box {
+    display: grid;
+    justify-items: center;
+    overflow: clip;
+    overflow-clip-margin: var(--gutter);
+  }
+
+  .orbit {
+    --w: min(30rem, 100%);
+    --tilt: 66deg;
+    --spin: 48s;
+    --r: 38cqw;
+    --planet: 38cqw;
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 1 / 0.92;
+    perspective: 900px;
+    container-type: inline-size;
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 8% 14%, var(--text) 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 30% 6%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1.6px 1.6px at 78% 10%, var(--text) 50%, transparent 51%),
+      radial-gradient(1px 1px at 92% 34%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1.3px 1.3px at 4% 62%, var(--text) 50%, transparent 51%),
+      radial-gradient(1px 1px at 96% 78%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 18% 92%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 96%, var(--text) 50%, transparent 51%),
+      radial-gradient(60% 50% at 50% 55%, color-mix(in srgb, var(--brand-hi) 30%, transparent), transparent 70%);
+    animation: twinkle 5s ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  /* phones: a smaller ring so the tags at its sides stay on screen */
+  @media (max-width: 32.99rem) {
+    .orbit {
+      --r: 40cqw;
+      --planet: 36cqw;
+      aspect-ratio: 1 / 0.82;
+    }
+  }
+
+  /* phones, and anyone who turned motion off (a still ring would hide the tags behind the planet) */
+  @media (max-width: 32.99rem), (prefers-reduced-motion: reduce) {
+    /* six tags don't fit around a ring this small: they sit in a row under it */
+    .spinner-tags {
+      display: none;
+    }
+
+    .orbit-box .tags-flat {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0;
+      margin-top: 0.5rem;
+    }
+
+    .tags-flat .tag {
+      position: static;
+      translate: none;
+      font-size: 0.72rem;
+    }
+  }
+
+  .tags-flat {
+    display: none;
+  }
+
+  /* the planet's glow lives outside the 3D layer (a shadow inside it gets clipped) */
+  .halo {
+    position: absolute;
+    left: 50%;
+    top: 47%;
+    width: 60cqw;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--accent-2) 45%, transparent), transparent);
+  }
+
+  .plane {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    width: calc(var(--r) * 2);
+    aspect-ratio: 1;
+    margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1);
+    transform-style: preserve-3d;
+    transform: rotateX(var(--tilt));
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .ring-outer {
+    inset: 0;
+    border: 1.5px solid color-mix(in srgb, var(--hl) 30%, transparent);
+  }
+
+  .ring-inner {
+    inset: 17%;
+    border: 1.5px dashed color-mix(in srgb, var(--accent-2) 50%, transparent);
+  }
+
+  /* a comet of light running along the outer ring */
+  .trail {
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 62%, color-mix(in srgb, var(--accent-2) 80%, transparent) 96%, var(--hl) 100%);
+    mask: radial-gradient(closest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    animation: spin-z 9s linear infinite;
+  }
+
+  .spinner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    animation: spin-z var(--spin) linear infinite;
+  }
+
+  .spinner-sat {
+    inset: 17%;
+    animation-duration: 22s;
+    animation-direction: reverse;
+  }
+
+  /* each slot: from the centre, turned to its angle, pushed out to the ring */
+  .slot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    transform: rotateZ(var(--a)) translateX(var(--r));
+  }
+
+  .slot-sat {
+    transform: rotateZ(var(--a)) translateX(calc(var(--r) * 0.66));
+  }
+
+  /* undo the slot angle, the spinner angle and the tilt: the tag faces the viewer */
+  .face {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    transform-style: preserve-3d;
+    transform: rotateZ(calc(var(--a) * -1)) rotateX(calc(var(--tilt) * -1));
+    animation: face var(--spin) linear infinite;
+  }
+
+  .spinner-sat .face {
+    animation: face-rev 22s linear infinite;
+  }
+
+  .tag,
+  .sat {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    translate: -50% 0;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+    box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--bg) 90%, transparent);
+    font: 500 clamp(0.6rem, 2.45cqw, 0.76rem) / 1.2 var(--font-mono);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .tag :global(.icon) {
+    color: var(--accent);
+  }
+
+  .sat {
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    border: 1px solid var(--hl);
+    background: var(--surface-2);
+    color: var(--hl);
+  }
+
+  @keyframes spin-z {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes face {
+    from {
+      transform: rotateZ(calc(var(--a) * -1)) rotateX(calc(var(--tilt) * -1));
+    }
+    to {
+      transform: rotateZ(calc(var(--a) * -1 - 360deg)) rotateX(calc(var(--tilt) * -1));
+    }
+  }
+
+  @keyframes face-rev {
+    from {
+      transform: rotateZ(calc(var(--a) * -1)) rotateX(calc(var(--tilt) * -1));
+    }
+    to {
+      transform: rotateZ(calc(var(--a) * -1 + 360deg)) rotateX(calc(var(--tilt) * -1));
+    }
+  }
+
+  /* the planet stands up at the centre of the ring, facing the viewer */
+  .stand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(calc(var(--tilt) * -1));
+  }
+
+  .planet {
+    position: absolute;
+    left: calc(var(--planet) / -2);
+    top: calc(var(--planet) * -0.79);
+    width: var(--planet);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--hl) 80%, transparent) 0 5%, transparent 6%),
+      radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--brand) 60%, transparent) 0 7%, transparent 8%),
+      radial-gradient(circle at 26% 68%, color-mix(in srgb, var(--brand) 55%, transparent) 0 6%, transparent 7%),
+      radial-gradient(circle at 74% 74%, color-mix(in srgb, var(--brand) 50%, transparent) 0 4%, transparent 5%),
+      radial-gradient(circle at 35% 30%, var(--accent), var(--accent-2) 32%, var(--brand-hi) 60%, var(--brand) 88%);
+    box-shadow: inset -16px -14px 34px color-mix(in srgb, var(--bg) 72%, transparent);
+  }
+
+  .planet-rover {
+    position: absolute;
+    left: calc(var(--planet) * -0.33);
+    top: calc(var(--planet) * -1.36);
+    width: calc(var(--planet) * 0.66);
+  }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .tile {
+    gap: 0.6rem;
+    padding: 1.2rem 1.25rem 1.35rem;
+  }
+
+  .tile-icon,
+  .does-icon,
+  .step-icon {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: var(--text);
+  }
+
+  .tile h3,
+  .does-item h3,
+  .step h3 {
+    font-size: 1.12rem;
+    line-height: 1.3;
+  }
+
+  .tile p,
+  .does-item p,
+  .step p {
+    color: var(--muted);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+
+  /* ---------- What I do ---------- */
+  .does {
+    list-style: none;
+    display: grid;
+    gap: 1.25rem 2rem;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  }
+
+  .does-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px dashed var(--border-hi);
+  }
+
+  .does-item p {
+    margin-top: 0.3rem;
+  }
+
+  .does-icon {
+    flex: none;
+    background: var(--surface-2);
+    border: 1px solid var(--border-hi);
+    color: var(--accent);
+  }
+
+  /* ---------- Steps ---------- */
+  .steps {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    counter-reset: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* 2 + 2 + 1: the last step takes the whole row */
+    .step:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .steps {
+      grid-template-columns: repeat(var(--steps, 5), minmax(0, 1fr));
+    }
+
+    .step:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
+
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.1rem 1.15rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .step-n {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .step-icon {
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--hl) 45%, transparent);
+    color: var(--hl);
+  }
+
+  .loop {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px dashed color-mix(in srgb, var(--hl) 50%, transparent);
+    border-radius: var(--r-sm);
+    font-size: var(--fs-meta);
+    color: var(--text);
+  }
+
+  .loop :global(.icon) {
+    color: var(--hl);
+  }
+
+  /* ---------- AI vs me ---------- */
+  .split {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  .split-col {
+    padding: 1.2rem 1.3rem 1.3rem;
+    border-radius: var(--r-lg);
+  }
+
+  .ai-col {
+    border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+
+  .me-col {
+    border: 1px solid color-mix(in srgb, var(--hl) 40%, transparent);
+    background: color-mix(in srgb, var(--hl) 5%, transparent);
+  }
+
+  .split-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.8rem;
+    font-size: var(--fs-meta);
+    font-weight: 600;
+  }
+
+  .ai-col .split-label {
+    color: var(--accent);
+  }
+
+  .me-col .split-label {
+    color: var(--hl);
+  }
+
+  .split-col ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .split-col li {
+    line-height: 1.5;
+  }
+
+  /* ---------- Who ---------- */
+  .who {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .who:hover,
+  .who:focus-within {
+    transform: none;
+  }
+
+  @media (min-width: 40rem) {
+    .who {
+      grid-template-columns: 10rem minmax(0, 1fr);
+    }
+  }
+
+  .who-photo :global(img) {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 5px color-mix(in srgb, var(--hl) 60%, transparent);
+  }
+
+  .who h2 {
+    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem);
+  }
+
+  .who-text {
+    margin: 0.75rem 0 1rem;
+    max-width: 44rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Conditions ---------- */
+  .deal {
+    display: grid;
+    gap: 1.75rem;
+    padding: clamp(1.25rem, 3.5vw, 2.25rem);
+    border-color: var(--border-hi);
+    background:
+      radial-gradient(30rem 16rem at 0% 0%, color-mix(in srgb, var(--brand) 30%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deal:hover,
+  .deal:focus-within {
+    transform: none;
+  }
+
+  @media (min-width: 52rem) {
+    .deal {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: center;
+    }
+  }
+
+  .deal-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .price-v {
+    font: 800 clamp(2.6rem, 2rem + 2.6vw, 3.8rem) / 1 var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .price-u {
+    font-size: 1.05rem;
+    color: var(--muted);
+  }
+
+  .deal-points ul {
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+    padding: 0;
+  }
+
+  .deal-points li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  .deal-points li :global(.icon) {
+    margin-top: 0.15rem;
+    color: var(--hl);
+  }
+
+  .price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .price-row :global(.price-rover) {
+    flex: none;
+    margin-bottom: -0.35rem;
+  }
+
+  /* market comparison: Dev parceiro first, then public reference prices with numbered sources */
+  .compare {
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+
+  .compare-title {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.65rem);
+    margin-bottom: 1rem;
+  }
+
+  .compare-list {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .compare-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.15rem 1.2rem 1.3rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: var(--surface);
+  }
+
+  .compare-item.is-me {
+    border-color: var(--border-hi);
+    background:
+      radial-gradient(18rem 10rem at 0% 0%, color-mix(in srgb, var(--brand) 40%, transparent), transparent 75%),
+      var(--surface-2);
+  }
+
+  .compare-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .is-me .compare-label {
+    color: var(--hl);
+  }
+
+  .compare-price {
+    margin-top: 0.6rem;
+    font: 750 clamp(1.45rem, 1.2rem + 1vw, 1.85rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .compare-unit {
+    margin-top: 0.2rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .compare-text {
+    margin-top: 0.8rem;
+    line-height: 1.55;
+    color: var(--prose);
+  }
+
+  .compare-ref {
+    margin-left: 0.15rem;
+    font-size: 0.75em;
+  }
+
+  /* the reference stays small in the text but gets a full tap target */
+  .compare-ref a {
+    display: inline-block;
+    min-width: var(--tap);
+    min-height: var(--tap);
+    margin: -1rem -0.6rem;
+    padding: 1rem 0.6rem;
+    text-align: center;
+  }
+
+  .compare-note {
+    margin-top: 1rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .compare-sources {
+    margin-top: 0.5rem;
+    padding-left: 1.4rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .compare-sources li {
+    padding-block: 0.25rem;
+    scroll-margin-top: 6rem;
+  }
+
+  /* inline, so the list number stays on the first line; the padding still widens the tap area */
+  .compare-sources a {
+    padding-block: 0.75rem;
+    color: var(--accent);
+  }
+
+  /* ---------- Mascot ---------- */
+  .rv-spot {
+    flex: none;
+    width: clamp(5rem, 3rem + 6vw, 9.5rem);
+    margin-left: auto;
+  }
+
+  /* wide screens: the rover stays beside the heading instead of dropping under a long subtitle */
+  @media (min-width: 48rem) {
+    .landing :global(.section-head:has(.rv-spot)) {
+      flex-wrap: nowrap;
+    }
+  }
+
+  .loop-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.25rem 1rem;
+  }
+
+  .loop-row :global(.loop-rover) {
+    margin-bottom: -0.5rem;
+  }
+
+  .faq-rover {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .faq-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 52rem) 1fr;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .faq-rover {
+      display: block;
+      width: min(15rem, 100%);
+      justify-self: center;
+    }
+
+    .rv-narrow {
+      display: none;
+    }
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 52rem;
+  }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .faq-item[open] {
+    border-color: var(--border-hi);
+  }
+
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: var(--tap);
+    padding: 0.85rem 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary :global(.faq-arrow) {
+    color: var(--accent);
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .faq-item[open] summary :global(.faq-arrow) {
+    transform: rotate(90deg);
+  }
+
+  .faq-item p {
+    padding: 0 1.1rem 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Closing ---------- */
+  .closing {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    padding: clamp(2rem, 6vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(28rem 14rem at 50% 0%, color-mix(in srgb, var(--brand) 45%, transparent), transparent 75%),
+      var(--surface);
+    text-align: center;
+  }
+
+  .closing h2 {
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+    text-wrap: balance;
+  }
+
+  .closing p {
+    max-width: 36rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Sticky CTA (phones only) ---------- */
+  .sticky-cta {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: calc(100% - 2 * var(--gutter));
+    margin: 2rem auto 0;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--bg) 90%, transparent);
+  }
+
+  .sticky-cta p {
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+
+  /* where scroll timelines exist, the bar shows up once the hero CTA has scrolled away */
+  /* the timeline lives in a separate, more specific rule: the build minifier folds longhands
+     of the same rule into an `animation` shorthand with the timeline inside, which Chromium drops */
+  @supports (animation-timeline: scroll()) {
+    .sticky-cta {
+      animation: sticky-in linear both;
+    }
+
+    .landing .sticky-cta {
+      animation-timeline: scroll(root);
+      animation-range: 520px 680px;
+    }
+
+    @keyframes sticky-in {
+      from {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(1rem);
+      }
+      to {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+    }
+  }
+
+  .sticky-cta :global(.btn) {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 47.99rem) {
+    :global(html:has(.sticky-cta)) {
+      scroll-padding-bottom: 5.5rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+
+  @media (max-width: 26rem) {
+    .sticky-cta p {
+      display: none;
+    }
+
+    .sticky-cta {
+      justify-content: center;
+    }
+  }
+</style>

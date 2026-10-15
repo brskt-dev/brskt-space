@@ -5,8 +5,8 @@ https://brskt-dev.github.io/brskt-space/ by `.github/workflows/deploy.yml` on pu
 README.md (Portuguese) is the owner's manual; keep it accurate when structure or commands change.
 
 ## Structure
-- `src/content/publications/<slug>/{pt,en}.md`: publications (type product | experiment | article). Folder name = slug = URL.
-- `src/content/pages/{home,about}/{pt,en}.md`: home and about copy. `src/data/profile.ts`: CV facts as `{ pt, en }`.
+- `src/content/publications/<slug>/{pt,en}.md`: publications (type product | experiment | article | service). Folder name = slug = URL. A `service` (status `available` | `paused`) is listed under Projects; its `landing:` field names the PageKey of its landing, and its page shows the WhatsApp + "see the full proposal" CTAs.
+- `src/content/pages/{home,about}/{pt,en}.md`: home and about copy. `src/content/pages/dev-partner/{pt,en}.md`: all the copy of the Dev parceiro landing (`/pt/servicos/dev-parceiro/`, `/en/services/dev-partner/`, `DevPartnerView.astro`); the price is a number in `offer` and appears **only in the "Quanto custa" section** (price box + first comparison card): never in the hero, home banner, Projects entry, share images, JSON-LD or other copy. The contract term (6 months) is **never shown anywhere** on the site: the owner tells it over WhatsApp. `conditions.compare` holds the market comparison (third-party reference prices, each with a cited source in `sources`; don't change a figure without its source). The service mascot is a Mars rover, `src/components/mascot/Rover.astro` (inline SVG, `pose` + `mood` props, token colours, decorative, CSS motion), used across the landing, the home banner and the share images. `status: paused` on the publication hides the home banner. The Dev parceiro is featured: a Mars-coloured banner on the home (under the hero, `HomeView.astro`), its own pill in the header (`SiteHeader.astro`, next to the language switch so it fits on phones), and the Mars palette on its landing, Projects page and card. Commercial facts there are only the ones the owner confirmed: R$ 3.000/month, 6-month contract (not public), one fee for everything, priorities agreed with the client, estimates per demand, remote, companies in Brazil, code and access belong to the client, tool costs paid by the client, few clients at a time (no number), renewal possible (not public either, it depends on the term). `src/data/profile.ts`: CV facts as `{ pt, en }`.
 - Frontmatter strings (title/summary/headline/tagline/availability/story) are not smart-quoted: type ’ directly instead of '.
 - `src/i18n/ui.ts`: UI strings, route segments, URL helpers. `src/lib/url.ts`: base-aware URL building.
 - Routing: every /pt and /en page comes from `src/pages/[lang]/[...path].astro`, which takes its paths from `getSiteRoutes()` in `src/lib/routes.ts`. The same table feeds `sitemap.xml`. Page bodies live in `src/components/views/*View.astro`. To add a page: add a `PageKey` + `segments` entry in `src/i18n/ui.ts`, a `RouteView` variant + `routes.push` in `getSiteRoutes()`, a view component, and a branch in `[...path].astro`. The nav item in `SiteHeader.astro` is optional. Never create files under `src/pages/pt/` or `src/pages/en/`: they build and pass `npm run verify`, but they are missing from sitemap.xml and the nav.
@@ -15,6 +15,7 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 - `demos/<name>/`: demo code for articles (e.g. `demos/agent-ready-api`, .NET 10), outside the site build; each has its own README and tests (`dotnet test`). Synthetic data only.
 - Articles: reading time is computed from the body (`src/lib/reading-time.ts`), never a frontmatter field.
 - Diagrams are real components, never ASCII art: write the publication as `.mdx` and import from `src/components/diagrams/` (`DiagramFrame` = screenshot-ready card with status chip; `DNode` = node, `proposed` = dashed; `Wire` = animated connector). Article-specific diagrams live there too and take a `lang` prop with both languages inside. Code blocks get a terminal frame from `global.css`.
+- `BaseLayout` takes optional `ogImage` (page share image, 1200×630; default is the profile photo) and `jsonLd` (schema.org data, rendered as `application/ld+json`, no script runs). The Dev parceiro landing uses both (`src/assets/og/dev-partner-{pt,en}.jpg`, a `Service` with its `Offer`).
 - `scripts/verify-dist.mjs`: post-build checks on `dist/` (links, base path, head tags, hreflang, placeholder text).
 
 ## Commands
@@ -25,14 +26,14 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 ## Rules
 - **Bilingual, always.** Every page and publication exists in both languages with the same facts and tone
   (natural English, not literal). A publication ships only when both files exist; `type`, `date`, `updated`,
-  `status` and `draft` must match. The language switch links to the equivalent page, never to home.
+  `status`, `draft`, `landing` and `planet` must match. The language switch links to the equivalent page, never to home.
   Sections with no content (e.g. Articles today) have no route and no nav link. On the home (and section
   pages) empty slots are filled with `SkeletonCard` placeholders, which the owner asked for: they carry no
   invented title or text, are `aria-hidden`, and the section says in words that more is coming.
 - **No invented facts.** Only facts the owner provided (CV, profile.ts, existing copy). No invented metrics,
   results, clients, stack, testimonials or links; no placeholder links. No seniority labels, emoji, hype,
   or cliches ("apaixonado por tecnologia", "soluções inovadoras", "entregar valor"). First person, short
-  sentences. Phone/WhatsApp only on the About page, never in the footer. Conta Comigo: content comes from the owner's
+  sentences. Phone/WhatsApp only on the About page and the Dev parceiro pages (landing + its Projects entry, via `WhatsAppLink.astro`, which counts each CTA as a `whatsapp-<place>-<lang>` GoatCounter event), never in the footer; `verify-dist.mjs` enforces the list. Conta Comigo: content comes from the owner's
   demo overview and the demo's own landing page; screenshots in its `media/` folder are the product's official
   ones (fictional data).
 - **Base path.** The site lives under `/brskt-space/`. Never hand-write `/pt/...`, `/en/...` or `/favicon.svg`;
@@ -43,7 +44,10 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
   generated covers via `Cover.astro`; CSS-only motion (hover/press, slow loops, scroll reveal). Every animation
   must be disabled under `prefers-reduced-motion` (handled globally in `global.css`).
 - **Dark only.** No light mode or toggle. Use the CSS tokens in `src/styles/global.css` (`--bg`, `--surface`,
-  `--text`, `--muted`, `--accent`, ...); no new hard-coded colors. `--brand` (#4900C7) is decorative only, never
+  `--text`, `--muted`, `--accent`, `--hl`, `--on-brand`, `--btn-primary-bg`, ...); no new hard-coded colors. Planet themes
+  (`.planet-mars` in global.css: the owner's choice for the Dev parceiro) swap those tokens for one product: set it with
+  BaseLayout's `planet` prop (whole page), the publication's `planet:` frontmatter (page + card) or the class on an
+  element. New colours belong in a theme block with their contrast noted, never inline. `--brand` (#4900C7) is decorative only, never
   text on dark (1.97:1). Text must keep WCAG AA contrast; links/focus use `--accent`.
 - **Accessibility.** One `h1` per page, semantic landmarks, visible `:focus-visible`, alt text, tap targets
   >= 44px, no horizontal scroll at 360px, external links open in a new tab (`target="_blank" rel="noopener noreferrer"`, via `ExternalLink.astro` or the Markdown plugin).

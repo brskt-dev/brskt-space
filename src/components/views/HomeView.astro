@@ -1,6 +1,7 @@
 ---
 /**
- * Home: hero (photo in orbit, terminal greeting, intro, availability, CTAs) →
+ * Home: hero (photo in orbit, terminal greeting, intro, availability, CTAs) → featured service
+ * (Dev parceiro, Mars banner) →
  * Projects (a row of 4: real projects + skeleton slots) → Articles (a 4×2 grid:
  * real articles + skeleton slots, "View all" enabled once one exists) →
  * onboard gear (stack marquee). Copy comes from src/content/pages/home/<lang>.md.
@@ -11,11 +12,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeading from '../SectionHeading.astro';
 import PublicationCard from '../PublicationCard.astro';
 import SkeletonCard from '../SkeletonCard.astro';
+import Rover from '../mascot/Rover.astro';
 import Icon from '../ui/Icon.astro';
 import ExternalLink from '../ExternalLink.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import { profile } from '../../data/profile';
-import { pathFor, t, type Lang } from '../../i18n/ui';
+import { pathFor, statusLabel, t, typeLabel, type Lang } from '../../i18n/ui';
 import { getSection } from '../../lib/publications';
 
 interface Props {
@@ -36,6 +38,10 @@ const shownProjects = projects.slice(0, PROJECT_SLOTS);
 const shownArticles = articles.slice(0, ARTICLE_SLOTS);
 const projectSkeletons = Math.max(0, PROJECT_SLOTS - shownProjects.length);
 const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
+// Featured service (Dev parceiro): a Mars-coloured banner under the hero, only while its
+// Projects entry says it is available. Summary from the entry; no price here (only on the landing).
+const service = projects.find((p) => p.type === 'service' && p.status === 'available' && p.entries[lang].data.landing);
+const serviceData = service?.entries[lang].data;
 ---
 
 <BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
@@ -106,6 +112,40 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
     </div>
   </section>
 
+  {
+    service && serviceData?.landing && (
+      <section class="featured wrap" aria-labelledby="featured-title">
+        <div class="featured-card planet-mars reveal">
+          <div class="featured-text">
+            <p class="featured-badges">
+              <span class="chip chip-accent">
+                <Icon name="briefcase" size={13} />
+                {typeLabel(lang, 'service')}
+              </span>
+              <span class="chip chip-mint">
+                <span class="sr-only">{t(lang, 'meta.status')}: </span>
+                <span class="pulse" aria-hidden="true" />
+                {statusLabel(lang, 'available')}
+              </span>
+            </p>
+            <h2 id="featured-title">{serviceData.title}</h2>
+            <p class="featured-lead">{serviceData.summary}</p>
+            <a class="btn btn-primary" href={pathFor(lang, serviceData.landing)}>
+              <Icon name="rocket" />
+              {t(lang, 'service.homeCta')}
+              <Icon name="arrow-right" size={16} class="icon-move" />
+            </a>
+          </div>
+          <div class="featured-visual" aria-hidden="true">
+            <span class="m-orbit m-o1"><span class="moon m1"></span></span>
+            <span class="m-orbit m-o2"><span class="moon m2"></span></span>
+            <span class="mars"><span class="mars-rover"><Rover pose="wave" mood="happy" size="100%" /></span></span>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <section class="section" aria-labelledby="projects-title">
     <div class="wrap">
       <SectionHeading id="projects-title" kicker={t(lang, 'home.projectsKicker')} icon="rocket" sub={t(lang, 'home.projectsSub')}>
@@ -169,8 +209,172 @@ const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
 </BaseLayout>
 
 <style>
+  /* ---------- Featured service (Dev parceiro, Mars palette via .planet-mars) ---------- */
+  .featured {
+    padding-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .featured-card {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    overflow: hidden;
+    padding: clamp(1.4rem, 4vw, 2.5rem);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(34rem 20rem at 100% 0%, color-mix(in srgb, var(--brand-hi) 30%, transparent), transparent 70%),
+      radial-gradient(26rem 16rem at 0% 100%, color-mix(in srgb, var(--brand) 35%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
+    box-shadow: var(--glow);
+    color: var(--text);
+  }
+
+  @media (min-width: 48rem) {
+    .featured-card {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    }
+  }
+
+  .featured-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .featured-card h2 {
+    margin-top: 0.8rem;
+    font-size: clamp(2.2rem, 1.6rem + 2.6vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .featured-lead {
+    margin-top: 0.6rem;
+    max-width: 36rem;
+    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .featured-text .btn {
+    display: flex;
+    width: fit-content;
+    margin-top: 1.4rem;
+  }
+
+  /* Mars with its two moons */
+  .featured-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 13rem;
+  }
+
+  /* room above the planet for the rover */
+  @media (min-width: 48rem) {
+    .featured-visual {
+      padding-top: 4.5rem;
+    }
+  }
+
+  .mars {
+    position: relative;
+    width: clamp(8.5rem, 20vw, 13rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--hl) 85%, transparent) 0 6%, transparent 7%),
+      radial-gradient(circle at 62% 58%, color-mix(in srgb, var(--brand) 70%, transparent) 0 9%, transparent 10%),
+      radial-gradient(circle at 40% 70%, color-mix(in srgb, var(--brand) 55%, transparent) 0 6%, transparent 7%),
+      radial-gradient(circle at 72% 34%, color-mix(in srgb, var(--brand) 45%, transparent) 0 5%, transparent 6%),
+      radial-gradient(circle at 35% 30%, var(--accent), var(--accent-2) 35%, var(--brand-hi) 62%, var(--brand) 90%);
+    box-shadow:
+      inset -22px -16px 40px color-mix(in srgb, var(--bg) 70%, transparent),
+      0 0 70px -6px color-mix(in srgb, var(--accent-2) 55%, transparent);
+  }
+
+  /* the Dev parceiro mascot, standing on top of the planet */
+  .mars-rover {
+    position: absolute;
+    left: 50%;
+    bottom: 80%;
+    width: 62%;
+    transform: translateX(-46%);
+  }
+
+  .m-orbit {
+    position: absolute;
+    border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 50%;
+    animation: m-spin 26s linear infinite;
+  }
+
+  .m-o1 {
+    width: clamp(12rem, 28vw, 18rem);
+    aspect-ratio: 1;
+  }
+
+  .m-o2 {
+    width: clamp(15rem, 34vw, 22rem);
+    aspect-ratio: 1;
+    animation-duration: 44s;
+    animation-direction: reverse;
+  }
+
+  .moon {
+    position: absolute;
+    top: 50%;
+    left: -0.3rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--hl), var(--muted) 70%);
+  }
+
+  .m1 {
+    width: 0.65rem;
+    height: 0.65rem;
+  }
+
+  .m2 {
+    width: 0.45rem;
+    height: 0.45rem;
+  }
+
+  @keyframes m-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .mars-rover {
+      display: none;
+    }
+
+    .featured-visual {
+      position: absolute;
+      top: -2.5rem;
+      right: -3rem;
+      min-height: 0;
+      opacity: 0.55;
+    }
+
+    .featured-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* the planet sits behind the badges here: give them a solid backing (AA contrast) */
+    .featured-badges .chip {
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+  }
+
   /* ---------- Hero ---------- */
   .hero {
+    /* the outer orbit of the photo may run past the screen edge (1024-1150px): clip it, no sideways scroll */
+    overflow-x: clip;
     display: grid;
     gap: 2.5rem;
     align-items: center;

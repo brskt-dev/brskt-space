@@ -74,7 +74,7 @@ const extHint = bilingual
     border: 1px solid var(--border-hi);
     border-radius: var(--r-lg);
     background:
-      radial-gradient(40rem 20rem at 100% 0%, rgb(73 0 199 / 0.45), transparent 70%),
+      radial-gradient(40rem 20rem at 100% 0%, color-mix(in srgb, var(--brand) 45%, transparent), transparent 70%),
       linear-gradient(180deg, var(--surface-2), var(--surface));
   }
 
@@ -115,7 +115,7 @@ const extHint = bilingual
 
   .ring {
     position: absolute;
-    border: 1px dashed rgb(179 157 255 / 0.3);
+    border: 1px dashed color-mix(in srgb, var(--accent) 30%, transparent);
     border-radius: 50%;
   }
 
@@ -125,13 +125,13 @@ const extHint = bilingual
 
   .r2 {
     inset: 50px;
-    border-color: rgb(94 234 212 / 0.25);
+    border-color: color-mix(in srgb, var(--hl) 25%, transparent);
   }
 
   .sat {
     position: absolute;
     inset: 0;
-    color: var(--mint);
+    color: var(--hl);
     animation: orbit 14s linear infinite;
   }
 

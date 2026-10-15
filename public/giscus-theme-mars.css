@@ -1,0 +1,73 @@
+/* Mars theme for the giscus iframe on planet-mars pages (Dev parceiro): giscus-theme.css with the
+   .planet-mars palette of src/styles/global.css (keep both in sync). */
+main {
+  --color-prettylights-syntax-comment: #c7ada0;
+  --color-prettylights-syntax-constant: #fdba74;
+  --color-prettylights-syntax-entity: #fed7aa;
+  --color-prettylights-syntax-storage-modifier-import: #f6ece6;
+  --color-prettylights-syntax-entity-tag: #fed7aa;
+  --color-prettylights-syntax-keyword: #fb923c;
+  --color-prettylights-syntax-string: #fed7aa;
+  --color-prettylights-syntax-variable: #fde68a;
+  --color-prettylights-syntax-markup-heading: #fdba74;
+  --color-btn-text: #f6ece6;
+  --color-btn-bg: #281710;
+  --color-btn-border: #6e3a22;
+  --color-btn-shadow: 0 0 transparent;
+  --color-btn-inset-shadow: 0 0 transparent;
+  --color-btn-hover-bg: #3d2318;
+  --color-btn-hover-border: #fb923c;
+  --color-btn-active-bg: #3d2318;
+  --color-btn-active-border: #fb923c;
+  --color-btn-selected-bg: #3d2318;
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #9a3412;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-shadow: 0 0 transparent;
+  --color-btn-primary-inset-shadow: 0 0 transparent;
+  --color-btn-primary-hover-bg: #c2410c;
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: #9a3412;
+  --color-btn-primary-selected-shadow: 0 0 transparent;
+  --color-btn-primary-disabled-text: rgb(255 255 255 / 0.6);
+  --color-btn-primary-disabled-bg: rgb(154 52 18 / 0.5);
+  --color-btn-primary-disabled-border: transparent;
+  --color-action-list-item-default-hover-bg: rgb(253 186 116 / 0.12);
+  --color-segmented-control-bg: #1d110c;
+  --color-segmented-control-button-bg: #281710;
+  --color-segmented-control-button-selected-border: #6e3a22;
+  --color-fg-default: #f6ece6;
+  --color-fg-muted: #c7ada0;
+  --color-fg-subtle: #c7ada0;
+  --color-canvas-default: #1d110c;
+  --color-canvas-overlay: #281710;
+  --color-canvas-inset: #150b07;
+  --color-canvas-subtle: #281710;
+  --color-border-default: #3d2318;
+  --color-border-muted: #3d2318;
+  --color-neutral-muted: rgb(253 186 116 / 0.18);
+  --color-accent-fg: #fdba74;
+  --color-accent-emphasis: #c2410c;
+  --color-accent-muted: rgb(253 186 116 / 0.4);
+  --color-accent-subtle: rgb(194 65 12 / 0.18);
+  --color-success-fg: #fed7aa;
+  --color-attention-fg: #fde68a;
+  --color-attention-muted: rgb(253 230 138 / 0.4);
+  --color-attention-subtle: rgb(253 230 138 / 0.15);
+  --color-danger-fg: #fda4af;
+  --color-danger-muted: rgb(253 164 175 / 0.4);
+  --color-danger-subtle: rgb(253 164 175 / 0.1);
+  --color-primer-shadow-inset: 0 0 transparent;
+  --color-scale-gray-7: #3d2318;
+  --color-scale-blue-8: #9a3412;
+  --color-social-reaction-bg-hover: #3d2318;
+  --color-social-reaction-bg-reacted-hover: #6e3a22;
+}
+
+main .pagination-loader-container {
+  background-image: none;
+}
+
+main .gsc-loading-image {
+  background-image: none;
+}
