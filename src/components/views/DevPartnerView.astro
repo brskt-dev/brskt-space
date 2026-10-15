@@ -87,7 +87,7 @@ const jsonLd = {
         <p class="cta-note">{d.hero.ctaNote}</p>
       </div>
 
-      <!-- Orbit: "your company" is a small Mars with the rover on top; the kinds of work ride a tilted ring around it -->
+      <!-- Orbit: a small Mars with the rover on top; the kinds of work ride a tilted ring around it -->
       <div class="orbit-box" aria-hidden="true">
         <div class="orbit">
           <span class="stars"></span>
@@ -117,9 +117,7 @@ const jsonLd = {
             </div>
             <div class="stand">
               <div class="planet-rover"><Rover pose="wave" mood="happy" size="100%" /></div>
-              <div class="planet">
-                <span class="planet-label"><Icon name="briefcase" size={18} />{t(lang, 'service.orbitCore')}</span>
-              </div>
+              <div class="planet"></div>
             </div>
           </div>
         </div>
@@ -424,7 +422,7 @@ const jsonLd = {
     color: var(--muted);
   }
 
-  /* ---------- Hero orbit (3D): a tilted ring turning around "your company" ----------
+  /* ---------- Hero orbit (3D): a tilted ring turning around a small Mars ----------
      The ring lies on a plane tilted back (rotateX). Each tag sits on the ring and is turned
      back to face the viewer ("billboard"), so it stays upright and readable while the ring
      turns; tags on the far side pass behind the planet. Without motion it is a still picture. */
@@ -687,22 +685,6 @@ const jsonLd = {
       radial-gradient(circle at 74% 74%, color-mix(in srgb, var(--brand) 50%, transparent) 0 4%, transparent 5%),
       radial-gradient(circle at 35% 30%, var(--accent), var(--accent-2) 32%, var(--brand-hi) 60%, var(--brand) 88%);
     box-shadow: inset -16px -14px 34px color-mix(in srgb, var(--bg) 72%, transparent);
-  }
-
-  /* white on the planet's darker middle, with a shadow for the lighter spots */
-  .planet-label {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-    font: 750 clamp(0.7rem, calc(var(--planet) * 0.087), 1rem) / 1.1 var(--font-display);
-    color: var(--on-brand);
-    text-align: center;
-    text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg);
-  }
-
-  .planet-label :global(.icon) {
-    filter: drop-shadow(0 1px 4px var(--bg));
   }
 
   .planet-rover {

@@ -197,7 +197,6 @@ const strings = {
   'service.name': { pt: 'Dev parceiro', en: 'Dev partner' },
   'service.whatsapp': { pt: 'Conversar pelo WhatsApp', en: 'Chat on WhatsApp' },
   'service.perMonth': { pt: 'por mês', en: 'per month' },
-  'service.orbitCore': { pt: 'sua empresa', en: 'your company' },
   'service.ogAlt': {
     pt: 'Dev parceiro, disponível para contratação: consultoria e desenvolvimento contínuo com Bruno Anhezini.',
     en: 'Dev partner, available for hire: ongoing consulting and development with Bruno Anhezini.',
