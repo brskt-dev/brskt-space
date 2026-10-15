@@ -3,15 +3,23 @@ type: article
 title: "Software raiz versus vibe coding: existe uma terceira via?"
 summary: "O debate oferece duas saídas pra pequenas e médias empresas: um projeto de desenvolvimento grande demais pra necessidade ou resolver tudo sozinho com IA. Eu defendo uma terceira: um especialista que usa IA pra entender, definir e construir as soluções junto com o negócio."
 date: 2026-10-15
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
 tags: ["Vibe coding", "IA", "Pequenas e médias empresas", "Desenvolvimento de software"]
 draft: false
 ---
 
+import FalseChoice from '../../../components/diagrams/FalseChoice.astro';
+import ThirdWay from '../../../components/diagrams/ThirdWay.astro';
+import PracticeLoop from '../../../components/diagrams/PracticeLoop.astro';
+import FasterNotCloser from '../../../components/diagrams/FasterNotCloser.astro';
 import { pathFor } from '../../../i18n/ui';
 
 Quem acompanha o assunto já viu as duas torcidas. Uma mostra aplicativos montados numa tarde com IA e anuncia que pagar desenvolvedor virou coisa do passado. A outra responde com falhas de segurança, código que ninguém consegue manter e a previsão de que, cedo ou tarde, alguém vai ter que jogar tudo fora e começar de novo. As duas falam alto, e cada uma tem um pedaço de razão.
 
 No meio disso está quem mais precisa de uma resposta: o dono ou gestor de uma empresa pequena ou média, com um processo que toma horas da equipe, sistemas que não conversam e uma ideia que está na gaveta há dois anos. Pra essa pessoa, o debate chega como uma escolha entre dois caminhos. Ou contrata um projeto de desenvolvimento que parece grande demais pra necessidade, ou abre uma ferramenta de IA e tenta resolver tudo por conta própria.
+
+<FalseChoice lang="pt" />
 
 Eu acho essa escolha falsa, e acho que ela atrapalha justamente as empresas que mais teriam a ganhar com a IA. Existe uma terceira via, que nem é nova, e pra muita empresa ela faz mais sentido do que qualquer um dos extremos.
 
@@ -35,9 +43,13 @@ Pra uma empresa pequena ou média, discutir se o código vai ser escrito por uma
 
 A terceira via é trabalhar com um especialista que usa IA ativamente pra entender, definir e construir as soluções junto com o negócio. Ele não aparece só no fim, pra revisar código gerado ou consertar o que deu errado. Ele participa desde a definição do problema, escolhe o caminho, conduz a criação e acompanha a evolução da solução. O empreendedor traz o conhecimento do negócio e as prioridades. O especialista traz julgamento técnico e capacidade de execução. E a IA amplia o que esse profissional consegue produzir.
 
+<ThirdWay lang="pt" />
+
 Nada disso é invenção minha, e tem muita gente trabalhando assim. O que eu defendo é que esse arranjo deveria ser a primeira opção que uma PME considera, e não uma alternativa escondida entre dois extremos. A IA barateou justamente a parte que fazia o desenvolvimento parecer grande demais, que é a execução. O que ela não resolve sozinha é a parte que o empreendedor não tem como assumir, que são as decisões técnicas. Juntando os dois, a empresa ganha o ritmo que a IA permite sem precisar apostar o processo em escolhas que ela não sabe avaliar.
 
 ## Como isso funciona na prática
+
+<PracticeLoop lang="pt" />
 
 Começa entendendo a dor antes de gerar qualquer tela. Muita empresa chega pedindo "um sistema" quando o problema real é que duas pessoas digitam a mesma informação em lugares diferentes, ou que um relatório depende de alguém que sabe onde clicar. Gerar telas é rápido; descobrir o que vale a pena gerar é o que economiza tempo de verdade.
 
@@ -52,6 +64,8 @@ E a solução continua evoluindo. A empresa muda de prioridade, o volume cresce,
 ## O especialista também precisa mudar
 
 Esse arranjo cobra uma mudança de quem desenvolve. Não adianta usar IA pra acelerar o código e manter o resto do jeito antigo: escopo inflado, arquitetura maior do que o problema, meses de levantamento antes de mostrar qualquer coisa e distância de quem usa a ferramenta no dia a dia. Se o desenvolvedor só fica mais rápido em produzir o mesmo projeto grande demais, a empresa continua sem ganhar nada.
+
+<FasterNotCloser lang="pt" />
 
 Também significa respeitar o que o empreendedor já fez. Um protótipo montado com IA por quem conhece o processo pode ser a melhor descrição da necessidade que um especialista vai receber, e muitas vezes vale mais do que uma reunião de requisitos. Tratar isso como lixo a ser descartado é desperdiçar justamente o conhecimento que faltava.
 

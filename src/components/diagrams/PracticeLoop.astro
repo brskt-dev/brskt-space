@@ -1,0 +1,317 @@
+---
+/**
+ * Article "software-raiz-vs-vibe-coding": how the third way works in practice.
+ * Five steps per request, with a pulse moving through them and a return to the
+ * next priority. The second step lights up its options in turn (build, integrate,
+ * automate, use something ready): the answer is not always new code.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  pt: {
+    title: 'Da dor à próxima prioridade',
+    caption: 'Ilustração. Um ciclo por demanda: a IA acelera a construção, e o julgamento técnico atravessa todos os passos.',
+    steps: [
+      { title: 'Entender a dor', sub: 'antes de gerar qualquer tela' },
+      { title: 'Decidir o caminho', sub: 'nem sempre é código novo' },
+      { title: 'Construir com IA', sub: 'versão funcionando cedo, ajustada com quem usa' },
+      { title: 'Decidir e validar', sub: 'quem acessa o quê, e se rodar duas vezes' },
+      { title: 'Evoluir', sub: 'a empresa muda e a solução acompanha' },
+    ],
+    options: ['construir', 'integrar', 'automatizar', 'usar pronto'],
+    again: 'próxima prioridade',
+  },
+  en: {
+    title: 'From the pain to the next priority',
+    caption: 'Illustration. One loop per request: AI speeds up the build, and technical judgment runs through every step.',
+    steps: [
+      { title: 'Understand the pain', sub: 'before generating any screen' },
+      { title: 'Choose the path', sub: 'not always new code' },
+      { title: 'Build with AI', sub: 'a working version early, adjusted with users' },
+      { title: 'Decide and validate', sub: 'who accesses what, what if it runs twice' },
+      { title: 'Evolve', sub: 'the company changes and the solution follows' },
+    ],
+    options: ['build', 'integrate', 'automate', 'use ready-made'],
+    again: 'next priority',
+  },
+}[lang];
+const icons: IconName[] = ['telescope', 'split', 'sparkles', 'shield-check', 'refresh'];
+---
+
+<DiagramFrame lang={lang} id="dg-loop" title={T.title} status="illustrative" caption={T.caption}>
+  <div class="pl">
+    <ol class="pl-steps">
+      {
+        T.steps.map((s, i) => (
+          <li class:list={['pl-step', { 'pl-ai': i === 2 }]} style={`--i:${i}`}>
+            <span class="pl-n mono" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="pl-icon" aria-hidden="true">
+              <Icon name={icons[i]} size={18} />
+            </span>
+            <p class="pl-h">{s.title}</p>
+            <p class="pl-s">{s.sub}</p>
+            {i === 1 && (
+              <ul class="pl-opts">
+                {T.options.map((o, j) => (
+                  <li style={`--j:${j}`}>{o}</li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+    <p class="pl-back mono">
+      <span class="pl-back-line" aria-hidden="true"><i></i></span>
+      <span class="pl-back-label"><Icon name="refresh" size={14} />{T.again}</span>
+    </p>
+  </div>
+</DiagramFrame>
+
+<style>
+  .pl {
+    /* five steps and the trip back, 1.6s each */
+    --step: 1.6s;
+    --cycle: 9.6s;
+  }
+
+  .pl-steps {
+    list-style: none;
+    display: grid;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0;
+    counter-reset: none;
+  }
+
+  .pl-step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    padding: 0.85rem 0.9rem 0.95rem;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    animation: pl-pulse var(--cycle) ease-in-out infinite;
+    animation-delay: calc(var(--i) * var(--step));
+  }
+
+  /* arrow to the next step: down on phones, right on wide screens */
+  .pl-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1.25rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-left: -0.35rem;
+    border-right: 2px solid var(--accent-2);
+    border-bottom: 2px solid var(--accent-2);
+    transform: rotate(45deg);
+  }
+
+  @keyframes pl-pulse {
+    0%,
+    16.6%,
+    100% {
+      border-color: var(--border-hi);
+      box-shadow: none;
+    }
+    4%,
+    12% {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 14%, transparent);
+    }
+  }
+
+  .pl-n {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.8rem;
+    font-size: 0.72rem;
+    color: var(--accent);
+  }
+
+  .pl-icon {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    margin-bottom: 0.25rem;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid color-mix(in srgb, var(--hl) 45%, transparent);
+    color: var(--hl);
+  }
+
+  /* the build step is where AI comes in strong */
+  .pl-ai .pl-icon {
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    border-color: transparent;
+    color: var(--on-brand);
+  }
+
+  .pl-h {
+    margin: 0;
+    font: 700 0.95rem / 1.2 var(--font-display);
+  }
+
+  .pl-s {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  /* the options of step 2 light up one after another */
+  .pl-opts {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+  }
+
+  .pl-opts li {
+    padding: 0.12rem 0.5rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font: 500 0.68rem / 1.4 var(--font-mono);
+    color: var(--muted);
+    animation: pl-opt 4.8s ease-in-out infinite;
+    animation-delay: calc(var(--j) * 1.2s);
+  }
+
+  @keyframes pl-opt {
+    0%,
+    25%,
+    100% {
+      color: var(--muted);
+      border-color: var(--border-hi);
+    }
+    5%,
+    20% {
+      color: var(--sun);
+      border-color: color-mix(in srgb, var(--sun) 60%, transparent);
+    }
+  }
+
+  /* ---------- back to the next priority ---------- */
+  .pl-back {
+    display: flex;
+    justify-content: center;
+    margin: 1.1rem 0 0;
+  }
+
+  .pl-back-line {
+    display: none;
+  }
+
+  .pl-back-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.7rem;
+    border: 1px dashed color-mix(in srgb, var(--hl) 50%, transparent);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font-size: 0.72rem;
+    color: var(--hl);
+  }
+
+  @media (min-width: 52rem) {
+    .pl-steps {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1.4rem;
+    }
+
+    .pl-step:not(:last-child)::after {
+      left: auto;
+      top: 50%;
+      right: -1.05rem;
+      bottom: auto;
+      margin: -0.35rem 0 0;
+      transform: rotate(-45deg);
+    }
+
+    /* a U from the last step back to the first, with a dot running left */
+    .pl-back {
+      position: relative;
+      margin-top: 0;
+      height: 2.6rem;
+    }
+
+    .pl-back-line {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1.3rem;
+      border: 2px dashed color-mix(in srgb, var(--hl) 55%, transparent);
+      border-top: 0;
+      border-radius: 0 0 14px 14px;
+    }
+
+    .pl-back-line::before {
+      content: '';
+      position: absolute;
+      top: -0.25rem;
+      left: -0.42rem;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-left: 2px solid var(--hl);
+      border-top: 2px solid var(--hl);
+      transform: rotate(45deg);
+    }
+
+    .pl-back-line i {
+      position: absolute;
+      bottom: -5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 10px var(--mint);
+      opacity: 0;
+      animation: pl-dot var(--cycle) ease-in-out infinite;
+      animation-delay: calc(5 * var(--step));
+    }
+
+    .pl-back-label {
+      position: absolute;
+      top: 0.75rem;
+      left: 50%;
+      translate: -50% 0;
+    }
+  }
+
+  @keyframes pl-dot {
+    0% {
+      right: 0;
+      opacity: 0;
+    }
+    3%,
+    14% {
+      opacity: 1;
+    }
+    16.6%,
+    100% {
+      right: calc(100% - 8px);
+      opacity: 0;
+    }
+  }
+</style>

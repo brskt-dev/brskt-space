@@ -1,0 +1,492 @@
+---
+/**
+ * Article "software-raiz-vs-vibe-coding": the choice the debate offers a small
+ * company. Two extremes (a project too big for the need; doing it all alone with
+ * AI) and, between them, a dashed path with a question mark that the next diagram
+ * (ThirdWay) answers. Illustrative: the bars and steps are not real data.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import Icon from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  pt: {
+    title: 'A escolha que o debate oferece',
+    caption: 'Ilustração. Os dois extremos existem, mas não são as únicas saídas.',
+    root: 'Sua empresa',
+    rootSub: 'um processo que toma horas · sistemas que não conversam · uma ideia na gaveta',
+    bigTitle: 'Projeto grande demais',
+    bigSub: 'pra necessidade de hoje',
+    phases: ['levantamento', 'especificação', 'desenvolvimento', 'homologação'],
+    delivery: 'primeira entrega',
+    bigChips: ['pensado pra empresa grande', 'orçamento que não cabe', 'longe do dia a dia'],
+    aiTitle: 'Tudo sozinho com IA',
+    aiSub: 'abrir a ferramenta e resolver',
+    prompt: 'faz um app de pedidos pra mim',
+    works: 'app funcionando',
+    questions: ['quem pode ver o quê?', 'e se a integração falhar?', 'e daqui a seis meses?'],
+    midTitle: 'E um caminho no meio?',
+    midSub: 'quem conduz o trabalho?',
+  },
+  en: {
+    title: 'The choice the debate offers',
+    caption: 'Illustration. Both extremes exist, but they aren’t the only ways out.',
+    root: 'Your company',
+    rootSub: 'a process that eats hours · systems that don’t talk · an idea in a drawer',
+    bigTitle: 'A project too big',
+    bigSub: 'for today’s need',
+    phases: ['discovery', 'specification', 'development', 'acceptance'],
+    delivery: 'first delivery',
+    bigChips: ['sized for a big company', 'a budget that doesn’t fit', 'far from day-to-day work'],
+    aiTitle: 'All alone with AI',
+    aiSub: 'open the tool and solve it',
+    prompt: 'build me an order system',
+    works: 'app working',
+    questions: ['who can see what?', 'what if the integration fails?', 'and six months from now?'],
+    midTitle: 'A path in between?',
+    midSub: 'who leads the work?',
+  },
+}[lang];
+
+// Gantt bars of the "too big" project: start and length, in % of the track.
+const bars = [
+  { x: 0, w: 34 },
+  { x: 26, w: 30 },
+  { x: 48, w: 38 },
+  { x: 80, w: 20 },
+];
+---
+
+<DiagramFrame lang={lang} id="dg-choice" title={T.title} status="illustrative" caption={T.caption}>
+  <div class="fc">
+    <div class="fc-root">
+      <span class="fc-icon" aria-hidden="true"><Icon name="briefcase" size={18} /></span>
+      <div>
+        <p class="fc-h">{T.root}</p>
+        <p class="fc-s">{T.rootSub}</p>
+      </div>
+    </div>
+
+    <svg class="fc-fork" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true">
+      <path class="fk" d="M150 0C150 30 54 26 54 56"></path>
+      <path class="fk fk-mid" d="M150 0V56"></path>
+      <path class="fk" d="M150 0C150 30 246 26 246 56"></path>
+    </svg>
+
+    <div class="fc-paths">
+      <div class="fc-card fc-big">
+        <div class="fc-head">
+          <span class="fc-icon" aria-hidden="true"><Icon name="layers" size={18} /></span>
+          <div>
+            <p class="fc-h">{T.bigTitle}</p>
+            <p class="fc-s">{T.bigSub}</p>
+          </div>
+        </div>
+        <ul class="gantt">
+          {
+            T.phases.map((ph, i) => (
+              <li style={`--x:${bars[i].x}%;--w:${bars[i].w}%;--i:${i}`}>
+                <span class="g-label">{ph}</span>
+                <span class="g-track" aria-hidden="true">
+                  <span class="g-bar" />
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="g-mile"><span class="g-diamond" aria-hidden="true"></span>{T.delivery}</p>
+        <ul class="chips">{T.bigChips.map((c) => <li>{c}</li>)}</ul>
+      </div>
+
+      <div class="fc-card fc-mid">
+        <span class="mid-q" aria-hidden="true"><Icon name="question" size={30} /></span>
+        <p class="fc-h">{T.midTitle}</p>
+        <p class="fc-s">{T.midSub}</p>
+      </div>
+
+      <div class="fc-card fc-ai">
+        <div class="fc-head">
+          <span class="fc-icon" aria-hidden="true"><Icon name="sparkles" size={18} /></span>
+          <div>
+            <p class="fc-h">{T.aiTitle}</p>
+            <p class="fc-s">{T.aiSub}</p>
+          </div>
+        </div>
+        <p class="prompt mono">
+          <span class="p-caret" aria-hidden="true">&gt;</span>
+          <span class="typed" style={`--n:${T.prompt.length}`}>{T.prompt}</span>
+        </p>
+        <p class="works"><Icon name="circle-check" size={15} />{T.works}</p>
+        <ul class="qs">
+          {
+            T.questions.map((q, i) => (
+              <li style={`--i:${i}`}>
+                <Icon name="question" size={14} />
+                {q}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</DiagramFrame>
+
+<style>
+  /* every animation runs on the same 10s cycle, so the parts stay in step;
+     the base state (no animation) is the finished picture */
+  .fc {
+    --cycle: 10s;
+    display: grid;
+    gap: 0;
+  }
+
+  .fc-root,
+  .fc-card {
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+
+  .fc-root {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    justify-self: center;
+    max-width: 34rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .fc-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hi));
+    color: var(--on-brand);
+  }
+
+  .fc-h {
+    margin: 0;
+    font: 700 0.98rem / 1.2 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .fc-s {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .fc-fork {
+    display: none;
+    width: 100%;
+    height: 3.25rem;
+  }
+
+  .fk {
+    fill: none;
+    stroke: var(--accent-2);
+    stroke-width: 2;
+    stroke-dasharray: 6 5;
+    vector-effect: non-scaling-stroke;
+    animation: fk-flow 1.1s linear infinite;
+  }
+
+  .fk-mid {
+    stroke: var(--mint);
+    stroke-dasharray: 2 6;
+    stroke-linecap: round;
+    opacity: 0.8;
+  }
+
+  @keyframes fk-flow {
+    to {
+      stroke-dashoffset: -22;
+    }
+  }
+
+  .fc-paths {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 0.9rem;
+  }
+
+  .fc-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.85rem 0.95rem 1rem;
+  }
+
+  .fc-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  /* ---------- too big: a long plan before anything ships ---------- */
+  .gantt {
+    list-style: none;
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .gantt li {
+    display: grid;
+    grid-template-columns: 6.6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .g-label {
+    font: 500 0.68rem / 1.2 var(--font-mono);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .g-track {
+    position: relative;
+    height: 0.6rem;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--border) 70%, transparent);
+  }
+
+  .g-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--x);
+    width: var(--w);
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--brand-hi), var(--accent));
+    transform-origin: left center;
+    animation: g-grow var(--cycle) ease-out infinite backwards;
+    animation-delay: calc(var(--i) * 0.9s);
+  }
+
+  @keyframes g-grow {
+    0% {
+      transform: scaleX(0);
+    }
+    12%,
+    92% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 0;
+    }
+  }
+
+  .g-mile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    align-self: flex-end;
+    margin: 0;
+    font: 600 0.7rem / 1.2 var(--font-mono);
+    color: var(--sun);
+    animation: pop var(--cycle) ease-out 3.8s infinite backwards;
+  }
+
+  .g-diamond {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--sun);
+    transform: rotate(45deg);
+  }
+
+  .chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chips li {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font: 500 0.68rem / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  /* ---------- alone with AI: the app shows up, the questions follow ---------- */
+  .prompt {
+    display: flex;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-sm);
+    background: var(--bg);
+    font-size: 0.74rem;
+    color: var(--text);
+  }
+
+  .p-caret {
+    color: var(--mint);
+  }
+
+  .typed {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--mint);
+    animation:
+      type var(--cycle) steps(var(--n), end) infinite backwards,
+      caret 0.8s steps(1) infinite;
+  }
+
+  @keyframes type {
+    0% {
+      max-width: 0;
+    }
+    28%,
+    100% {
+      max-width: calc(var(--n) * 1ch + 4px);
+    }
+  }
+
+  @keyframes caret {
+    50% {
+      border-color: transparent;
+    }
+  }
+
+  .works {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    font: 600 0.78rem / 1.2 var(--font-mono);
+    color: var(--mint);
+    animation: pop var(--cycle) ease-out 3s infinite backwards;
+  }
+
+  .qs {
+    list-style: none;
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .qs li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.2rem 0.55rem;
+    border: 1px dashed color-mix(in srgb, var(--sun) 50%, transparent);
+    border-radius: 999px;
+    font: 500 0.7rem / 1.35 var(--font-mono);
+    color: var(--sun);
+    animation: pop var(--cycle) ease-out infinite backwards;
+    animation-delay: calc(4.2s + var(--i) * 0.9s);
+  }
+
+  @keyframes pop {
+    0% {
+      opacity: 0;
+      transform: translateY(5px) scale(0.96);
+    }
+    6%,
+    90% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* ---------- the path in between: only a question here ---------- */
+  .fc-mid {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--mint) 60%, transparent);
+    background: color-mix(in srgb, var(--mint) 6%, transparent);
+  }
+
+  .mid-q {
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    border: 1px dashed var(--mint);
+    color: var(--mint);
+    animation: glow 2.6s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    50% {
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--mint) 14%, transparent);
+    }
+  }
+
+  .fc-mid .fc-h {
+    color: var(--mint);
+  }
+
+  /* phones: the extremes first, the open question last; the prompt may wrap */
+  .fc-big {
+    order: 1;
+  }
+
+  .fc-ai {
+    order: 2;
+  }
+
+  .fc-mid {
+    order: 3;
+  }
+
+  @media (max-width: 30rem) {
+    .typed {
+      white-space: normal;
+      border-right: 0;
+      animation: none;
+    }
+
+    .gantt li {
+      grid-template-columns: 5.8rem minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 52rem) {
+    .fc-fork {
+      display: block;
+    }
+
+    .fc-paths {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr);
+      margin-top: 0;
+    }
+
+    .fc-big,
+    .fc-mid,
+    .fc-ai {
+      order: 0;
+    }
+  }
+</style>
