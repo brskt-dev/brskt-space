@@ -184,7 +184,25 @@ const devPartner = defineCollection({
     conditions: z.object({
       ...block,
       points: z.array(z.string().min(1)).min(1),
-      note: z.string().min(1),
+      /** Market comparison: other ways to hire, with public reference prices and their sources. */
+      compare: z.object({
+        title: z.string().min(1),
+        me: z.object({ label: z.string().min(1), text: z.string().min(1) }),
+        others: z
+          .array(
+            z.object({
+              label: z.string().min(1),
+              price: z.string().min(1),
+              unit: z.string().min(1),
+              text: z.string().min(1),
+              /** Index in `sources`. */
+              source: z.number().int().nonnegative(),
+            }),
+          )
+          .min(1),
+        note: z.string().min(1),
+        sources: z.array(z.object({ label: z.string().min(1), url: z.url() })).min(1),
+      }),
     }),
     faq: z.object({
       title: z.string().min(1),
@@ -195,7 +213,6 @@ const devPartner = defineCollection({
     offer: z.object({
       monthlyPrice: z.number().int().positive(),
       currency: z.literal('BRL'),
-      months: z.number().int().positive(),
     }),
     /** Pre-filled text of the WhatsApp conversation (wa.me ?text=). */
     whatsappMessage: z.string().min(1).max(300),

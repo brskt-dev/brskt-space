@@ -24,7 +24,7 @@ site no GitHub Pages.
 | `src/content/publications/<slug>/pt.md` e `en.md` | Publicações: produtos, experimentos e artigos. Uma pasta = uma publicação, nos dois idiomas. |
 | `src/content/pages/home/{pt,en}.md` | Texto da home. |
 | `src/content/pages/about/{pt,en}.md` | Texto da página Sobre. |
-| `src/content/pages/dev-partner/{pt,en}.md` | Todo o texto da landing do Dev parceiro (preço e prazo em `offer`). |
+| `src/content/pages/dev-partner/{pt,en}.md` | Todo o texto da landing do Dev parceiro (o valor em `offer`, a comparação com o mercado em `conditions.compare`). |
 | `src/data/profile.ts` | Dados do currículo: contatos, experiência, competências, formação, idiomas. |
 | `src/i18n/ui.ts` | Textos da interface (menu, rodapé, rótulos de status e tipo), nomes das rotas e funções de URL. |
 | `src/lib/url.ts` | Montagem de URLs com o prefixo `/brskt-space/`. |
@@ -119,12 +119,18 @@ Sempre mexa nos dois idiomas juntos.
   `code`, `terminal`, `sparkles`). O texto abaixo é a introdução.
 - **Dev parceiro (serviço):** a landing fica em `src/content/pages/dev-partner/{pt,en}.md`: título, situações,
   passos, condições, perguntas frequentes e a mensagem que já vem escrita no WhatsApp (`whatsappMessage`). O
-  valor e o prazo em `offer` (`monthlyPrice`, `months`) alimentam o quadro de preço, a linha de preço do topo,
-  o texto alternativo da imagem de compartilhamento e os dados estruturados para o Google. **Se o valor ou o
-  prazo mudarem**, eles também aparecem escritos à mão: em `description`, nas condições e nas perguntas
-  frequentes da landing, no `summary` e no texto de `src/content/publications/dev-parceiro/{pt,en}.md`, e
-  desenhados nas imagens `src/assets/og/dev-partner-{pt,en}.jpg` e nas miniaturas/capas da pasta `media/`
-  da publicação (gere de novo). Para tirar a oferta do ar, use `status: paused` (some o banner da home e
+  **valor aparece só na seção "Quanto custa"** da landing: vem de `offer.monthlyPrice` e é mostrado no quadro de
+  preço e no primeiro card da comparação. Ele não aparece no topo da landing, no banner da home, na entrada de
+  Projetos, nas imagens de compartilhamento nem nos dados estruturados. **O prazo do contrato não aparece em
+  lugar nenhum do site**: ele é passado no WhatsApp, depois da primeira conversa. A comparação ("Comparando com
+  outros jeitos de contratar") fica em `conditions.compare`: valores de referência publicados por terceiros,
+  cada um com a fonte (`source` aponta para a lista `sources`, que vira a lista numerada com links). Ao trocar
+  um valor de referência, troque a fonte junto e confira as contas do texto (ex.: 40 horas × valor/hora).
+  O mascote do serviço é um rover marciano (`src/components/mascot/Rover.astro`, SVG desenhado com as cores do
+  tema): `pose` (`wave`, `point`, `build`, `scan`, `flag`, `think`, `drive`, `rest`) e `mood` (`happy`,
+  `curious`, `focused`, `excited`, `thinking`, `wink`, `neutral`). Ele aparece ao longo da landing, no banner da
+  home (em cima de Marte) e nas imagens de compartilhamento. É decorativo (`aria-hidden`), e a animação para
+  com "reduzir movimento". Para tirar a oferta do ar, use `status: paused` (some o banner da home e
   o selo vira "pausado"; a landing e o link do cabeçalho continuam no ar) ou `draft: true` na publicação.
   O Dev parceiro tem a cor de Marte (laranja-ferrugem): a classe `.planet-mars` em `src/styles/global.css` troca a
   paleta. Ela vale na landing, na página e no card do projeto (`planet: mars` no frontmatter), no banner da home e no

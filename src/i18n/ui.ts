@@ -197,9 +197,7 @@ const strings = {
   'service.name': { pt: 'Dev parceiro', en: 'Dev partner' },
   'service.whatsapp': { pt: 'Conversar pelo WhatsApp', en: 'Chat on WhatsApp' },
   'service.perMonth': { pt: 'por mês', en: 'per month' },
-  'service.term': { pt: 'contrato de {n} meses', en: '{n}-month contract' },
   'service.orbitCore': { pt: 'sua empresa', en: 'your company' },
-  /** The view appends the price and the term, e.g. "R$ 3.000 por mês, contrato de 6 meses." */
   'service.ogAlt': {
     pt: 'Dev parceiro, disponível para contratação: consultoria e desenvolvimento contínuo com Bruno Anhezini.',
     en: 'Dev partner, available for hire: ongoing consulting and development with Bruno Anhezini.',
@@ -214,6 +212,7 @@ const strings = {
   'service.whoKicker': { pt: '// quem pilota', en: '// who’s flying' },
   'service.whoLink': { pt: 'Minha trajetória', en: 'My background' },
   'service.conditionsKicker': { pt: '// combinado não sai caro', en: '// the deal, upfront' },
+  'service.sourceLabel': { pt: 'Fonte', en: 'Source' },
   'service.faqKicker': { pt: '// perguntas frequentes', en: '// frequently asked' },
   'service.howLink': { pt: 'Ver como funciona', en: 'See how it works' },
   'service.homeCta': { pt: 'Conhecer o Dev parceiro', en: 'Explore Dev partner' },

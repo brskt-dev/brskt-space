@@ -3,11 +3,10 @@
 # Icons follow the item order: recognize = repeat, unplug, sheet, wallet, lock, lightbulb;
 # does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh.
 title: "Dev partner · consulting and development"
-description: "Ongoing consulting and development for companies in Brazil: automation, integrations, improvements and new systems. R$ 3,000/month, 6-month contract."
+description: "Ongoing consulting and development for companies in Brazil: automation, integrations, improvements and new systems. One monthly fee, no separate charges per stage."
 offer:
   monthlyPrice: 3000
   currency: BRL
-  months: 6
 hero:
   kicker: "Dev partner · a service for companies in Brazil"
   title: "Is your team spending time on things a system could be doing for them?"
@@ -54,7 +53,7 @@ does:
       text: "When nothing off the shelf solves it, I build the system or platform the way the business needs it."
 how:
   title: "How we work together"
-  intro: "It’s ongoing work: over the course of the contract, we take care of different needs of your company, in the order we agree on."
+  intro: "It’s ongoing work: month after month, we take care of different needs of your company, in the order we agree on."
   steps:
     - title: "We talk"
       text: "You tell me about the problem or the idea in your own words, no technical jargon needed. I ask a lot of questions until I understand what’s behind it."
@@ -66,7 +65,7 @@ how:
       text: "I design the solution, build it, review it and validate it until it’s really working in your operation."
     - title: "I keep it running and we move on"
       text: "Once it’s done, I keep looking after it so it keeps working. And we move on to the next priority on the list."
-  loop: "And so on, one priority at a time, for the length of the contract."
+  loop: "And so on, one priority at a time, month after month."
 ai:
   title: "Where AI comes in"
   text: "I use Claude Code, Codex and other AI tools a lot to build faster. But I’m the one who sets the direction, makes the technical decisions, reviews and validates. That combination is part of what makes Dev partner different."
@@ -87,11 +86,32 @@ conditions:
   points:
     - "Priorities agreed with you"
     - "A delivery estimate for each request, once I understand what it involves"
-    - "Work on different needs of the business throughout the contract"
+    - "Work on different needs of the business, month after month"
     - "Code, accounts and access in your company’s name"
     - "Tools, cloud, licenses and services the solutions use are paid separately by the company"
     - "Remote work, for companies in Brazil, with only a few clients at a time"
-  note: "After the 6 months, we can renew if it makes sense for both sides."
+  compare:
+    title: "How it compares with other ways to hire"
+    me:
+      label: "Dev partner"
+      text: "One monthly fee covers understanding the problem, building and maintaining. No hourly billing and no new quote for every request."
+    others:
+      - label: "Freelance developer"
+        price: "R$ 80 to R$ 160"
+        unit: "per hour, mid-level"
+        text: "Billed by the hour. At 40 hours a month, that’s R$ 3,200 to R$ 6,400."
+        source: 0
+      - label: "IT consultancy or software house"
+        price: "from R$ 15,000"
+        unit: "per project, simple system"
+        text: "Entry range for a system with sign-up, login and reports. Every new project gets its own quote."
+        source: 1
+    note: "Reference prices published by third parties (2025 and 2026), in Brazilian reais. They vary with region, experience level and project size."
+    sources:
+      - label: "Agilize, “Salário de dev freelance” (in Portuguese), Apr 2026"
+        url: "https://artigos.agilize.com.br/salario-dev-freelance-2026/"
+      - label: "Sebrae PR Comunidade, “Software house: fatores que influenciam no orçamento de um software sob medida” (in Portuguese), 2025 figures"
+        url: "https://sebraepr.com.br/comunidade/artigo/software-house-fatores-que-influenciam-no-orcamento-de-um-software-sob-medida"
 faq:
   title: "Before you ask"
   items:
@@ -100,15 +120,13 @@ faq:
     - q: "What about deadlines?"
       a: "Each request gets an estimate once I understand what needs to be done. Until then, I don’t guess at deadlines."
     - q: "What if I have several requests?"
-      a: "That’s exactly why the service is ongoing. We decide together what comes first and I work through them over the contract, in that order. Each one gets its own estimate, based on its complexity and my availability."
+      a: "That’s exactly why the service is ongoing. We decide together what comes first and I work through them in that order. Each one gets its own estimate, based on its complexity and my availability."
     - q: "Who owns the code?"
       a: "Your company does. The code, accounts and access for the solutions are in the company’s name, not mine."
     - q: "Who pays for tools, cloud and licenses?"
-      a: "Your company, separately from the monthly fee. Tools, cloud, licenses and services the solutions use aren’t included in the R$ 3,000."
+      a: "Your company, separately from the monthly fee. Tools, cloud, licenses and services the solutions use aren’t included in the monthly fee."
     - q: "Do you work on-site?"
       a: "No, the work is remote. I live in Americana, São Paulo, and work with companies anywhere in Brazil."
-    - q: "And after the 6 months?"
-      a: "If it makes sense for both sides, we renew. If not, what was built stays with your company, since the code and access are already in its name."
 closing:
   title: "Tell me what’s slowing you down"
   text: "It can be a problem, an idea that’s been sitting on the shelf or just the feeling that things could work better. Send me a message and we’ll figure out together if Dev partner makes sense for your company."

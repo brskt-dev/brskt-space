@@ -3,11 +3,10 @@
 # Icons follow the item order: recognize = repeat, unplug, sheet, wallet, lock, lightbulb;
 # does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh.
 title: "Dev parceiro · consultoria e desenvolvimento"
-description: "Consultoria e desenvolvimento contínuo pra empresas: automação, integrações, melhorias e sistemas novos. R$ 3.000/mês, contrato de 6 meses."
+description: "Consultoria e desenvolvimento contínuo pra empresas: automação, integrações, melhorias e sistemas novos. Uma mensalidade, sem cobrança separada por etapa."
 offer:
   monthlyPrice: 3000
   currency: BRL
-  months: 6
 hero:
   kicker: "Dev parceiro · serviço pra empresas"
   title: "Sua equipe perde tempo com o que um sistema podia fazer por ela?"
@@ -54,7 +53,7 @@ does:
       text: "Quando nada pronto resolve, eu construo o sistema ou a plataforma do jeito que o negócio precisa."
 how:
   title: "Como funciona o acompanhamento"
-  intro: "O trabalho é contínuo: ao longo do contrato, vamos cuidando de diferentes necessidades da empresa, na ordem que a gente combinar."
+  intro: "O trabalho é contínuo: mês a mês, vamos cuidando de diferentes necessidades da empresa, na ordem que a gente combinar."
   steps:
     - title: "A gente conversa"
       text: "Você me conta o problema ou a ideia do seu jeito, sem precisar saber termo técnico. Eu pergunto bastante até entender o que tem por trás."
@@ -66,7 +65,7 @@ how:
       text: "Desenho a solução, desenvolvo, reviso e valido até ela estar funcionando de verdade na sua operação."
     - title: "Mantenho de pé e partimos pra próxima"
       text: "Depois de pronta, continuo cuidando pra que ela siga funcionando. E a gente parte pra próxima prioridade da lista."
-  loop: "E assim vai, prioridade por prioridade, ao longo do contrato."
+  loop: "E assim vai, prioridade por prioridade, mês a mês."
 ai:
   title: "Onde entra a IA"
   text: "Uso bastante Claude Code, Codex e outras ferramentas de IA pra desenvolver mais rápido. Mas quem dá a direção, toma as decisões técnicas, revisa e valida sou eu. Essa combinação é parte do que o Dev parceiro tem de diferente."
@@ -87,11 +86,32 @@ conditions:
   points:
     - "Prioridades combinadas com você"
     - "Estimativa de entrega pra cada demanda, depois de entender o que ela pede"
-    - "Trabalho em diferentes necessidades do negócio ao longo do contrato"
+    - "Trabalho em diferentes necessidades do negócio, mês a mês"
     - "Código, contas e acessos no nome da sua empresa"
     - "Ferramentas, nuvem, licenças e serviços usados pelas soluções são pagos à parte pela empresa"
     - "Trabalho remoto, para empresas no Brasil, com poucos clientes por vez"
-  note: "Depois dos 6 meses, dá pra renovar se fizer sentido pros dois lados."
+  compare:
+    title: "Comparando com outros jeitos de contratar"
+    me:
+      label: "Dev parceiro"
+      text: "Uma mensalidade cobre entender o problema, construir e manter. Sem cobrar por hora e sem orçamento novo a cada demanda."
+    others:
+      - label: "Dev freelancer"
+        price: "R$ 80 a R$ 160"
+        unit: "por hora, nível pleno"
+        text: "Cobrado por hora. Com 40 horas no mês, dá de R$ 3.200 a R$ 6.400."
+        source: 0
+      - label: "Consultoria ou software house"
+        price: "a partir de R$ 15.000"
+        unit: "por projeto, sistema simples"
+        text: "Faixa de entrada pra um sistema com cadastro, login e relatórios. Cada projeto novo tem o seu orçamento."
+        source: 1
+    note: "Valores de referência publicados por terceiros (2025 e 2026). Variam com a região, o nível de experiência e o tamanho do projeto."
+    sources:
+      - label: "Agilize, “Salário de dev freelance”, abr. 2026"
+        url: "https://artigos.agilize.com.br/salario-dev-freelance-2026/"
+      - label: "Sebrae PR Comunidade, “Software house: fatores que influenciam no orçamento de um software sob medida”, valores de 2025"
+        url: "https://sebraepr.com.br/comunidade/artigo/software-house-fatores-que-influenciam-no-orcamento-de-um-software-sob-medida"
 faq:
   title: "Antes que você pergunte"
   items:
@@ -100,15 +120,13 @@ faq:
     - q: "Como ficam os prazos?"
       a: "Cada demanda ganha uma estimativa depois que eu entendo o que precisa ser feito. Antes disso, eu não chuto prazo."
     - q: "E se eu tiver várias demandas?"
-      a: "É pra isso que o serviço é contínuo. A gente define junto o que vem primeiro e eu vou trabalhando nelas ao longo do contrato, nessa ordem. Cada uma ganha a sua estimativa, considerando a complexidade e a minha disponibilidade."
+      a: "É pra isso que o serviço é contínuo. A gente define junto o que vem primeiro e eu vou trabalhando nelas, nessa ordem. Cada uma ganha a sua estimativa, considerando a complexidade e a minha disponibilidade."
     - q: "De quem é o código?"
       a: "Da sua empresa. O código, as contas e os acessos das soluções ficam no nome da empresa, não no meu."
     - q: "Quem paga ferramentas, nuvem e licenças?"
-      a: "A sua empresa, à parte da mensalidade. Ferramentas, nuvem, licenças e serviços que as soluções usam não entram nos R$ 3.000."
+      a: "A sua empresa, à parte da mensalidade. Ferramentas, nuvem, licenças e serviços que as soluções usam não entram na mensalidade."
     - q: "Você atende presencialmente?"
       a: "Não, o trabalho é remoto. Moro em Americana/SP e atendo empresas de qualquer lugar do Brasil."
-    - q: "E depois dos 6 meses?"
-      a: "Se fizer sentido pros dois lados, a gente renova. Se não, o que foi feito continua com a sua empresa, porque o código e os acessos já estão no nome dela."
 closing:
   title: "Me conta o que tá pegando aí"
   text: "Pode ser um problema, uma ideia na gaveta ou só a sensação de que dá pra fazer melhor. Me manda uma mensagem e a gente vê junto se o Dev parceiro faz sentido pra sua empresa."

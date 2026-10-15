@@ -1,7 +1,7 @@
 ---
 type: service
 title: "Dev partner"
-summary: "Ongoing consulting and development for companies in Brazil: I figure out what’s holding the operation back, propose the solution, build it and keep it working. One monthly fee, 6-month contract."
+summary: "Ongoing consulting and development for companies in Brazil: I figure out what’s holding the operation back, propose the solution, build it and keep it working. One monthly fee, no charges per stage."
 date: 2026-10-14
 status: available
 landing: devPartner
@@ -19,6 +19,6 @@ I use Claude Code, Codex and other AI tools a lot to speed up development. Direc
 
 ## Terms
 
-It’s a single monthly fee of R$ 3,000, with a 6-month contract and no separate charges per stage. We agree on priorities together, and each request gets an estimate once I understand what it involves.
+It’s a single monthly fee, with no separate charges per stage. We agree on priorities together, and each request gets an estimate once I understand what it involves.
 
-The details, answers to some common questions and how to reach me are on the full Dev partner page.
+The price, the details, answers to some common questions and how to reach me are on the full Dev partner page.

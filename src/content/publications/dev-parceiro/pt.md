@@ -1,7 +1,7 @@
 ---
 type: service
 title: "Dev parceiro"
-summary: "Consultoria e desenvolvimento contínuo pra empresas: entendo o que trava a operação, proponho a solução, desenvolvo e mantenho funcionando. Uma mensalidade, contrato de 6 meses."
+summary: "Consultoria e desenvolvimento contínuo pra empresas: entendo o que trava a operação, proponho a solução, desenvolvo e mantenho funcionando. Uma mensalidade, sem cobrança por etapa."
 date: 2026-10-14
 status: available
 landing: devPartner
@@ -19,6 +19,6 @@ Uso bastante Claude Code, Codex e outras ferramentas de IA pra acelerar o desenv
 
 ## Condições
 
-É uma mensalidade única de R$ 3.000, com contrato de 6 meses e sem cobrança separada por etapa. As prioridades a gente combina junto, e cada demanda ganha uma estimativa depois que eu entendo o que ela envolve.
+É uma mensalidade única, sem cobrança separada por etapa. As prioridades a gente combina junto, e cada demanda ganha uma estimativa depois que eu entendo o que ela envolve.
 
-Os detalhes, respostas pra algumas dúvidas e o contato estão na página completa do Dev parceiro.
+O valor, os detalhes, respostas pra algumas dúvidas e o contato estão na página completa do Dev parceiro.

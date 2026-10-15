@@ -1,16 +1,19 @@
 ---
 /**
- * Landing of the "Dev parceiro" service: hero (offer + WhatsApp CTA, orbit visual) →
+ * Landing of the "Dev parceiro" service: hero (WhatsApp CTA, orbit visual) →
  * "você se reconhece?" situations → what I do → how the ongoing work goes → AI vs me →
- * who I am → conditions (price and term from `offer`) → FAQ → closing CTA, plus a
- * sticky CTA bar on phones. All copy lives in src/content/pages/dev-partner/<lang>.md;
- * the price and term are numbers in `offer`, also used by the JSON-LD.
+ * who I am → conditions ("Quanto custa": the only place with the price, from `offer`, and the
+ * market comparison) → FAQ → closing CTA, plus a sticky CTA bar on phones. All copy lives in
+ * src/content/pages/dev-partner/<lang>.md. The contract term is never shown (owner's choice:
+ * it is told over WhatsApp).
  */
 import { getEntry } from 'astro:content';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeading from '../SectionHeading.astro';
 import WhatsAppLink from '../WhatsAppLink.astro';
+import ExternalLink from '../ExternalLink.astro';
+import Rover from '../mascot/Rover.astro';
 import Icon, { type IconName } from '../ui/Icon.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import ogPt from '../../assets/og/dev-partner-pt.jpg';
@@ -30,7 +33,7 @@ if (!entry) throw new Error(`[dev-partner] Missing src/content/pages/dev-partner
 const d = entry.data;
 const msg = d.whatsappMessage;
 
-const { price, term } = formatOffer(lang, d.offer);
+const { price, perMonth } = formatOffer(lang, d.offer);
 
 // Icons follow the order of the items in the copy (see the comments in the .md files).
 const recognizeIcons: IconName[] = ['repeat', 'unplug', 'sheet', 'wallet', 'lock', 'lightbulb'];
@@ -52,18 +55,6 @@ const jsonLd = {
     url: absoluteUrl(pathFor(lang, 'about'), site),
     sameAs: [profile.contact.linkedin, profile.contact.github],
   },
-  offers: {
-    '@type': 'Offer',
-    priceCurrency: d.offer.currency,
-    price: String(d.offer.monthlyPrice),
-    priceSpecification: {
-      '@type': 'UnitPriceSpecification',
-      price: String(d.offer.monthlyPrice),
-      priceCurrency: d.offer.currency,
-      unitCode: 'MON',
-      referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
-    },
-  },
 };
 ---
 
@@ -72,7 +63,7 @@ const jsonLd = {
   title={d.title}
   description={d.description}
   ref={{ kind: 'page', page: 'devPartner' }}
-  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: `${t(lang, 'service.ogAlt')} ${price} ${t(lang, 'service.perMonth')}, ${term}.` }}
+  ogImage={{ src: lang === 'pt' ? ogPt : ogEn, alt: t(lang, 'service.ogAlt') }}
   jsonLd={jsonLd}
   planet="mars"
 >
@@ -80,6 +71,7 @@ const jsonLd = {
     <!-- Hero -->
     <section class="hero wrap" aria-labelledby="dp-title">
       <div class="hero-text">
+        <div class="hero-rover-sm"><Rover pose="wave" mood="happy" size="5.5rem" /></div>
         <p class="chip chip-mint kick"><span class="pulse" aria-hidden="true"></span>{d.hero.kicker}</p>
         <h1 id="dp-title">{d.hero.title}</h1>
         <p class="lead">{d.hero.lead}</p>
@@ -93,10 +85,6 @@ const jsonLd = {
           </li>
         </ul>
         <p class="cta-note">{d.hero.ctaNote}</p>
-        <p class="price-peek mono">
-          <span>{price}</span>
-          {t(lang, 'service.perMonth')} · {term}
-        </p>
       </div>
 
       <div class="orbit-box" aria-hidden="true">
@@ -115,6 +103,7 @@ const jsonLd = {
             ))
           }
         </div>
+        <div class="hero-rover"><Rover pose="wave" mood="happy" size="100%" flip /></div>
       </div>
     </section>
 
@@ -122,6 +111,7 @@ const jsonLd = {
     <section class="section wrap" aria-labelledby="dp-recognize">
       <SectionHeading id="dp-recognize" kicker={t(lang, 'service.recognizeKicker')} icon="eye" sub={d.recognize.intro}>
         {d.recognize.title}
+        <div slot="action" class="rv-spot"><Rover pose="scan" mood="curious" size="100%" /></div>
       </SectionHeading>
       <ul class="cards">
         {
@@ -142,6 +132,7 @@ const jsonLd = {
     <section class="section wrap" aria-labelledby="dp-does">
       <SectionHeading id="dp-does" kicker={t(lang, 'service.doesKicker')} icon="wrench" sub={d.does.intro}>
         {d.does.title}
+        <div slot="action" class="rv-spot"><Rover pose="build" mood="focused" size="100%" /></div>
       </SectionHeading>
       <ul class="does">
         {
@@ -181,16 +172,20 @@ const jsonLd = {
           ))
         }
       </ol>
-      <p class="loop mono">
-        <Icon name="refresh" size={15} />
-        {d.how.loop}
-      </p>
+      <div class="loop-row">
+        <p class="loop mono">
+          <Icon name="refresh" size={15} />
+          {d.how.loop}
+        </p>
+        <Rover pose="drive" mood="happy" size="6.5rem" class="loop-rover" />
+      </div>
     </section>
 
     <!-- IA + eu -->
     <section class="section wrap" aria-labelledby="dp-ai">
       <SectionHeading id="dp-ai" kicker={t(lang, 'service.aiKicker')} icon="sparkles" sub={d.ai.text}>
         {d.ai.title}
+        <div slot="action" class="rv-spot"><Rover pose="rest" mood="wink" size="100%" /></div>
       </SectionHeading>
       <div class="split">
         <div class="split-col ai-col reveal">
@@ -238,11 +233,13 @@ const jsonLd = {
       </SectionHeading>
       <div class="deal card">
         <div class="deal-price">
-          <p class="price">
-            <span class="price-v">{price}</span>
-            <span class="price-u">{t(lang, 'service.perMonth')}</span>
-          </p>
-          <p class="chip chip-accent term"><Icon name="clock" size={13} />{term}</p>
+          <div class="price-row">
+            <Rover pose="point" mood="excited" size="7rem" class="price-rover" />
+            <p class="price">
+              <span class="price-v">{price}</span>
+              <span class="price-u">{perMonth}</span>
+            </p>
+          </div>
           <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-condicoes" />
         </div>
         <div class="deal-points">
@@ -256,8 +253,48 @@ const jsonLd = {
               ))
             }
           </ul>
-          <p class="deal-note">{d.conditions.note}</p>
         </div>
+      </div>
+
+      <div class="compare">
+        <h3 class="compare-title">{d.conditions.compare.title}</h3>
+        <ul class="compare-list">
+          <li class="compare-item is-me">
+            <p class="compare-label mono"><Icon name="rocket" size={14} />{d.conditions.compare.me.label}</p>
+            <p class="compare-price">{price}</p>
+            <p class="compare-unit">{perMonth}</p>
+            <p class="compare-text">{d.conditions.compare.me.text}</p>
+          </li>
+          {
+            d.conditions.compare.others.map((o) => (
+              <li class="compare-item">
+                <p class="compare-label mono">{o.label}</p>
+                <p class="compare-price">{o.price}</p>
+                <p class="compare-unit">{o.unit}</p>
+                <p class="compare-text">
+                  {o.text}
+                  <sup class="compare-ref mono">
+                    <a href={`#dp-src-${o.source + 1}`} aria-label={`${t(lang, 'service.sourceLabel')} ${o.source + 1}`}>
+                      [{o.source + 1}]
+                    </a>
+                  </sup>
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="compare-note">{d.conditions.compare.note}</p>
+        <ol class="compare-sources">
+          {
+            d.conditions.compare.sources.map((src, i) => (
+              <li id={`dp-src-${i + 1}`}>
+                <ExternalLink href={src.url} lang={lang}>
+                  {src.label}
+                </ExternalLink>
+              </li>
+            ))
+          }
+        </ol>
       </div>
     </section>
 
@@ -265,7 +302,9 @@ const jsonLd = {
     <section class="section wrap" aria-labelledby="dp-faq">
       <SectionHeading id="dp-faq" kicker={t(lang, 'service.faqKicker')} icon="message">
         {d.faq.title}
+        <div slot="action" class="rv-spot rv-narrow"><Rover pose="think" mood="thinking" size="100%" /></div>
       </SectionHeading>
+      <div class="faq-wrap">
       <div class="faq">
         {
           d.faq.items.map((f) => (
@@ -279,11 +318,14 @@ const jsonLd = {
           ))
         }
       </div>
+      <div class="faq-rover"><Rover pose="think" mood="thinking" size="100%" /></div>
+      </div>
     </section>
 
     <!-- Fechamento -->
     <section class="section wrap" aria-labelledby="dp-closing">
       <div class="closing">
+        <Rover pose="flag" mood="excited" size="9rem" />
         <h2 id="dp-closing">{d.closing.title}</h2>
         <p>{d.closing.text}</p>
         <WhatsAppLink lang={lang} message={msg} place="dev-parceiro-final" />
@@ -353,26 +395,9 @@ const jsonLd = {
     color: var(--muted);
   }
 
-  .price-peek {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem;
-    margin-top: 1.25rem;
-    padding: 0.45rem 0.85rem;
-    border: 1px dashed var(--border-hi);
-    border-radius: var(--r-sm);
-    font-size: var(--fs-meta);
-    color: var(--muted);
-  }
-
-  .price-peek span {
-    font-weight: 700;
-    color: var(--sun);
-  }
-
   /* orbit: "your company" at the center, the kinds of work around it */
   .orbit-box {
+    position: relative;
     display: none;
     place-items: center;
     padding-block: 1rem;
@@ -768,10 +793,6 @@ const jsonLd = {
     color: var(--muted);
   }
 
-  .term {
-    white-space: normal;
-  }
-
   .deal-points ul {
     list-style: none;
     display: grid;
@@ -791,12 +812,197 @@ const jsonLd = {
     color: var(--hl);
   }
 
-  .deal-note {
-    margin-top: 1rem;
-    padding-top: 0.9rem;
-    border-top: 1px dashed var(--border-hi);
+  .price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .price-row :global(.price-rover) {
+    flex: none;
+    margin-bottom: -0.35rem;
+  }
+
+  /* market comparison: Dev parceiro first, then public reference prices with numbered sources */
+  .compare {
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+
+  .compare-title {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.65rem);
+    margin-bottom: 1rem;
+  }
+
+  .compare-list {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .compare-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.15rem 1.2rem 1.3rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: var(--surface);
+  }
+
+  .compare-item.is-me {
+    border-color: var(--border-hi);
+    background:
+      radial-gradient(18rem 10rem at 0% 0%, color-mix(in srgb, var(--brand) 40%, transparent), transparent 75%),
+      var(--surface-2);
+  }
+
+  .compare-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: var(--fs-meta);
     color: var(--muted);
+  }
+
+  .is-me .compare-label {
+    color: var(--hl);
+  }
+
+  .compare-price {
+    margin-top: 0.6rem;
+    font: 750 clamp(1.45rem, 1.2rem + 1vw, 1.85rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .compare-unit {
+    margin-top: 0.2rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .compare-text {
+    margin-top: 0.8rem;
+    line-height: 1.55;
+    color: var(--prose);
+  }
+
+  .compare-ref {
+    margin-left: 0.15rem;
+    font-size: 0.75em;
+  }
+
+  /* the reference stays small in the text but gets a full tap target */
+  .compare-ref a {
+    display: inline-block;
+    min-width: var(--tap);
+    min-height: var(--tap);
+    margin: -1rem -0.6rem;
+    padding: 1rem 0.6rem;
+    text-align: center;
+  }
+
+  .compare-note {
+    margin-top: 1rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .compare-sources {
+    margin-top: 0.5rem;
+    padding-left: 1.4rem;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+
+  .compare-sources li {
+    padding-block: 0.25rem;
+    scroll-margin-top: 6rem;
+  }
+
+  /* inline, so the list number stays on the first line; the padding still widens the tap area */
+  .compare-sources a {
+    padding-block: 0.75rem;
+    color: var(--accent);
+  }
+
+  /* ---------- Mascot ---------- */
+  .rv-spot {
+    flex: none;
+    width: clamp(5rem, 3rem + 6vw, 9.5rem);
+    margin-left: auto;
+  }
+
+  /* wide screens: the rover stays beside the heading instead of dropping under a long subtitle */
+  @media (min-width: 48rem) {
+    .landing :global(.section-head:has(.rv-spot)) {
+      flex-wrap: nowrap;
+    }
+  }
+
+  .loop-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.25rem 1rem;
+  }
+
+  .loop-row :global(.loop-rover) {
+    margin-bottom: -0.5rem;
+  }
+
+  .faq-rover {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .faq-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 52rem) 1fr;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .faq-rover {
+      display: block;
+      width: min(15rem, 100%);
+      justify-self: center;
+    }
+
+    .rv-narrow {
+      display: none;
+    }
+  }
+
+  .hero-rover-sm {
+    float: right;
+    margin: 0 0 0.5rem 0.75rem;
+  }
+
+  .hero-rover {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    .hero-rover-sm {
+      display: none;
+    }
+
+    .hero-rover {
+      display: block;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: clamp(7rem, 12vw, 10.5rem);
+    }
+  }
+
+  /* two-column hero: it can sit a little lower, clear of the orbit labels */
+  @media (min-width: 64rem) {
+    .hero-rover {
+      bottom: -3rem;
+    }
   }
 
   /* ---------- FAQ ---------- */

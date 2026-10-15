@@ -12,12 +12,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeading from '../SectionHeading.astro';
 import PublicationCard from '../PublicationCard.astro';
 import SkeletonCard from '../SkeletonCard.astro';
+import Rover from '../mascot/Rover.astro';
 import Icon from '../ui/Icon.astro';
 import ExternalLink from '../ExternalLink.astro';
 import photo from '../../assets/bruno-anhezini.jpg';
 import { profile } from '../../data/profile';
 import { pathFor, statusLabel, t, typeLabel, type Lang } from '../../i18n/ui';
-import { formatOffer } from '../../lib/offer';
 import { getSection } from '../../lib/publications';
 
 interface Props {
@@ -39,11 +39,9 @@ const shownArticles = articles.slice(0, ARTICLE_SLOTS);
 const projectSkeletons = Math.max(0, PROJECT_SLOTS - shownProjects.length);
 const articleSkeletons = Math.max(0, ARTICLE_SLOTS - shownArticles.length);
 // Featured service (Dev parceiro): a Mars-coloured banner under the hero, only while its
-// Projects entry says it is available. Summary from the entry, price/term from the landing's `offer`.
+// Projects entry says it is available. Summary from the entry; no price here (only on the landing).
 const service = projects.find((p) => p.type === 'service' && p.status === 'available' && p.entries[lang].data.landing);
 const serviceData = service?.entries[lang].data;
-const serviceOffer = service ? (await getEntry('devPartner', lang))?.data.offer : undefined;
-const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
 ---
 
 <BaseLayout lang={lang} title={title} rawTitle description={description} ref={{ kind: 'page', page: 'home' }} ogType="profile">
@@ -132,13 +130,6 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
             </p>
             <h2 id="featured-title">{serviceData.title}</h2>
             <p class="featured-lead">{serviceData.summary}</p>
-            {
-              offer && (
-                <p class="featured-price mono">
-                  <span>{offer.price}</span> {offer.perMonth}
-                </p>
-              )
-            }
             <a class="btn btn-primary" href={pathFor(lang, serviceData.landing)}>
               <Icon name="rocket" />
               {t(lang, 'service.homeCta')}
@@ -148,7 +139,7 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
           <div class="featured-visual" aria-hidden="true">
             <span class="m-orbit m-o1"><span class="moon m1"></span></span>
             <span class="m-orbit m-o2"><span class="moon m2"></span></span>
-            <span class="mars"></span>
+            <span class="mars"><span class="mars-rover"><Rover pose="wave" mood="happy" size="100%" /></span></span>
           </div>
         </div>
       </section>
@@ -267,26 +258,10 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
     color: var(--muted);
   }
 
-  .featured-price {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin: 1rem 0 1.25rem;
-    padding: 0.45rem 0.85rem;
-    border: 1px dashed var(--border-hi);
-    border-radius: var(--r-sm);
-    font-size: var(--fs-meta);
-    color: var(--muted);
-  }
-
-  .featured-price span {
-    font-weight: 700;
-    color: var(--sun);
-  }
-
   .featured-text .btn {
     display: flex;
     width: fit-content;
+    margin-top: 1.4rem;
   }
 
   /* Mars with its two moons */
@@ -295,6 +270,13 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
     display: grid;
     place-items: center;
     min-height: 13rem;
+  }
+
+  /* room above the planet for the rover */
+  @media (min-width: 48rem) {
+    .featured-visual {
+      padding-top: 4.5rem;
+    }
   }
 
   .mars {
@@ -311,6 +293,15 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
     box-shadow:
       inset -22px -16px 40px color-mix(in srgb, var(--bg) 70%, transparent),
       0 0 70px -6px color-mix(in srgb, var(--accent-2) 55%, transparent);
+  }
+
+  /* the Dev parceiro mascot, standing on top of the planet */
+  .mars-rover {
+    position: absolute;
+    left: 50%;
+    bottom: 80%;
+    width: 62%;
+    transform: translateX(-46%);
   }
 
   .m-orbit {
@@ -357,6 +348,10 @@ const offer = serviceOffer ? formatOffer(lang, serviceOffer) : undefined;
   }
 
   @media (max-width: 47.99rem) {
+    .mars-rover {
+      display: none;
+    }
+
     .featured-visual {
       position: absolute;
       top: -2.5rem;
