@@ -4,6 +4,7 @@
  * company. Two extremes (a project too big for the need; doing it all alone with
  * AI) and, between them, a dashed path with a question mark that the next diagram
  * (ThirdWay) answers. Illustrative: the bars and steps are not real data.
+ * The third way wears the Dev parceiro colours (.planet-mars); mint stays with vibe coding.
  */
 import DiagramFrame from './DiagramFrame.astro';
 import Icon from '../ui/Icon.astro';
@@ -74,7 +75,7 @@ const bars = [
 
     <svg class="fc-fork" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true">
       <path class="fk" d="M150 0C150 30 54 26 54 56"></path>
-      <path class="fk fk-mid" d="M150 0V56"></path>
+      <path class="fk fk-mid planet-mars" d="M150 0V56"></path>
       <path class="fk" d="M150 0C150 30 246 26 246 56"></path>
     </svg>
 
@@ -103,7 +104,7 @@ const bars = [
         <ul class="chips">{T.bigChips.map((c) => <li>{c}</li>)}</ul>
       </div>
 
-      <div class="fc-card fc-mid">
+      <div class="fc-card fc-mid planet-mars">
         <span class="mid-q" aria-hidden="true"><Icon name="question" size={30} /></span>
         <p class="fc-h">{T.midTitle}</p>
         <p class="fc-s">{T.midSub}</p>
@@ -202,7 +203,7 @@ const bars = [
   }
 
   .fk-mid {
-    stroke: var(--mint);
+    stroke: var(--accent-2);
     stroke-dasharray: 2 6;
     stroke-linecap: round;
     opacity: 0.8;
@@ -423,8 +424,11 @@ const bars = [
     justify-content: center;
     text-align: center;
     border-style: dashed;
-    border-color: color-mix(in srgb, var(--mint) 60%, transparent);
-    background: color-mix(in srgb, var(--mint) 6%, transparent);
+    border-color: color-mix(in srgb, var(--accent-2) 70%, transparent);
+    background:
+      radial-gradient(12rem 8rem at 50% 30%, color-mix(in srgb, var(--brand-hi) 22%, transparent), transparent 75%),
+      color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--text);
   }
 
   .mid-q {
@@ -433,19 +437,19 @@ const bars = [
     width: 3.4rem;
     height: 3.4rem;
     border-radius: 50%;
-    border: 1px dashed var(--mint);
-    color: var(--mint);
+    border: 1px dashed var(--accent-2);
+    color: var(--accent);
     animation: glow 2.6s ease-in-out infinite;
   }
 
   @keyframes glow {
     50% {
-      box-shadow: 0 0 0 6px color-mix(in srgb, var(--mint) 14%, transparent);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-2) 20%, transparent);
     }
   }
 
   .fc-mid .fc-h {
-    color: var(--mint);
+    color: var(--accent);
   }
 
   /* phones: the extremes first, the open question last; the prompt may wrap */

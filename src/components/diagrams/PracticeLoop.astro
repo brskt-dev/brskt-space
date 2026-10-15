@@ -4,6 +4,7 @@
  * Five steps per request, with a pulse moving through them and a return to the
  * next priority. The second step lights up its options in turn (build, integrate,
  * automate, use something ready): the answer is not always new code.
+ * Drawn in the Dev parceiro colours (.planet-mars), like ThirdWay.
  */
 import DiagramFrame from './DiagramFrame.astro';
 import Icon, { type IconName } from '../ui/Icon.astro';
@@ -45,6 +46,7 @@ const T = {
 const icons: IconName[] = ['telescope', 'split', 'sparkles', 'shield-check', 'refresh'];
 ---
 
+<div class="planet-mars">
 <DiagramFrame lang={lang} id="dg-loop" title={T.title} status="illustrative" caption={T.caption}>
   <div class="pl">
     <ol class="pl-steps">
@@ -76,6 +78,7 @@ const icons: IconName[] = ['telescope', 'split', 'sparkles', 'shield-check', 're
     </p>
   </div>
 </DiagramFrame>
+</div>
 
 <style>
   .pl {
@@ -130,8 +133,8 @@ const icons: IconName[] = ['telescope', 'split', 'sparkles', 'shield-check', 're
     }
     4%,
     12% {
-      border-color: var(--mint);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 14%, transparent);
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 20%, transparent);
     }
   }
 
@@ -284,8 +287,8 @@ const icons: IconName[] = ['telescope', 'split', 'sparkles', 'shield-check', 're
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--mint);
-      box-shadow: 0 0 10px var(--mint);
+      background: var(--accent-2);
+      box-shadow: 0 0 10px var(--accent-2);
       opacity: 0;
       animation: pl-dot var(--cycle) ease-in-out infinite;
       animation-delay: calc(5 * var(--step));

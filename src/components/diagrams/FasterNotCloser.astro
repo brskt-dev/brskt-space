@@ -3,7 +3,8 @@
  * Article "software-raiz-vs-vibe-coding": what the specialist has to change.
  * Left, the same oversized project, only faster (scope, discovery and architecture
  * stay big; users see it at the end). Right, small versions close to the problem,
- * each one going through the people who use it.
+ * each one going through the people who use it. The right panel wears the Dev parceiro
+ * colours (.planet-mars).
  */
 import DiagramFrame from './DiagramFrame.astro';
 import Icon from '../ui/Icon.astro';
@@ -56,7 +57,7 @@ const T = {
       <p class="fn-note">{T.oldNote}</p>
     </div>
 
-    <div class="fn-panel fn-new">
+    <div class="fn-panel fn-new planet-mars">
       <p class="fn-h"><Icon name="route" size={16} />{T.newTitle}</p>
       <ol class="fn-slices">
         {
@@ -111,14 +112,15 @@ const T = {
   }
 
   .fn-new {
-    border-color: color-mix(in srgb, var(--mint) 60%, transparent);
+    border-color: var(--accent-2);
     background:
-      radial-gradient(18rem 8rem at 0% 0%, color-mix(in srgb, var(--mint) 9%, transparent), transparent 75%),
+      radial-gradient(18rem 8rem at 0% 0%, color-mix(in srgb, var(--brand-hi) 22%, transparent), transparent 75%),
       color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--text);
   }
 
   .fn-new .fn-h :global(.icon) {
-    color: var(--mint);
+    color: var(--accent);
   }
 
   .fn-note {
@@ -128,7 +130,7 @@ const T = {
   }
 
   .fn-note-new {
-    color: var(--mint);
+    color: var(--accent);
   }
 
   /* ---------- left: big blocks, a fast sweep, users far away ---------- */
@@ -231,9 +233,9 @@ const T = {
     width: 100%;
     min-height: 2.6rem;
     padding: 0.3rem;
-    border: 1px solid color-mix(in srgb, var(--mint) 45%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 55%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--mint) 10%, var(--surface));
+    background: color-mix(in srgb, var(--brand) 35%, var(--surface));
     font: 600 0.66rem / 1.2 var(--font-mono);
     color: var(--text);
     text-align: center;
@@ -245,8 +247,8 @@ const T = {
     width: 1.6rem;
     height: 1.6rem;
     border-radius: 50%;
-    border: 1px solid var(--mint);
-    color: var(--mint);
+    border: 1px solid var(--accent-2);
+    color: var(--accent);
   }
 
   @keyframes fn-in {
