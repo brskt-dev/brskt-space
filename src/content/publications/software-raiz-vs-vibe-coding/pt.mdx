@@ -1,0 +1,84 @@
+---
+type: article
+title: "Software raiz versus vibe coding: existe uma terceira via?"
+summary: "O debate oferece duas saídas pra pequenas e médias empresas: um projeto de desenvolvimento grande demais pra necessidade ou resolver tudo sozinho com IA. Eu defendo uma terceira: um especialista que usa IA pra entender, definir e construir as soluções junto com o negócio."
+date: 2026-10-15
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
+tags: ["Vibe coding", "IA", "Pequenas e médias empresas", "Desenvolvimento de software"]
+draft: false
+---
+
+import FalseChoice from '../../../components/diagrams/FalseChoice.astro';
+import ThirdWay from '../../../components/diagrams/ThirdWay.astro';
+import PracticeLoop from '../../../components/diagrams/PracticeLoop.astro';
+import FasterNotCloser from '../../../components/diagrams/FasterNotCloser.astro';
+import { pathFor } from '../../../i18n/ui';
+
+Quem acompanha o assunto já viu as duas torcidas. Uma mostra aplicativos montados numa tarde com IA e anuncia que pagar desenvolvedor virou coisa do passado. A outra responde com falhas de segurança, código que ninguém consegue manter e a previsão de que, cedo ou tarde, alguém vai ter que jogar tudo fora e começar de novo. As duas falam alto, e cada uma tem um pedaço de razão.
+
+No meio disso está quem mais precisa de uma resposta: o dono ou gestor de uma empresa pequena ou média, com um processo que toma horas da equipe, sistemas que não conversam e uma ideia que está na gaveta há dois anos. Pra essa pessoa, o debate chega como uma escolha entre dois caminhos. Ou contrata um projeto de desenvolvimento que parece grande demais pra necessidade, ou abre uma ferramenta de IA e tenta resolver tudo por conta própria.
+
+<FalseChoice lang="pt" />
+
+Eu acho essa escolha falsa, e acho que ela atrapalha justamente as empresas que mais teriam a ganhar com a IA. Existe uma terceira via, que nem é nova, e pra muita empresa ela faz mais sentido do que qualquer um dos extremos.
+
+Antes, um acordo de termos. Neste texto, vibe coding é criar e alterar software dando instruções pra uma IA, sem necessariamente entender ou verificar o código que ela gera. O termo apareceu num [post do Andrej Karpathy](https://x.com/karpathy/status/1886192184808149383) em 2025 e já ganhou outros sentidos, mas é esse que eu uso aqui. Software raiz é o desenvolvimento conduzido por quem entende o que está sendo construído, com ou sem IA na mão.
+
+## Os dois lados têm razão, até certo ponto
+
+Os desenvolvedores que criticam o vibe coding não estão inventando problema. Um aplicativo que funciona bem na demonstração pode mostrar dados de um cliente pra outro, cobrar duas vezes quando uma integração se repete ou ficar tão emaranhado que cada ajuste quebra outra coisa. Isso acontece, e quem já precisou dar manutenção num sistema assim sabe o trabalho que dá.
+
+O problema é a receita que costuma vir junto: "contrate um desenvolvedor e faça direito". Pra uma empresa de quinze pessoas, essa frase ignora quase tudo que importa. Ela não tem equipe de tecnologia, não pode esperar meses pra automatizar um relatório e muitas vezes recebe propostas pensadas pra empresas bem maiores. Quando o único caminho "certo" cabe só no orçamento dos outros, não é surpresa que o dono abra uma ferramenta de IA num domingo à noite e tente sozinho.
+
+Do outro lado, o empreendedor que usa IA pra tirar uma ideia do papel está fazendo algo valioso. Ele conhece a dor melhor do que qualquer desenvolvedor de fora: sabe onde o pedido trava, qual planilha ninguém pode apagar e o que o cliente reclama toda semana. Poder transformar esse conhecimento numa ferramenta sem depender de uma equipe que a empresa nem tem é uma mudança real.
+
+Só que conhecer o negócio e conseguir pedir uma ferramenta não é o mesmo que conhecer as implicações de construí-la. Onde ficam os dados, quem pode ver o quê, o que acontece quando algo falha, como mudar daqui a seis meses sem quebrar o que já funciona. Isso não tem nada a ver com inteligência. É outro ofício, do mesmo jeito que o desenvolvedor não sabe de cabeça a margem de cada produto da empresa.
+
+Vale dizer também que essa polarização não descreve o mercado inteiro. Desenvolvimento tradicional não é sinônimo de lento, caro ou avesso à IA, e muita gente boa já trabalha de outro jeito. A escolha binária existe mais no debate do que na prática. O problema é que é o debate que chega até o dono da empresa.
+
+## A terceira via
+
+Pra uma empresa pequena ou média, discutir se o código vai ser escrito por uma pessoa ou por uma IA rende pouco. A pergunta mais útil é outra: quem vai conduzir o trabalho?
+
+A terceira via é trabalhar com um especialista que usa IA ativamente pra entender, definir e construir as soluções junto com o negócio. Ele não aparece só no fim, pra revisar código gerado ou consertar o que deu errado. Ele participa desde a definição do problema, escolhe o caminho, conduz a criação e acompanha a evolução da solução. O empreendedor traz o conhecimento do negócio e as prioridades. O especialista traz julgamento técnico e capacidade de execução. E a IA amplia o que esse profissional consegue produzir.
+
+<ThirdWay lang="pt" />
+
+Nada disso é invenção minha, e tem muita gente trabalhando assim. O que eu defendo é que esse arranjo deveria ser a primeira opção que uma PME considera, e não uma alternativa escondida entre dois extremos. A IA barateou justamente a parte que fazia o desenvolvimento parecer grande demais, que é a execução. O que ela não resolve sozinha é a parte que o empreendedor não tem como assumir, que são as decisões técnicas. Juntando os dois, a empresa ganha o ritmo que a IA permite sem precisar apostar o processo em escolhas que ela não sabe avaliar.
+
+## Como isso funciona na prática
+
+<PracticeLoop lang="pt" />
+
+Começa entendendo a dor antes de gerar qualquer tela. Muita empresa chega pedindo "um sistema" quando o problema real é que duas pessoas digitam a mesma informação em lugares diferentes, ou que um relatório depende de alguém que sabe onde clicar. Gerar telas é rápido; descobrir o que vale a pena gerar é o que economiza tempo de verdade.
+
+Depois vem a decisão de como resolver, e ela nem sempre termina em código novo. Sistemas que não conversam pedem uma integração, não um terceiro sistema. Um relatório montado à mão toda segunda-feira pode virar uma automação pequena. Uma ferramenta interna de controle pode ser substituída por um produto pronto que custa menos do que manter algo próprio. E aquela ideia que nunca saiu do papel, um portal pro cliente acompanhar o próprio pedido, por exemplo, pode merecer ser construída, começando pela menor versão que já ajuda alguém.
+
+Quando é hora de construir, a IA entra com força. Ela escreve código e testes, ajuda a entender um sistema antigo e tira do caminho a parte mais braçal do trabalho. Isso permite mostrar uma versão funcionando cedo e ajustar com quem vai usar, em vez de apresentar tudo pronto no fim.
+
+O conhecimento técnico aparece nas decisões e na validação. Segurança, manutenção e confiabilidade entram aqui como critério de escolha: quem acessa o quê, como a integração se comporta se rodar duas vezes, como mudar uma regra sem quebrar outra. São decisões baratas no começo e caras quando alguém descobre o problema depois. É aí que um especialista vale o que custa, muito mais do que na quantidade de código que ele digita.
+
+E a solução continua evoluindo. A empresa muda de prioridade, o volume cresce, aparece uma demanda nova. Quem conduziu a construção conhece o que foi feito e consegue seguir pra próxima prioridade sem recomeçar do zero.
+
+## O especialista também precisa mudar
+
+Esse arranjo cobra uma mudança de quem desenvolve. Não adianta usar IA pra acelerar o código e manter o resto do jeito antigo: escopo inflado, arquitetura maior do que o problema, meses de levantamento antes de mostrar qualquer coisa e distância de quem usa a ferramenta no dia a dia. Se o desenvolvedor só fica mais rápido em produzir o mesmo projeto grande demais, a empresa continua sem ganhar nada.
+
+<FasterNotCloser lang="pt" />
+
+Também significa respeitar o que o empreendedor já fez. Um protótipo montado com IA por quem conhece o processo pode ser a melhor descrição da necessidade que um especialista vai receber, e muitas vezes vale mais do que uma reunião de requisitos. Tratar isso como lixo a ser descartado é desperdiçar justamente o conhecimento que faltava.
+
+E é bom ser honesto: ter um especialista conduzindo o trabalho não garante que nada vai falhar, nem torna viável qualquer ideia. O que muda é a qualidade das decisões, a existência de verificação e ter alguém responsável pela evolução do que foi construído.
+
+## Onde eu entro
+
+Minha posição é simples: pequenas e médias empresas podem aproveitar a capacidade de criação da IA sem assumir sozinhas decisões técnicas que desconhecem, e sem contratar mais estrutura do que precisam.
+
+Essa é a lógica por trás do <a href={pathFor('pt', 'devPartner')}>Dev parceiro</a>, o serviço que ofereço pra empresas. Eu entendo o problema, combino as prioridades, proponho o caminho, desenvolvo e mantenho o que foi feito, e a IA faz parte de como eu executo. Se fizer sentido pra você, os detalhes estão na página.
+
+E você, de que lado do debate está? Ou também acha que a escolha está mal colocada? Conta aqui nos comentários.
+
+## Referência
+
+- Andrej Karpathy, [post no X](https://x.com/karpathy/status/1886192184808149383) em que usa o termo "vibe coding", 2 de fevereiro de 2025. Consultado em 15 de outubro de 2026.

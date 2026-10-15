@@ -1,0 +1,175 @@
+---
+/**
+ * Article "software-raiz-vs-vibe-coding": who brings what to the third way.
+ * The business brings the pain and the priorities, the specialist leads with
+ * technical judgment and execution, and AI extends what the specialist produces.
+ * Wires carry what goes back and forth; the specialist hands over a validated solution.
+ * Drawn in the Dev parceiro colours (.planet-mars): the third way is what that service offers.
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import DNode from './DNode.astro';
+import Wire from './Wire.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  pt: {
+    title: 'Quem traz o quê na terceira via',
+    caption: 'Ilustração. O especialista participa do começo ao fim; a IA amplia o que ele consegue produzir.',
+    lead: 'conduz',
+    neg: { title: 'Negócio', sub: 'quem conhece a dor', items: ['o processo de verdade', 'o que pesa hoje', 'as prioridades'] },
+    esp: {
+      title: 'Especialista',
+      sub: 'julgamento técnico e execução',
+      items: ['entende e define', 'escolhe o caminho', 'decide e valida', 'acompanha a evolução'],
+    },
+    ia: { title: 'IA', sub: 'amplia o que o especialista produz', items: ['código e testes', 'ler sistema antigo', 'a parte braçal'] },
+    sol: { title: 'Solução que evolui', sub: 'construída, validada e mantida junto com o negócio' },
+    w1: ['prioridades', 'versões'],
+    w2: ['direção', 'código e testes'],
+    w3: 'validada',
+  },
+  en: {
+    title: 'Who brings what to the third way',
+    caption: 'Illustration. The specialist takes part from start to finish; AI extends what they can produce.',
+    lead: 'leads',
+    neg: { title: 'Business', sub: 'knows where it hurts', items: ['how the process really works', 'what weighs most today', 'the priorities'] },
+    esp: {
+      title: 'Specialist',
+      sub: 'technical judgment and execution',
+      items: ['understands and defines', 'chooses the path', 'decides and validates', 'follows the evolution'],
+    },
+    ia: { title: 'AI', sub: 'extends what the specialist produces', items: ['code and tests', 'reading old systems', 'the grunt work'] },
+    sol: { title: 'A solution that evolves', sub: 'built, validated and maintained together with the business' },
+    w1: ['priorities', 'versions'],
+    w2: ['direction', 'code and tests'],
+    w3: 'validated',
+  },
+}[lang];
+---
+
+<div class="planet-mars">
+<DiagramFrame lang={lang} id="dg-third" title={T.title} status="illustrative" caption={T.caption}>
+  <div class="tw">
+    <DNode area="neg" icon="briefcase" title={T.neg.title} sub={T.neg.sub}>
+      <ul class="tw-list">{T.neg.items.map((x) => <li>{x}</li>)}</ul>
+    </DNode>
+    <Wire area="w1" dir="right" label={T.w1[0]} back={T.w1[1]} />
+    <div class="tw-lead" style="grid-area:esp">
+      <span class="tw-badge mono">{T.lead}</span>
+      <DNode icon="user-check" title={T.esp.title} sub={T.esp.sub}>
+        <ul class="tw-list">{T.esp.items.map((x) => <li>{x}</li>)}</ul>
+      </DNode>
+    </div>
+    <Wire area="w2" dir="right" label={T.w2[0]} back={T.w2[1]} delay={0.6} />
+    <DNode area="ia" icon="sparkles" title={T.ia.title} sub={T.ia.sub}>
+      <ul class="tw-list">{T.ia.items.map((x) => <li>{x}</li>)}</ul>
+    </DNode>
+    <Wire area="w3" dir="down" label={T.w3} delay={1.2} />
+    <div class="tw-sol" style="grid-area:sol">
+      <DNode icon="rocket" title={T.sol.title} sub={T.sol.sub} />
+    </div>
+  </div>
+</DiagramFrame>
+</div>
+
+<style>
+  .tw {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'neg' 'w1' 'esp' 'w2' 'ia' 'w3' 'sol';
+    gap: 0.35rem;
+  }
+
+  @media (min-width: 52rem) {
+    .tw {
+      grid-template-columns: minmax(0, 1fr) 8.5rem minmax(0, 1.15fr) 8.5rem minmax(0, 1fr);
+      grid-template-areas:
+        'neg w1 esp w2 ia'
+        '.   .  w3  .  .'
+        '.  sol sol sol .';
+      align-items: stretch;
+      gap: 0;
+    }
+  }
+
+  .tw-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tw-list li {
+    padding: 0.12rem 0.5rem;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font: 500 0.68rem / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  /* the specialist leads: a ring that breathes, and a small badge */
+  .tw-lead {
+    position: relative;
+    display: grid;
+  }
+
+  .tw-lead :global(.dn) {
+    border-color: var(--accent-2);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent-2) 30%, transparent),
+      0 14px 34px -16px color-mix(in srgb, var(--brand-hi) 70%, transparent);
+    animation: lead 3.2s ease-in-out infinite;
+  }
+
+  .tw-lead .tw-list li {
+    color: var(--text);
+    border-color: color-mix(in srgb, var(--accent-2) 45%, transparent);
+  }
+
+  @keyframes lead {
+    50% {
+      box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--accent-2) 18%, transparent),
+        0 14px 34px -16px color-mix(in srgb, var(--brand-hi) 70%, transparent);
+    }
+  }
+
+  .tw-badge {
+    position: absolute;
+    z-index: 2;
+    top: -0.6rem;
+    right: 0.8rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--accent-2);
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .tw-sol {
+    display: grid;
+  }
+
+  .tw-sol :global(.dn) {
+    border-color: var(--accent-2);
+    background:
+      radial-gradient(18rem 6rem at 50% 0%, color-mix(in srgb, var(--brand-hi) 22%, transparent), transparent 80%),
+      color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+
+  @media (min-width: 52rem) {
+    .tw-sol {
+      justify-self: center;
+      width: min(100%, 26rem);
+    }
+  }
+</style>

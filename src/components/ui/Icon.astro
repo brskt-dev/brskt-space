@@ -66,6 +66,11 @@ import {
   Repeat,
   Sheet,
   Wallet,
+  Route,
+  FastForward,
+  Split,
+  CircleQuestionMark,
+  Swords,
 } from '@lucide/astro';
 
 const lucide = {
@@ -130,6 +135,11 @@ const lucide = {
   repeat: Repeat,
   sheet: Sheet,
   wallet: Wallet,
+  route: Route,
+  'fast-forward': FastForward,
+  split: Split,
+  question: CircleQuestionMark,
+  swords: Swords,
 } as const;
 
 export type IconName = keyof typeof lucide | 'github' | 'linkedin';

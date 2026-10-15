@@ -1,0 +1,268 @@
+---
+/**
+ * Article "software-raiz-vs-vibe-coding": what the specialist has to change.
+ * Left, the same oversized project, only faster (scope, discovery and architecture
+ * stay big; users see it at the end). Right, small versions close to the problem,
+ * each one going through the people who use it. The right panel wears the Dev parceiro
+ * colours (.planet-mars).
+ */
+import DiagramFrame from './DiagramFrame.astro';
+import Icon from '../ui/Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const T = {
+  pt: {
+    title: 'Acelerar o código não basta',
+    caption: 'Ilustração. A IA permite entregar menor e mais cedo; o ganho some se o resto continuar do mesmo tamanho.',
+    oldTitle: 'Mesmo projeto, só mais rápido',
+    blocks: ['levantamento longo', 'escopo inflado', 'arquitetura maior que o problema'],
+    delivery: 'entrega',
+    oldNote: 'quem usa só vê no fim',
+    newTitle: 'Perto do problema',
+    slices: ['versão 1', 'ajuste', 'versão 2', 'ajuste'],
+    newNote: 'cada versão passa por quem usa',
+  },
+  en: {
+    title: 'Speeding up the code isn’t enough',
+    caption: 'Illustration. AI makes it possible to deliver smaller and sooner; the gain disappears if everything else stays the same size.',
+    oldTitle: 'Same project, just faster',
+    blocks: ['long discovery', 'bloated scope', 'architecture bigger than the problem'],
+    delivery: 'delivery',
+    oldNote: 'users only see it at the end',
+    newTitle: 'Close to the problem',
+    slices: ['version 1', 'adjust', 'version 2', 'adjust'],
+    newNote: 'every version goes through the people who use it',
+  },
+}[lang];
+---
+
+<DiagramFrame lang={lang} id="dg-faster" title={T.title} status="illustrative" caption={T.caption}>
+  <div class="fn">
+    <div class="fn-panel fn-old">
+      <p class="fn-h"><Icon name="fast-forward" size={16} />{T.oldTitle}</p>
+      <div class="fn-track">
+        <ul class="fn-blocks">{T.blocks.map((b) => <li>{b}</li>)}</ul>
+        <span class="fn-sweep" aria-hidden="true"></span>
+      </div>
+      <p class="fn-end">
+        <span class="fn-line" aria-hidden="true"></span>
+        <span class="fn-delivery"><span class="fn-diamond" aria-hidden="true"></span>{T.delivery}</span>
+        <Icon name="user" size={16} />
+      </p>
+      <p class="fn-note">{T.oldNote}</p>
+    </div>
+
+    <div class="fn-panel fn-new planet-mars">
+      <p class="fn-h"><Icon name="route" size={16} />{T.newTitle}</p>
+      <ol class="fn-slices">
+        {
+          T.slices.map((s, i) => (
+            <li style={`--i:${i}`}>
+              <span class="fn-slice">{s}</span>
+              <span class="fn-user" aria-hidden="true">
+                <Icon name="user-check" size={14} />
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="fn-note fn-note-new">{T.newNote}</p>
+    </div>
+  </div>
+</DiagramFrame>
+
+<style>
+  .fn {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  @media (min-width: 52rem) {
+    .fn {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .fn-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.9rem 1rem 1rem;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+
+  .fn-h {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font: 700 0.98rem / 1.2 var(--font-display);
+  }
+
+  .fn-old .fn-h :global(.icon) {
+    color: var(--accent-2);
+  }
+
+  .fn-new {
+    border-color: var(--accent-2);
+    background:
+      radial-gradient(18rem 8rem at 0% 0%, color-mix(in srgb, var(--brand-hi) 22%, transparent), transparent 75%),
+      color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--text);
+  }
+
+  .fn-new .fn-h :global(.icon) {
+    color: var(--accent);
+  }
+
+  .fn-note {
+    margin: 0;
+    font: 500 0.72rem / 1.4 var(--font-mono);
+    color: var(--muted);
+  }
+
+  .fn-note-new {
+    color: var(--accent);
+  }
+
+  /* ---------- left: big blocks, a fast sweep, users far away ---------- */
+  .fn-track {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--r-sm);
+  }
+
+  .fn-blocks {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1.5fr;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fn-blocks li {
+    display: flex;
+    align-items: center;
+    min-height: 3.4rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 70%, var(--surface)), var(--surface-2));
+    font: 500 0.66rem / 1.3 var(--font-mono);
+    color: var(--text);
+  }
+
+  .fn-sweep {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 35%, transparent), transparent);
+    opacity: 0;
+    animation: fn-sweep 1.8s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+
+  @keyframes fn-sweep {
+    0% {
+      transform: translateX(-100%);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(340%);
+      opacity: 1;
+    }
+  }
+
+  .fn-end {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .fn-line {
+    flex: 1;
+    height: 0;
+    border-top: 2px dashed var(--border-hi);
+  }
+
+  .fn-delivery {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font: 600 0.7rem / 1 var(--font-mono);
+    color: var(--sun);
+  }
+
+  .fn-diamond {
+    width: 0.55rem;
+    height: 0.55rem;
+    background: var(--sun);
+    transform: rotate(45deg);
+  }
+
+  /* ---------- right: small versions, each checked by a person ---------- */
+  .fn-slices {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fn-slices li {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    animation: fn-in 6s ease-out infinite backwards;
+    animation-delay: calc(var(--i) * 1.1s);
+  }
+
+  .fn-slice {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 2.6rem;
+    padding: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 55%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--brand) 35%, var(--surface));
+    font: 600 0.66rem / 1.2 var(--font-mono);
+    color: var(--text);
+    text-align: center;
+  }
+
+  .fn-user {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    border: 1px solid var(--accent-2);
+    color: var(--accent);
+  }
+
+  @keyframes fn-in {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    8%,
+    92% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
