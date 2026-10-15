@@ -212,6 +212,8 @@ const strings = {
   'service.whoKicker': { pt: '// quem pilota', en: '// who’s flying' },
   'service.whoLink': { pt: 'Minha trajetória', en: 'My background' },
   'service.conditionsKicker': { pt: '// combinado não sai caro', en: '// the deal, upfront' },
+  /** HUD label on the hero picture (decorative). */
+  'service.roverHud': { pt: 'rover em missão', en: 'rover on a mission' },
   'service.sourceLabel': { pt: 'Fonte', en: 'Source' },
   'service.faqKicker': { pt: '// perguntas frequentes', en: '// frequently asked' },
   'service.howLink': { pt: 'Ver como funciona', en: 'See how it works' },

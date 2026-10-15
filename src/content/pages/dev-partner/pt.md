@@ -1,7 +1,8 @@
 ---
 # Copy of the Dev parceiro landing (/pt/servicos/dev-parceiro/).
 # Icons follow the item order: recognize = repeat, unplug, sheet, wallet, lock, lightbulb;
-# does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh.
+# does = zap, plug, list-checks, receipt, wrench, rocket; how = message, telescope, list-checks, hammer, refresh;
+# hero.orbit (tags in the sky of the hero picture) = zap, plug, sheet, wallet, rocket, wrench.
 title: "Dev parceiro · consultoria e desenvolvimento"
 description: "Consultoria e desenvolvimento contínuo pra empresas: automação, integrações, melhorias e sistemas novos. Uma mensalidade, sem cobrança separada por etapa."
 offer:
