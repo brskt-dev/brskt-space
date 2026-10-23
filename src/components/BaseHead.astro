@@ -49,7 +49,7 @@ const {
   themeColor = '#0B0814',
 } = Astro.props;
 
-const site = Astro.site ?? 'https://brskt-dev.github.io';
+const site = Astro.site ?? 'https://brskt.dev';
 const url = absoluteUrl(path, site);
 const og = pageOg ? await getPageOgImage(pageOg.src) : await getOgImage();
 const ogImage = absoluteUrl(og.src, site);

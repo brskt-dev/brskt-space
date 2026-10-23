@@ -4,10 +4,11 @@ import { satteri } from '@astrojs/markdown-satteri';
 import mdx from '@astrojs/mdx';
 import { externalLinks } from './src/lib/markdown-external-links.mjs';
 
-// Deployed as a GitHub Pages project site: https://brskt-dev.github.io/brskt-space/
-// Custom domain: change SITE (and BASE to '/') here and in scripts/verify-dist.mjs.
-const SITE = 'https://brskt-dev.github.io';
-const BASE = '/brskt-space';
+// Deployed as a GitHub Pages project site with a custom domain: https://brskt.dev/
+// (the old https://brskt-dev.github.io/brskt-space/ URLs redirect here).
+// Keep SITE and BASE in sync with scripts/verify-dist.mjs.
+const SITE = 'https://brskt.dev';
+const BASE = '/';
 
 export default defineConfig({
   site: SITE,

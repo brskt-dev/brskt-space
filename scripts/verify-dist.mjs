@@ -29,8 +29,8 @@ import { parseArgs } from 'node:util';
 
 // ------------------------------------------------------------------ configuration
 // Keep SITE and BASE in sync with `site` and `base` in astro.config.mjs.
-const SITE = 'https://brskt-dev.github.io';
-const BASE = '/brskt-space/';
+const SITE = 'https://brskt.dev';
+const BASE = '/';
 
 const ROOT_PAGE = 'index.html'; // language chooser
 const NOT_FOUND_PAGE = '404.html';

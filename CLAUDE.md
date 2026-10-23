@@ -1,7 +1,7 @@
 # brskt-space: notes for AI-assisted edits
 
 Bruno Anhezini's bilingual (PT-BR + EN) portfolio. Astro, fully static, deployed to
-https://brskt-dev.github.io/brskt-space/ by `.github/workflows/deploy.yml` on push to `main` (work happens on `dev`, merged via PR).
+https://brskt.dev/ (GitHub Pages custom domain; the old https://brskt-dev.github.io/brskt-space/ URLs redirect) by `.github/workflows/deploy.yml` on push to `main` (work happens on `dev`, merged via PR).
 README.md (Portuguese) is the owner's manual; keep it accurate when structure or commands change.
 
 ## Structure
@@ -19,7 +19,7 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
 - `scripts/verify-dist.mjs`: post-build checks on `dist/` (links, base path, head tags, hreflang, placeholder text).
 
 ## Commands
-- `npm ci`, `npm run dev` (http://localhost:4321/brskt-space/), `npm run build`.
+- `npm ci`, `npm run dev` (http://localhost:4321/), `npm run build`.
 - `npm run verify` = astro check (types: catches a missing pt/en in `src/i18n/ui.ts` and `src/data/profile.ts`) + build + `scripts/verify-dist.mjs`. Run it before declaring any change done; CI runs the same.
 - Never `git push` or change remotes/config unless the owner asks.
 
@@ -36,7 +36,8 @@ README.md (Portuguese) is the owner's manual; keep it accurate when structure or
   sentences. Phone/WhatsApp only on the About page and the Dev parceiro pages (landing + its Projects entry, via `WhatsAppLink.astro`, which counts each CTA as a `whatsapp-<place>-<lang>` GoatCounter event), never in the footer; `verify-dist.mjs` enforces the list. Conta Comigo: content comes from the owner's
   demo overview and the demo's own landing page; screenshots in its `media/` folder are the product's official
   ones (fictional data).
-- **Base path.** The site lives under `/brskt-space/`. Never hand-write `/pt/...`, `/en/...` or `/favicon.svg`;
+- **Base path.** The site lives at the root of https://brskt.dev (`base: '/'`), but keep URLs base-aware so a
+  domain or base change stays a one-line edit: never hand-write `/pt/...`, `/en/...` or `/favicon.svg`;
   build every href/src with the helpers (`pathFor`, `publicationUrl`, `alternateUrl`, `urlFor` in
   `src/i18n/ui.ts`; `joinBase`, `assetPath`, `absoluteUrl` in `src/lib/url.ts`). Routes end with `/`.
 - **Look & feel (owner's brief).** "Fun dev", community, space theme ("Brskt Space"): Bricolage Grotesque
