@@ -6,7 +6,7 @@ import { absoluteUrl } from '../lib/url';
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const GET: APIRoute = async ({ site }) => {
-  const origin = site ?? 'https://brskt-dev.github.io';
+  const origin = site ?? 'https://brskt.dev';
   const abs = (p: string) => esc(absoluteUrl(p, origin));
   const entries = await getSitemapEntries();
 

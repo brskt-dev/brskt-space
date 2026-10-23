@@ -1,12 +1,12 @@
 /**
  * Low-level URL building. Everything that ends up in an href/src goes through here
- * so the GitHub Pages base path (/brskt-space/) is never forgotten.
+ * so the base path (astro.config `base`, "/" with the custom domain) is never forgotten.
  */
 
 /** Site origin (astro.config `site`). */
-export const SITE_ORIGIN = 'https://brskt-dev.github.io';
+export const SITE_ORIGIN = 'https://brskt.dev';
 
-/** Base path, always with leading and trailing slash: "/brskt-space/". */
+/** Base path, always with leading and trailing slash: "/" (or "/<base>/" under a project path). */
 export const BASE: string = (() => {
   const raw = import.meta.env.BASE_URL || '/';
   const trimmed = raw.replace(/^\/+|\/+$/g, '');
@@ -17,7 +17,7 @@ const clean = (part: string) => part.replace(/^\/+|\/+$/g, '');
 
 /**
  * Join path segments under the base and end with a trailing slash (directory route).
- * joinBase() → "/brskt-space/"; joinBase('pt','sobre') → "/brskt-space/pt/sobre/".
+ * joinBase() → "/"; joinBase('pt','sobre') → "/pt/sobre/".
  * Empty segments are ignored.
  */
 export function joinBase(...parts: string[]): string {
@@ -25,7 +25,7 @@ export function joinBase(...parts: string[]): string {
   return path ? `${BASE}${path}/` : BASE;
 }
 
-/** URL of a file in public/ (no trailing slash). assetPath('favicon.svg') → "/brskt-space/favicon.svg". */
+/** URL of a file in public/ (no trailing slash). assetPath('favicon.svg') → "/favicon.svg". */
 export function assetPath(file: string): string {
   return `${BASE}${clean(file)}`;
 }

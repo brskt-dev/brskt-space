@@ -44,12 +44,12 @@ export type PageRef =
   | { kind: 'page'; page: PageKey }
   | { kind: 'publication'; type: PublicationType; slug: string };
 
-/** Path (with base, trailing slash) of a page in a language. e.g. pathFor('pt','about') → /brskt-space/pt/sobre/ */
+/** Path (with base, trailing slash) of a page in a language. e.g. pathFor('pt','about') → /pt/sobre/ */
 export function pathFor(lang: Lang, page: PageKey): string {
   return joinBase(lang, segments[page][lang]);
 }
 
-/** Path of a publication. e.g. publicationUrl('en','product','conta-comigo') → /brskt-space/en/projects/conta-comigo/ */
+/** Path of a publication. e.g. publicationUrl('en','product','conta-comigo') → /en/projects/conta-comigo/ */
 export function publicationUrl(lang: Lang, type: PublicationType, slug: string): string {
   return joinBase(lang, segments[sectionForType(type)][lang], slug);
 }
