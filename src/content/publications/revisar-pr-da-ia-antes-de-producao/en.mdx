@@ -1,0 +1,56 @@
+---
+type: article
+title: "AI opened the PR. What do I need to check before it goes to production?"
+summary: "The build passed, the tests passed and the diff looks clean. How I review a change made with AI help before deploying it, starting from a .NET endpoint that works in the normal flow and still lets someone read another company’s data."
+date: 2026-10-29
+tags: ["Code review", "AI", ".NET", "SQL Server", "Deploy"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+The agent is done, it opened the PR and the summary is great. The build passed, the tests passed and the code is tidy, with good names and even a comment where one was needed. You could approve it in two minutes.
+
+On the team I work with today, I’m the one who does the final review before a change goes to production. We put together context, conventions and guardrails to guide the agents, and that makes what arrives a lot better. But it doesn’t change the question I ask before approving: what does this change actually allow in production?
+
+## A small example
+
+A made-up example, to keep it concrete. A .NET API backed by SQL Server gets an endpoint that lists a company’s requests:
+
+```csharp
+app.MapGet("/companies/{companyId:int}/requests",
+    async (int companyId, AppDbContext db) =>
+        await db.Requests
+            .Where(r => r.CompanyId == companyId)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync())
+    .RequireAuthorization();
+```
+
+The query is right and the endpoint requires a login. The frontend only shows the companies the user can access, so in the normal flow everything works. But nobody checked whether that user may see that company: change the `companyId` in the URL and you can read another customer’s requests. `RequireAuthorization()` checks that the person is authenticated, not what they’re allowed to access.
+
+The diff doesn’t show the problem, because the problem is exactly what’s missing from it. That’s why I review behavior, not just code.
+
+## What I check
+
+I start with the business rule. Does the implementation respect the real conditions and exceptions of the flow, or only the case described in the request?
+
+Then permissions: who can do this, on which data, and does the backend enforce it on its own, without relying on the filter in the UI?
+
+Queries come right after. In the example, `ToListAsync()` brings everything at once, and for a company with a long history that means a whole table in memory. Pagination, a cap on volume and a query designed for the expected use matter more than remembering to add an index, which helps but doesn’t fix performance by itself.
+
+If the change touches an integration, what happens on timeout, failure and retry? A retry can duplicate an order or a charge. I wrote more about that <a href={publicationUrl('en', 'article', 'api-para-agentes')}>in an article on APIs and AI agents</a>.
+
+Configuration is the item that slips by most often: does the change depend on a new secret, a variable that only exists in development, a migration or some difference between environments?
+
+And finally, recovery. If it goes wrong, how will I find out and how do I roll it back? Redeploying the previous image doesn’t undo a migration that already ran, or an email that already went out.
+
+## Where AI fits in the review
+
+I use AI at this stage too. I ask it to explain the diff, raise hypotheses about what could break and suggest test scenarios. Asking for a second review, in another session or with another model, often catches things that slipped through. But that isn’t independent validation: both readings start from the same request, and neither knows whether the business rule is right unless someone told them what the rule is.
+
+What helps me most is testing the scenario that could fail, instead of replaying the happy path. In the example, that means calling the endpoint with the `companyId` of a company the user can’t access and checking that the API refuses. That test is worth more than ten clicks through the flow that already worked.
+
+Compiling, passing the tests and having a nice diff are good signs, but they speak about the code. Before deploying, I want to understand what the change does to the system and to the people who depend on it.
+
+So what’s the one question you always ask before approving a deploy, whether the code came from AI or from someone on the team? Tell me in the comments.

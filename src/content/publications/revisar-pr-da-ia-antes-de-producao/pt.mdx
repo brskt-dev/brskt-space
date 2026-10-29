@@ -1,0 +1,56 @@
+---
+type: article
+title: "A IA abriu o PR. O que eu preciso conferir antes de colocar em produção?"
+summary: "O build passou, os testes também e o diff parece limpo. Como eu reviso uma mudança feita com apoio de IA antes do deploy, a partir de um endpoint .NET que funciona no fluxo normal e mesmo assim deixa ler dados de outra empresa."
+date: 2026-10-29
+tags: ["Code review", "IA", ".NET", "SQL Server", "Deploy"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+O agente terminou, abriu o PR e o resumo está ótimo. O build passou, os testes passaram e o código está organizado, com nomes bons e até um comentário onde precisava. Daria pra aprovar em dois minutos.
+
+No time em que trabalho hoje, sou eu quem faz a revisão final antes de uma mudança ir pra produção. A gente prepara contexto, padrões e guardrails pra orientar os agentes, e isso melhora muito o que chega. Mas não muda a pergunta que eu faço antes de aprovar: o que essa mudança realmente permite fazer em produção?
+
+## Um exemplo pequeno
+
+Um exemplo fictício, pra ficar concreto. Uma API .NET com SQL Server ganha um endpoint pra listar as solicitações de uma empresa:
+
+```csharp
+app.MapGet("/companies/{companyId:int}/requests",
+    async (int companyId, AppDbContext db) =>
+        await db.Requests
+            .Where(r => r.CompanyId == companyId)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync())
+    .RequireAuthorization();
+```
+
+A consulta está certa e o endpoint exige login. O frontend só mostra as empresas a que o usuário tem acesso, então no fluxo normal tudo funciona. Só que ninguém verificou se aquele usuário pode ver aquela empresa: basta trocar o `companyId` na URL pra ler as solicitações de outro cliente. O `RequireAuthorization()` confere se a pessoa está autenticada, não o que ela pode acessar.
+
+O diff não mostra esse problema, porque o problema é justamente o que falta nele. Por isso eu reviso o comportamento, e não só o código.
+
+## O que eu confiro
+
+Começo pela regra de negócio. A implementação respeita as condições e as exceções reais do fluxo, ou só o caso que estava descrito no pedido?
+
+Depois vem permissão: quem pode fazer isso, sobre quais dados, e se o backend valida isso por conta própria, sem depender do filtro da tela.
+
+As consultas vêm junto. No exemplo, o `ToListAsync()` traz tudo de uma vez, e numa empresa com muito histórico isso vira uma tabela inteira na memória. Paginação, limite de volume e uma consulta pensada pro uso esperado pesam mais do que lembrar de criar um índice, que ajuda, mas não resolve performance sozinho.
+
+Se a mudança mexe com integração, o que acontece com timeout, falha e nova tentativa? Uma repetição pode duplicar um pedido ou uma cobrança. Falei mais disso <a href={publicationUrl('pt', 'article', 'api-para-agentes')}>num artigo sobre APIs e agentes de IA</a>.
+
+Configuração é o item que mais passa batido: a mudança depende de um secret novo, de uma variável que só existe em desenvolvimento, de uma migration ou de alguma diferença entre ambientes?
+
+E por último, recuperação. Se der errado, como eu fico sabendo e como eu volto atrás? Subir a imagem anterior não desfaz uma migration que já rodou, nem um e-mail que já foi enviado.
+
+## Onde a IA entra na revisão
+
+Eu uso IA nessa etapa também. Peço pra ela explicar o diff, levantar hipóteses do que pode quebrar e propor cenários de teste. Pedir uma segunda revisão, em outra sessão ou com outro modelo, costuma achar coisas que passaram. Mas isso não é uma validação independente: as duas leituras partem do mesmo pedido, e nenhuma delas sabe se a regra de negócio está certa se ninguém contou qual é a regra.
+
+O que mais me ajuda é testar o cenário que poderia falhar, em vez de repetir o caminho feliz. No exemplo, é chamar o endpoint com o `companyId` de uma empresa a que o usuário não tem acesso e conferir que a API recusa. Esse teste vale mais do que dez cliques no fluxo que já funcionava.
+
+Compilar, passar nos testes e ter um diff bonito são bons sinais, mas falam do código. Antes do deploy, eu quero entender o que a mudança faz com o sistema e com quem depende dele.
+
+E você, qual pergunta você sempre faz antes de aprovar um deploy, seja o código da IA ou de alguém do time? Conta aqui nos comentários.
