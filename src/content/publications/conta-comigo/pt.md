@@ -1,21 +1,21 @@
 ---
 type: product
 title: "Conta Comigo"
-summary: "Checklist guiado para agências de marketing coletarem os acessos dos clientes. A agência monta, envia um link e acompanha item a item; o cliente preenche sem criar conta."
+summary: "Onboarding de acessos para agências de marketing, lançado em novembro de 2026. A agência pede e acompanha tudo num link só, o cliente segue um passo a passo sem criar conta e a equipe confirma cada acesso."
 date: 2026-10-01
-status: demo
-tags: ["SaaS B2B", "Onboarding de clientes", "Multiagente", "Demo pública"]
+updated: 2026-11-16
+status: live
+tags: ["SaaS B2B", "Onboarding de clientes", "Multiagente", "Lançado"]
 cover: ./media/landing-pt.webp
 thumbnail: ./media/thumb-pt.webp
 links:
-  - { label: "Abrir a demo", url: "https://contacomigo-demo.vercel.app" }
+  - { label: "Conhecer o Conta Comigo", url: "https://contacomigo.brskt.dev/" }
 stats:
-  - { value: "R$ 0", label: "por mês para manter a demo no ar" }
   - { value: "57", label: "decisões de produto documentadas" }
   - { value: "7", label: "áreas na execução multiagente" }
-  - { value: "489", label: "testes unitários" }
-  - { value: "147", label: "testes de integração" }
-  - { value: "46/46", label: "testes E2E com Playwright" }
+  - { value: "489", label: "testes unitários na V1" }
+  - { value: "147", label: "testes de integração na V1" }
+  - { value: "46/46", label: "testes E2E com Playwright na V1" }
 gallery:
   - src: ./media/request-detail-pt.webp
     alt: "Detalhe de uma solicitação na área da agência: progresso concluído pelo cliente e confirmado pela agência, itens com status e o link do cliente."
@@ -66,9 +66,35 @@ Um checklist guiado, em quatro passos:
 3. **O cliente preenche no ritmo dele.** As respostas são salvas sozinhas, ele anexa prints quando ajuda e envia para revisão quando termina.
 4. **A agência confere e registra.** Confirma o item ou devolve com um motivo. "Concluído pelo cliente" e "confirmado pela agência" são status diferentes.
 
-## O que tem na V1
+## No ar desde 16 de novembro de 2026
 
-### Para a agência
+O Conta Comigo foi lançado e está aberto para uso em [contacomigo.brskt.dev](https://contacomigo.brskt.dev/), com teste grátis de 30 dias, sem cartão. A versão lançada traz:
+
+- Passo a passo pronto para 53 plataformas, conferido na ajuda oficial de cada uma e com a data da última revisão.
+- 9 templates prontos, além dos que a agência monta.
+- Portal do cliente com a marca da agência, sem criar conta, com a opção de passar um item para outra pessoa.
+- Lembretes automáticos por e-mail ou pelo WhatsApp.
+- Cofre de acessos por cliente: quando a plataforma não tem convite, o login vai cifrado para o cofre, aberto só por quem tem acesso e com histórico de quem viu.
+- Mapa do que já foi liberado em cada plataforma e aviso de acesso que parou de funcionar.
+- Equipe sem custo por pessoa, com parceiros e freelancers vendo só os clientes liberados.
+- Planos por agência, pelo número de solicitações publicadas por mês.
+
+## O que ele não faz, de propósito
+
+É um passo a passo com acompanhamento, não uma automação:
+
+- Não concede, detecta nem verifica acessos. A agência confere na plataforma e registra no Conta Comigo.
+- Não se conecta às contas do Google, da Meta ou de outras plataformas de marketing.
+- Não pede códigos de verificação. Quando a plataforma não tem convite e a agência precisa de um login, ele vai cifrado para o cofre do cliente.
+- Revogar o link não revoga acessos já concedidos nas plataformas.
+
+## Antes do lançamento: a V1 como demo pública
+
+Antes de ser lançado, o Conta Comigo ficou no ar como demo pública, com dados fictícios e uma agência em modo somente leitura. Tudo daqui para baixo conta como aquela primeira versão foi feita e posta no ar.
+
+### O que tinha na V1
+
+#### Para a agência
 
 - Montador de checklists com seções, itens, 7 tipos de campo, condições e arrastar e soltar (também pelo teclado).
 - Templates próprios, templates oficiais e biblioteca de blocos.
@@ -76,26 +102,18 @@ Um checklist guiado, em quatro passos:
 - Revisão item a item, comentários, notas internas e histórico.
 - Analytics, membros, convites e a marca da agência no portal.
 
-### Para o cliente
+#### Para o cliente
 
 - Portal por link seguro, sem criar conta.
 - Salvamento automático e progresso sempre visível.
 - Envio de imagens como evidência e pedido de ajuda em cada item.
 - Tudo em PT-BR e EN.
 
-## O que ele não faz, de propósito
-
-É um checklist, não uma automação:
-
-- Não concede, detecta nem verifica acessos. A agência confere na plataforma e registra no Conta Comigo.
-- Não pede senhas: os passos seguem os convites oficiais de cada plataforma.
-- Não se conecta às contas do Google, da Meta ou de outras plataformas de marketing.
-
-## Como foi construído
+### Como foi construído
 
 A especificação tem **57 decisões e 10 regras de produto** documentadas. A V1 saiu de uma execução multiagente: um líder integrando sete áreas, Foundation, Builder, Content, Client Portal, Ops, Public e QA.
 
-## Arquitetura
+### Arquitetura
 
 ```text
 Navegador ──páginas──▶ Vercel (Next.js 16)
@@ -116,7 +134,7 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 - O worker roda no mesmo serviço da API.
 - Os deploys saem da branch `main`.
 
-## Tudo no plano grátis
+### Tudo no plano grátis
 
 | Peça | Serviço | Observação |
 |---|---|---|
@@ -129,7 +147,7 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 | Erros | Sentry Developer | sem dados de usuário |
 | CI e dados | GitHub Actions | workflows manuais com confirmação |
 
-## Feito para ser uma demo
+### Feito para ser uma demo
 
 - **Ambientes explícitos.** A variável `DEPLOY_ENV` separa local, staging e produção. O staging exige Clerk de desenvolvimento e allowlist de e-mail, a produção recusa chaves de teste, e um erro de inicialização cita a variável e o motivo, nunca o valor.
 - **E-mail só para quem deve.** O worker descarta qualquer destinatário fora da allowlist antes de chegar ao provedor.
@@ -141,7 +159,7 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 - **Configuração à prova de deslize.** URLs exigem `https://` e a mensagem de erro mostra o formato. O build do web falha se o endereço do storage estiver inválido; antes, uploads e imagens quebrariam no navegador sem nenhum aviso.
 - **CI de volta ao verde.** A imagem do MinIO deixou de ser pública e foi trocada pela da Chainguard, no CI e no ambiente local.
 
-## Segurança e privacidade
+### Segurança e privacidade
 
 - Regras e autorização só na API. O web nunca acessa o banco.
 - **Link do portal:** o token é guardado só como hash e cópia cifrada (AES-256-GCM). Ele vira uma sessão em cookie `HttpOnly`, restrito ao caminho do portal. Alterações exigem origem válida e cabeçalho anti-CSRF.
@@ -149,7 +167,7 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 - Sentry com coleta de dados desligada, URLs sem parâmetros, sem gravação de sessão nem rastreio de desempenho.
 - Segredos exclusivos do staging, só nos painéis. Fora do staging, quem não é membro recebe um 404 genérico.
 
-## Qualidade
+### Qualidade
 
 - **489 testes unitários:** shared 121, content 126, API 75 e web 167.
 - **147 testes de integração** em 20 suítes, com Postgres, MinIO e Mailpit reais.
@@ -157,7 +175,7 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 - CI verde no GitHub Actions: lint, typecheck, unitários, integração, E2E e build.
 - Conferência visual do visitante: 15 telas, sem nenhuma tentativa de alteração saindo da página.
 
-## Bastidores do deploy: 6 tropeços reais
+### Bastidores do deploy: 6 tropeços reais
 
 1. **O seed falhou com `S3_ENDPOINT: Invalid URL`.** O painel do B2 mostra o endpoint sem `https://`. O valor foi corrigido e a validação ganhou uma mensagem clara.
 2. **A API não subiu no Render.** O serviço tinha sido criado sem nenhuma variável de ambiente.
@@ -166,15 +184,9 @@ GitHub Actions ──CI · migrations · reset da demo──▶ Neon
 5. **Login travado em "Carregando seu espaço…".** A Vercel deu outro domínio ao projeto, e a API só aceita sessões do domínio configurado. Ligar o domínio esperado ao projeto resolveu.
 6. **O Sentry recusava eventos (`403 ProjectId`).** A DSN misturava a chave de um projeto com o número de outro. Copiar de novo resolveu.
 
-## Custo e limites
+### Custo e limites
 
 - **R$ 0 por mês.**
 - O Render dorme após 15 min sem acesso e acorda em cerca de 1 min, com limite de 750 h/mês.
 - O Neon dorme após 5 min parado e acorda em segundos, com limite de 100 CU-hora/mês. Por isso a API não fica acordada o dia todo.
 - Outros limites: B2 com 10 GB, Clerk de desenvolvimento com 100 usuários, Resend com 100 e-mails por dia e Vercel Hobby só para uso pessoal.
-
-> Se a demo demorar um pouco para responder, é a API acordando no Render. Dá cerca de um minuto.
-
-## Status da missão
-
-Demo pública no ar, com dados fictícios: crie uma conta e explore uma agência em modo somente leitura.

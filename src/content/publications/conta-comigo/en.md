@@ -1,21 +1,21 @@
 ---
 type: product
 title: "Conta Comigo"
-summary: "A guided checklist for marketing agencies to collect access from their clients. The agency builds it, sends a link and tracks it item by item; the client fills it in without creating an account."
+summary: "Access onboarding for marketing agencies, launched in November 2026. The agency requests and tracks everything in a single link, the client follows a step-by-step guide without creating an account, and the team confirms each access."
 date: 2026-10-01
-status: demo
-tags: ["B2B SaaS", "Client onboarding", "Multi-agent", "Public demo"]
+updated: 2026-11-16
+status: live
+tags: ["B2B SaaS", "Client onboarding", "Multi-agent", "Launched"]
 cover: ./media/landing-en.webp
 thumbnail: ./media/thumb-en.webp
 links:
-  - { label: "Open the demo", url: "https://contacomigo-demo.vercel.app/en" }
+  - { label: "Visit Conta Comigo", url: "https://contacomigo.brskt.dev/en" }
 stats:
-  - { value: "R$ 0", label: "a month to keep the demo running" }
   - { value: "57", label: "documented product decisions" }
   - { value: "7", label: "areas in the multi-agent run" }
-  - { value: "489", label: "unit tests" }
-  - { value: "147", label: "integration tests" }
-  - { value: "46/46", label: "Playwright E2E tests" }
+  - { value: "489", label: "unit tests in V1" }
+  - { value: "147", label: "integration tests in V1" }
+  - { value: "46/46", label: "Playwright E2E tests in V1" }
 gallery:
   - src: ./media/request-detail-en.webp
     alt: "Request detail in the agency area: progress completed by the client and confirmed by the agency, items with their status and the client link."
@@ -66,9 +66,35 @@ A guided checklist, in four steps:
 3. **The client fills it in at their own pace.** Answers save automatically, screenshots can be attached when they help, and the client submits for review when done.
 4. **The agency checks and records it.** It confirms the item or sends it back with a reason. "Completed by the client" and "confirmed by the agency" are different statuses.
 
-## What's in V1
+## Live since November 16, 2026
 
-### For the agency
+Conta Comigo has launched and is open for use at [contacomigo.brskt.dev](https://contacomigo.brskt.dev/en), with a 30-day free trial and no card required. The launched version brings:
+
+- Step-by-step guides for 53 platforms, checked against each one’s official help and dated with their last review.
+- 9 ready-made templates, on top of the ones the agency builds.
+- A client portal with the agency’s brand, no account needed, and the option to pass an item on to someone else.
+- Automatic reminders by email or over WhatsApp.
+- An access vault per client: when a platform has no invite, the login goes encrypted to the vault, opened only by people with access and with a history of who viewed it.
+- A map of what has been granted on each platform and a warning when an access stops working.
+- No cost per team member, with partners and freelancers seeing only the clients they were given.
+- Plans per agency, based on the number of requests published each month.
+
+## What it doesn't do, on purpose
+
+It's a step-by-step guide with tracking, not automation:
+
+- It doesn't grant, detect or verify access. The agency checks on the platform and records it in Conta Comigo.
+- It doesn't connect to Google, Meta or any other marketing platform accounts.
+- It never asks for verification codes. When a platform has no invite and the agency needs a login, it goes encrypted to the client's vault.
+- Revoking the link doesn't revoke access already granted on the platforms.
+
+## Before the launch: V1 as a public demo
+
+Before it launched, Conta Comigo was online as a public demo, with fictional data and an agency in read-only mode. Everything from here down tells how that first version was built and put online.
+
+### What was in V1
+
+#### For the agency
 
 - Checklist builder with sections, items, 7 field types, conditions and drag and drop (keyboard included).
 - Its own templates, official templates and a library of blocks.
@@ -76,26 +102,18 @@ A guided checklist, in four steps:
 - Item-by-item review, comments, internal notes and history.
 - Analytics, members, invites and the agency's branding on the portal.
 
-### For the client
+#### For the client
 
 - A portal behind a secure link, no account needed.
 - Autosave and progress that's always visible.
 - Image uploads as evidence and a help request on each item.
 - Everything in PT-BR and EN.
 
-## What it doesn't do, on purpose
-
-It's a checklist, not automation:
-
-- It doesn't grant, detect or verify access. The agency checks on the platform and records it in Conta Comigo.
-- It never asks for passwords: the steps follow each platform's official invites.
-- It doesn't connect to Google, Meta or any other marketing platform accounts.
-
-## How it was built
+### How it was built
 
 The spec has **57 decisions and 10 product rules** documented. V1 came out of a multi-agent run: a lead integrating seven areas, Foundation, Builder, Content, Client Portal, Ops, Public and QA.
 
-## Architecture
+### Architecture
 
 ```text
 Browser ──pages──▶ Vercel (Next.js 16)
@@ -116,7 +134,7 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 - The worker runs in the same service as the API.
 - Deploys ship from the `main` branch.
 
-## All on free tiers
+### All on free tiers
 
 | Piece | Service | Note |
 |---|---|---|
@@ -129,7 +147,7 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 | Errors | Sentry Developer | no user data |
 | CI and data | GitHub Actions | manual workflows with confirmation |
 
-## Built to be a demo
+### Built to be a demo
 
 - **Explicit environments.** The `DEPLOY_ENV` variable separates local, staging and production. Staging requires development Clerk and an email allowlist, production rejects test keys, and a startup error names the variable and the reason, never the value.
 - **Email only to the right people.** The worker drops any recipient outside the allowlist before it reaches the provider.
@@ -141,7 +159,7 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 - **Slip-proof configuration.** URLs must start with `https://` and the error message shows the expected format. The web build fails if the storage address is invalid; before that, uploads and images would break in the browser with no warning.
 - **CI back to green.** The MinIO image stopped being public and was replaced by Chainguard's, in CI and in the local environment.
 
-## Security and privacy
+### Security and privacy
 
 - Rules and authorization live only in the API. The web app never touches the database.
 - **Portal link:** the token is stored only as a hash and an encrypted copy (AES-256-GCM). It becomes a session in an `HttpOnly` cookie, scoped to the portal path. Changes require a valid origin and an anti-CSRF header.
@@ -149,7 +167,7 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 - Sentry with data collection off, URLs without parameters, no session replay and no performance tracing.
 - Staging-only secrets, kept only in the dashboards. Outside staging, non-members get a generic 404.
 
-## Quality
+### Quality
 
 - **489 unit tests:** shared 121, content 126, API 75 and web 167.
 - **147 integration tests** in 20 suites, with real Postgres, MinIO and Mailpit.
@@ -157,7 +175,7 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 - Green CI on GitHub Actions: lint, typecheck, unit, integration, E2E and build.
 - Visual check of the visitor experience: 15 screens, with no write attempt leaving the page.
 
-## Behind the deploy: 6 real stumbles
+### Behind the deploy: 6 real stumbles
 
 1. **The seed failed with `S3_ENDPOINT: Invalid URL`.** The B2 dashboard shows the endpoint without `https://`. The value was fixed and the validation got a clear message.
 2. **The API didn't start on Render.** The service had been created with no environment variables at all.
@@ -166,15 +184,9 @@ GitHub Actions ──CI · migrations · demo reset──▶ Neon
 5. **Login stuck on "Loading your space…".** Vercel gave the project a different domain, and the API only accepts sessions from the configured one. Attaching the expected domain to the project fixed it.
 6. **Sentry rejected events (`403 ProjectId`).** The DSN mixed one project's key with another project's number. Copying it again fixed it.
 
-## Cost and limits
+### Cost and limits
 
 - **R$ 0 a month.**
 - Render sleeps after 15 min without traffic and wakes up in about 1 min, with a 750 h/month limit.
 - Neon sleeps after 5 min idle and wakes up in seconds, with a 100 CU-hour/month limit. That's why the API doesn't stay awake all day.
 - Other limits: B2 with 10 GB, development Clerk with 100 users, Resend with 100 emails a day and Vercel Hobby for personal use only.
-
-> If the demo takes a moment to respond, that's the API waking up on Render. Give it about a minute.
-
-## Mission status
-
-Public demo live, with fictional data: create an account and explore an agency in read-only mode.
