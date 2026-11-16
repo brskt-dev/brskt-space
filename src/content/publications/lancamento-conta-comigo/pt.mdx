@@ -1,0 +1,54 @@
+---
+type: article
+title: "Lancei meu primeiro produto: o Conta Comigo"
+summary: "O Conta Comigo está no ar: um passo a passo guiado, num link só, pra agências de marketing pedirem, acompanharem e confirmarem os acessos dos clientes. O problema, as decisões que deram forma ao produto e como eu construí."
+date: 2026-11-16
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
+tags: ["Conta Comigo", "Lançamento", "Produto", "Agências de marketing", "SaaS"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+Hoje o [Conta Comigo](https://contacomigo.brskt.dev/) está no ar. É o primeiro produto digital que eu coloco no mundo do começo ao fim: da ideia ao domínio, passando por cada tela, cada regra e cada deploy. É bem diferente de entregar uma feature num sistema que já existe. Agora qualquer agência pode criar uma conta, montar um pedido de verdade e me dizer o que achou.
+
+## O trabalho que acontece antes do marketing
+
+O Conta Comigo é pra agências de marketing, e cuida de uma parte do trabalho que vem antes do marketing em si: conseguir os acessos do cliente.
+
+Um exemplo ilustrativo. Uma agência fecha com uma padaria pra cuidar das redes e dos anúncios. Pra começar, precisa de acesso ao gerenciador de negócios da Meta, ao Google Ads, ao Analytics e talvez ao domínio do site. A conversa vai pro WhatsApp: "consegue me dar acesso ao Gerenciador de Negócios?", "onde fica isso?", "te mandei um tutorial ontem", "qual e-mail eu coloco?". Chega um print, ainda falta o Google Ads, e alguém precisa lembrar de cobrar. O serviço já foi vendido, mas o trabalho não começa.
+
+Eu vi esse vai e vem de perto, e o que me chamou atenção é que ninguém ali está fazendo nada errado. O cliente não sabe onde clicar, e não tem obrigação de saber. A agência sabe o que precisa, mas o pedido fica espalhado entre conversa, print, tutorial e lembrete.
+
+## Um link, um passo a passo e tudo à vista
+
+A ideia do Conta Comigo é trocar essa conversa por um passo a passo guiado, num link só.
+
+A agência escolhe o que pedir, a partir de um template pronto ou montando o seu com os itens de cada plataforma. Manda o link pelo WhatsApp ou por e-mail. O cliente abre no celular ou no computador e faz um item por vez: poucos passos, o link certo da plataforma e um botão pra avisar que terminou. A equipe da agência confere na plataforma e confirma, ou devolve com o motivo. O painel mostra o que falta e de quem é a vez.
+
+Três decisões dão o formato do produto.
+
+**O cliente não cria conta.** Ele entra pelo link, vê a marca da agência e só aquela solicitação. O que preenche fica salvo na hora, e se um acesso depende de outra pessoa, como quem cuida do site, dá pra mandar só aquele item pra ela. Pedir cadastro pra alguém que só quer resolver isso logo seria criar atrito justo onde ele já existe.
+
+**O acesso é dado na própria plataforma.** O Conta Comigo não se conecta às contas do Google, da Meta ou de outras plataformas, e não dá nem verifica acesso sozinho. Ele guia o cliente pelo caminho oficial de cada uma: são 53 plataformas com passo a passo conferido na ajuda oficial e com a data da última revisão. Quando uma plataforma não tem convite e a agência precisa de um login, o cliente digita no próprio item e ele vai cifrado pro cofre daquele cliente. Código de verificação, nunca.
+
+**Concluído pelo cliente não é o mesmo que confirmado pela agência.** O cliente avisa que terminou, e a agência confere na plataforma antes de confirmar. Parece detalhe, mas é o que separa "acho que já dei" de "está liberado".
+
+## Como eu construí
+
+Cuidei das três frentes: produto, experiência de uso e implementação. Antes de escrever código, escrevi a especificação da primeira versão, com 57 decisões e 10 regras de produto documentadas, incluindo o que ele não faria de propósito. Uma parte grande do trabalho foi decidir o que deixar de fora, como a integração automática com as plataformas.
+
+Pra construir, usei bastante IA. A primeira versão saiu de uma execução com vários agentes, cada um cuidando de uma área, como o montador de checklists, o portal do cliente e os testes, com um agente líder integrando tudo. O meu papel foi definir o escopo, escrever as regras que eles seguiam, revisar o que entregavam e validar o comportamento antes de considerar qualquer parte pronta. A IA acelerou muito a construção, e as decisões continuaram comigo.
+
+Antes do lançamento, o Conta Comigo passou um tempo no ar como <a href={publicationUrl('pt', 'product', 'conta-comigo')}>demo pública</a>, com dados fictícios. A versão lançada traz, além do fluxo principal, o cofre de acessos por cliente, lembretes, o mapa do que já foi liberado em cada plataforma e os planos.
+
+## No ar e aberto pra uso
+
+O Conta Comigo está lançado. Dá pra criar a agência, montar a primeira solicitação e mandar o link no mesmo dia. O teste grátis dura 30 dias, sem cartão, com os recursos do plano Fluxo. Depois, os planos são por agência e pelo número de solicitações novas por mês, com a equipe toda sem custo por pessoa. Daqui pra frente, ele evolui a partir do uso de verdade.
+
+## Bora testar
+
+Se você trabalha em agência ou atende clientes de marketing, monta uma solicitação real e manda o link pra alguém. É aí que dá pra sentir se o fluxo ajuda. Se você é de tecnologia, abre o portal do cliente no celular e me conta o que achou das decisões.
+
+O Conta Comigo está em [contacomigo.brskt.dev](https://contacomigo.brskt.dev/). Feedback é muito bem-vindo, aqui nos comentários ou pelo [suporte@contacomigo.brskt.dev](mailto:suporte@contacomigo.brskt.dev).

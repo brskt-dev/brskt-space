@@ -1,0 +1,54 @@
+---
+type: article
+title: "I launched my first product: Conta Comigo"
+summary: "Conta Comigo is live: a guided, step-by-step checklist in a single link that lets marketing agencies request, track and confirm their clients’ access. The problem, the decisions that shaped the product and how I built it."
+date: 2026-11-16
+cover: ./media/cover-en.webp
+thumbnail: ./media/thumb-en.webp
+tags: ["Conta Comigo", "Launch", "Product", "Marketing agencies", "SaaS"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+Today [Conta Comigo](https://contacomigo.brskt.dev/en) is live. It’s the first digital product I’ve taken from start to finish: from the idea to the domain, through every screen, rule and deploy. That feels very different from shipping a feature in a system that already exists. Now any agency can create an account, set up a real request and tell me what they think.
+
+## The work that happens before the marketing
+
+Conta Comigo is for marketing agencies, and it takes care of a part of the job that comes before the marketing itself: getting access from the client.
+
+An illustrative example. An agency signs a bakery to run its social media and ads. To get started, it needs access to Meta’s business manager, Google Ads, Analytics and maybe the website’s domain. The conversation moves to WhatsApp: “can you give me access to Business Manager?”, “where is that?”, “I sent you a tutorial yesterday”, “which email should I use?”. A screenshot arrives, Google Ads is still missing, and someone has to remember to follow up. The service has been sold, but the work doesn’t start.
+
+I saw this back-and-forth up close, and what struck me is that nobody in it is doing anything wrong. The client doesn’t know where to click, and has no reason to. The agency knows what it needs, but the request ends up scattered across chats, screenshots, tutorials and reminders.
+
+## One link, one step-by-step guide, everything in view
+
+The idea behind Conta Comigo is to replace that conversation with a guided step-by-step flow, in a single link.
+
+The agency chooses what to request, starting from a ready-made template or building its own with each platform’s items. It sends the link over WhatsApp or email. The client opens it on their phone or computer and does one item at a time: a few steps, the right link to the platform and a button to say they’re done. The agency’s team checks on the platform and confirms, or sends it back with a reason. The dashboard shows what’s missing and whose turn it is.
+
+Three decisions give the product its shape.
+
+**The client doesn’t create an account.** They come in through the link, see the agency’s brand and only that request. What they fill in is saved right away, and if an access depends on someone else, like whoever runs the website, they can send just that item to that person. Making them sign up would add friction exactly where there’s already too much.
+
+**Access is granted on the platform itself.** Conta Comigo doesn’t connect to Google, Meta or other platforms’ accounts, and it doesn’t grant or verify access on its own. It walks the client through each platform’s official path: 53 platforms with guides checked against the official help pages and dated with their last review. When a platform has no invite and the agency needs a login, the client types it into the item itself and it goes encrypted to that client’s vault. Verification codes, never.
+
+**Completed by the client isn’t the same as confirmed by the agency.** The client says they’re done, and the agency checks on the platform before confirming. It looks like a detail, but it’s what separates “I think I did it” from “it’s granted”.
+
+## How I built it
+
+I took care of all three fronts: product, user experience and implementation. Before writing any code, I wrote the spec for the first version, with 57 decisions and 10 product rules documented, including what it would deliberately not do. A big part of the work was deciding what to leave out, like automatic integration with the platforms.
+
+I used AI heavily to build it. The first version came out of a run with several agents, each taking care of one area, such as the checklist builder, the client portal and the tests, with a lead agent integrating everything. My role was to define the scope, write the rules they followed, review what they delivered and validate the behavior before calling any part done. AI sped up the build a lot, and the decisions stayed with me.
+
+Before the launch, Conta Comigo spent some time online as a <a href={publicationUrl('en', 'product', 'conta-comigo')}>public demo</a> with fictional data. The launched version adds an access vault per client, reminders, a map of what has been granted on each platform, and the plans.
+
+## Live and open for use
+
+Conta Comigo is launched. You can create your agency, set up your first request and send the link on the same day. The free trial lasts 30 days, with no card, and includes the Fluxo plan features. After that, plans are per agency and based on the number of new requests per month, with the whole team included at no cost per person. From here on, it evolves based on real use.
+
+## Give it a try
+
+If you work at an agency or serve marketing clients, set up a real request and send the link to someone. That’s where you can tell whether the flow helps. If you work in tech, open the client portal on your phone and tell me what you think of the decisions.
+
+Conta Comigo is at [contacomigo.brskt.dev](https://contacomigo.brskt.dev/en). Feedback is very welcome, here in the comments or at [suporte@contacomigo.brskt.dev](mailto:suporte@contacomigo.brskt.dev).
