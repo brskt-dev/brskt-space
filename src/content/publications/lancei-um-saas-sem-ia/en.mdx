@@ -1,0 +1,44 @@
+---
+type: article
+title: "I launched a SaaS in 2026. And I left AI out."
+summary: "Conta Comigo has no AI features for its users, even though it was built with a lot of AI. Why I chose to start with a clear flow, what I want to learn from real use and the bar I’ll set before putting AI inside the product."
+date: 2026-11-19
+cover: ./media/cover-en.webp
+thumbnail: ./media/thumb-en.webp
+tags: ["AI", "Product", "Conta Comigo", "SaaS"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+I launched [Conta Comigo](https://contacomigo.brskt.dev/en) this month, and there’s no AI in it. No chat, no “generate with AI” button, no automatic summary. In 2026 that almost sounds like a provocation, and it was on purpose.
+
+It wasn’t out of distrust. I used AI all the time to build the product, with agents writing code and tests while I defined the scope, reviewed and validated, as I told <a href={publicationUrl('en', 'article', 'lancamento-conta-comigo')}>in the launch article</a>. I know well what it’s good at, and also where it needs someone checking.
+
+## The job the product has to do
+
+Conta Comigo exists for one thing: helping an agency get access from its client, know what’s missing and confirm what has been granted. What helps most there is a clear path: each platform’s official step by step, one item at a time, whose turn it is and the agency’s confirmation at the end. And a predictable flow is exactly what a client who doesn’t know where to click needs.
+
+A chat on that screen doesn’t get anyone to grant Google Ads access faster. Generating the reminder text doesn’t either, if the reminder already says exactly what’s missing. Without a clear task, enough context and a way to tell whether the result is good, AI adds cost per call, latency and one more piece to maintain, and doesn’t improve anyone’s work.
+
+That doesn’t mean AI only works when you have a mountain of proprietary data. There are good uses with no history at all, and context can come from documents, instructions or the current state of a task. The question is a different one: choosing, inside this product, a job that justifies it.
+
+## What I want to learn first
+
+Before thinking about AI, I want to see Conta Comigo in real use: how agencies set up requests, where clients stop, what works and what doesn’t. A few questions guide what I want to measure: how long a request takes to be completed, at which step the client gets stuck, how many items the agency sends back for fixing and how many reminders it takes. Today these are questions, not a finished dashboard, and answering them properly is already part of the work.
+
+## Three hypotheses, and only hypotheses
+
+With real use, a few ideas might make sense. None of them exists today, and none is promised.
+
+**A request that’s going to stall.** The task would be pointing the agency to requests showing signs of delay and suggesting a next step, based on that request’s history and the pattern of the ones that finished. The gain would show in the time to completion. Maybe a simple rule, like “idle for three days with an item sent back”, would do it better.
+
+**Guidance for a stuck item.** The task would be helping the agency write an explanation for a client stuck on an item, using the official step by step, what they’ve already done and the reasons for earlier send-backs. The gain would be fewer send-backs and fewer reminders on that item. And confirmation stays with the agency: without an integration that provides the evidence, AI can’t see the platform to say access was granted.
+
+**A confusing template.** The task would be suggesting changes to templates where clients often trip up, based on the steps where most people stop or get sent back. The gain would be those stops dropping after the change. The answer might just be rewriting a step, with no model at all.
+
+## My bar
+
+I used AI to build Conta Comigo because I knew what work I was delegating and how I’d check the result. To put AI inside it, I want the same clarity. If one of these hypotheses passes that test, it goes in. If none does, the product keeps doing well what it promises.
+
+What do you need to see before putting AI in your product? Tell me in the comments.
