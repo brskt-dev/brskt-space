@@ -1,0 +1,44 @@
+---
+type: article
+title: "Lancei um SaaS em 2026. E deixei a IA de fora."
+summary: "O Conta Comigo não tem nenhum recurso de IA pra quem usa, apesar de ter sido construído com muita IA. Por que eu escolhi começar por um fluxo claro, o que quero aprender com o uso real e o critério que vou usar antes de colocar IA dentro do produto."
+date: 2026-11-19
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
+tags: ["IA", "Produto", "Conta Comigo", "SaaS"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+Lancei o [Conta Comigo](https://contacomigo.brskt.dev/) neste mês, e não tem IA nele. Nenhum chat, nenhum botão de "gerar com IA", nenhum resumo automático. Em 2026 isso soa quase como provocação, e foi de propósito.
+
+Não foi por desconfiança. Eu usei IA o tempo todo pra construir o produto, com agentes escrevendo código e testes e comigo definindo o escopo, revisando e validando, como contei <a href={publicationUrl('pt', 'article', 'lancamento-conta-comigo')}>no artigo de lançamento</a>. Sei bem o que ela faz bem, e também onde ela precisa de alguém conferindo.
+
+## O trabalho que o produto precisa fazer
+
+O Conta Comigo existe pra uma coisa: a agência conseguir os acessos do cliente, saber o que falta e confirmar o que foi liberado. Pra isso, o que mais ajuda é um caminho claro: o passo a passo oficial de cada plataforma, um item por vez, quem está com a vez e a confirmação da agência no fim. E um fluxo previsível é justamente do que precisa um cliente que não sabe onde clicar.
+
+Um chat nessa tela não faz ninguém dar acesso ao Google Ads mais rápido. Gerar o texto do lembrete também não, se o lembrete já diz exatamente o que falta. Sem uma tarefa clara, contexto suficiente e um critério pra saber se o resultado ficou bom, a IA acrescenta custo por chamada, latência e mais uma peça pra manter, e não melhora o trabalho de ninguém.
+
+Isso não quer dizer que IA só serve quando há uma montanha de dados próprios. Tem aplicação boa sem histórico nenhum, e contexto pode vir de documentos, de instruções ou do estado atual da tarefa. A questão é outra: escolher, dentro deste produto, um trabalho que justifique.
+
+## O que eu quero aprender primeiro
+
+Antes de pensar em IA, quero ver o Conta Comigo sendo usado de verdade: como as agências montam os pedidos, onde os clientes param, o que dá certo e o que dá errado. Algumas perguntas guiam o que eu quero medir: quanto tempo uma solicitação leva até ser concluída, em que passo o cliente trava, quantos itens a agência devolve pra correção e quantos lembretes são necessários. Hoje são perguntas, não um painel pronto, e responder isso direito já é parte do trabalho.
+
+## Três hipóteses, e só hipóteses
+
+Com o uso real, algumas ideias podem fazer sentido. Nenhuma delas existe hoje nem está prometida.
+
+**Solicitação que vai atrasar.** A tarefa seria apontar pra agência os pedidos com sinal de atraso e sugerir o próximo passo, a partir do histórico daquela solicitação e do padrão das que terminaram. O ganho apareceria no tempo até concluir. Talvez uma regra simples, como "parado há três dias com item devolvido", resolva melhor.
+
+**Orientação pro item travado.** A tarefa seria ajudar a agência a preparar uma explicação pro cliente parado num item, usando o passo a passo oficial, o que ele já fez e os motivos das devoluções anteriores. O ganho seria menos devolução e menos lembrete naquele item. E a confirmação continua com a agência: sem uma integração que mostre a evidência, a IA não enxerga a plataforma pra dizer que o acesso foi dado.
+
+**Template que confunde.** A tarefa seria sugerir mudanças nos templates onde os clientes tropeçam com frequência, a partir das etapas em que mais gente para ou é devolvida. O ganho seria essas paradas caírem depois da mudança. Pode ser que a resposta seja só reescrever um passo, sem modelo nenhum.
+
+## Meu critério
+
+Usei IA pra construir o Conta Comigo porque eu sabia qual trabalho estava delegando e como ia conferir o resultado. Pra colocar IA dentro dele, quero a mesma clareza. Se uma dessas hipóteses passar nesse teste, ela entra. Se nenhuma passar, o produto continua fazendo bem o que promete.
+
+E você, o que precisa ver antes de colocar IA no seu produto? Conta aqui nos comentários.
