@@ -1,0 +1,54 @@
+---
+type: article
+title: "If AI writes the code, why do I still need to know how to program?"
+summary: "An agent implements in minutes what would take me hours. So what is still worth learning? Starting from an integration with a timeout and retries, why generating a solution and evaluating its consequences are different skills."
+date: 2026-11-24
+cover: ./media/cover-en.webp
+thumbnail: ./media/thumb-en.webp
+tags: ["AI", "AI agents", "Career", "Integrations", "Idempotency"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+The question in the title is a fair one. If an agent implements in minutes something that would take me hours, why keep investing in knowing how to program?
+
+I use AI every day to build software. Claude Code, Codex and ChatGPT help me discuss solutions, explore code, plan changes, implement and investigate problems. I prepare context, conventions and limits for the agents and delegate real implementation work. And on the team I work with today, I’m the one who does the final review before a deploy.
+
+That’s exactly why my answer isn’t nostalgic. Generating a solution and being able to evaluate its consequences are different skills. AI got very good at the first. The second is still on whoever approves the change.
+
+## A timeout that doesn’t tell you what happened
+
+A hypothetical example. I ask an agent for an integration that creates a charge in an external payments service. The call sometimes takes too long and times out, so the agent adds retries:
+
+```csharp
+for (var attempt = 1; attempt <= 3; attempt++)
+{
+    try { return await payments.CreateChargeAsync(order, ct); }
+    catch (TimeoutException) when (attempt < 3) { }
+}
+```
+
+The code is clean, it compiles and the tests pass. If it fails, try again. Makes sense.
+
+But a timeout doesn’t mean the operation failed. It means I stopped waiting. The service may have created the charge and only the response got lost on the way back. In that case, the second attempt creates another charge, and the customer pays twice.
+
+Before approving, I need to understand this integration’s contract. Does the service accept an idempotency key, so it recognizes the repeat and returns the charge that already exists? Can I check whether the charge was created, using an identifier I generated myself? If it offers one of those, the retry is safe within what the service guarantees, and only within that. If it offers neither, no retry setup fixes it: the flow has to handle the uncertainty, keeping the charge as pending and checking later, instead of pretending to know the result.
+
+None of this showed up as an error. It’s a question about behavior, and I can only ask it because I understand what happens between the call going out and the response coming back.
+
+## The agent can see this too
+
+It would be dishonest to say the agent can’t spot this problem. If I ask “what if the response gets lost?”, it explains the duplication, suggests an idempotency key and proposes a test. Sometimes it raises it on its own.
+
+The point is that I need to know the question exists. And when I ask another agent for a second review, the two agreeing doesn’t prove anything. What decides is evidence: the service’s documentation, behavior observed in a test environment, a test that simulates the lost response. How deep that goes depends on the change. A label on a screen doesn’t need the same care as a charge.
+
+The same goes for other decisions. A query that’s correct with a hundred rows can get expensive at real volume. Being authenticated doesn’t mean being allowed to access any resource. And rolling back a deploy doesn’t undo a data change or a charge that already went out. I went into more detail <a href={publicationUrl('en', 'article', 'revisar-pr-da-ia-antes-de-producao')}>in the article on reviewing the PR the AI opened</a>.
+
+## What I think is worth learning
+
+Knowing how to program goes beyond remembering syntax: it’s understanding behavior, data, state, concurrency, permissions, failures and maintenance. But syntax isn’t optional either. If I can’t read, change and investigate the code, I can’t properly evaluate what I got.
+
+Even with agents, it’s worth learning to follow a request end to end, understand how data changes, read a query, investigate an exception and explain why an operation can or can’t be repeated. Nobody needs to know everything to start.
+
+So, to answer the title: I need to know how to program because AI writes the code, but I’m the one who decides whether it goes to production. And accepting code I can’t investigate leaves me depending on the model’s next answer.
