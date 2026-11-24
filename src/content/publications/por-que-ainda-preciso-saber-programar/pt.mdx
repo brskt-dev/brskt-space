@@ -1,0 +1,54 @@
+---
+type: article
+title: "Se a IA escreve o código, por que ainda preciso saber programar?"
+summary: "Um agente implementa em minutos o que eu levaria horas. Então o que ainda vale aprender? A partir de uma integração com timeout e retentativas, por que gerar uma solução e avaliar as consequências dela são habilidades diferentes."
+date: 2026-11-24
+cover: ./media/cover-pt.webp
+thumbnail: ./media/thumb-pt.webp
+tags: ["IA", "Agentes de IA", "Carreira", "Integrações", "Idempotência"]
+draft: false
+---
+
+import { publicationUrl } from '../../../i18n/ui';
+
+A pergunta do título é justa. Se um agente implementa em minutos uma coisa que eu levaria horas pra escrever, por que eu continuaria investindo em saber programar?
+
+Eu uso IA todo dia pra desenvolver. Claude Code, Codex e ChatGPT me ajudam a discutir soluções, explorar código, planejar mudanças, implementar e investigar problemas. Preparo contexto, padrões e limites pros agentes e delego implementação de verdade. E no time em que trabalho hoje, sou eu quem faz a revisão final antes do deploy.
+
+Justamente por isso a minha resposta não é nostálgica. Gerar uma solução e conseguir avaliar as consequências dela são habilidades diferentes. A IA ficou muito boa na primeira. A segunda continua sendo responsabilidade de quem aprova.
+
+## Um timeout que não diz o que aconteceu
+
+Um exemplo hipotético. Peço a um agente uma integração que cria uma cobrança num serviço externo de pagamentos. A chamada às vezes demora e dá timeout, então o agente adiciona retentativas:
+
+```csharp
+for (var tentativa = 1; tentativa <= 3; tentativa++)
+{
+    try { return await pagamentos.CriarCobrancaAsync(pedido, ct); }
+    catch (TimeoutException) when (tentativa < 3) { }
+}
+```
+
+O código está limpo, compila e passa nos testes. Se deu erro, tenta de novo. Faz sentido.
+
+Só que timeout não quer dizer que a operação falhou. Quer dizer que eu parei de esperar. O serviço pode ter criado a cobrança e a resposta é que se perdeu no caminho. Nesse caso, a segunda tentativa cria outra cobrança, e o cliente paga duas vezes.
+
+Antes de aprovar, eu preciso entender o contrato dessa integração. O serviço aceita uma chave de idempotência, que faz ele reconhecer a repetição e devolver a cobrança que já existe? Dá pra consultar se a cobrança foi criada, por um identificador que eu mesmo gerei? Se ele oferece um desses caminhos, a retentativa fica segura dentro do que o serviço garante, e só dentro disso. Se não oferece nenhum, não tem combinação de retry que resolva: o fluxo precisa tratar a dúvida, deixando a cobrança como pendente e conferindo depois, em vez de fingir que sabe o resultado.
+
+Nada disso apareceu como erro. É uma pergunta sobre comportamento, e eu só consigo fazê-la porque entendo o que acontece entre a chamada sair e a resposta voltar.
+
+## O agente também pode ver isso
+
+Seria desonesto dizer que o agente não percebe esse problema. Se eu pergunto "e se a resposta se perder?", ele explica a duplicação, sugere a chave de idempotência e propõe um teste. Às vezes aponta isso sozinho.
+
+O ponto é que eu preciso saber que essa pergunta existe. E quando peço uma segunda revisão pra outro agente, a concordância entre os dois não prova que está certo. O que decide é evidência: a documentação do serviço, o comportamento observado num ambiente de teste, um teste que simula a resposta perdida. A profundidade disso depende da mudança. Um texto de tela não pede o mesmo cuidado que uma cobrança.
+
+O mesmo vale pra outras decisões. Uma consulta correta com cem registros pode ficar cara com o volume real. Estar autenticado não significa poder acessar qualquer recurso. E desfazer um deploy não desfaz uma alteração de dados ou uma cobrança que já saiu. Falei disso com mais detalhe <a href={publicationUrl('pt', 'article', 'revisar-pr-da-ia-antes-de-producao')}>no artigo sobre revisar o PR que a IA abriu</a>.
+
+## O que eu acho que vale aprender
+
+Saber programar vai além de lembrar sintaxe: é entender comportamento, dados, estado, concorrência, permissões, falhas e manutenção. Mas a sintaxe não fica dispensável. Se eu não consigo ler, mudar e investigar o código, também não consigo avaliar direito o que recebi.
+
+Mesmo usando agentes, vale aprender a acompanhar uma requisição de ponta a ponta, entender como os dados mudam, ler uma consulta, investigar uma exceção e explicar por que uma operação pode ou não ser repetida. Ninguém precisa saber tudo pra começar.
+
+Então, respondendo ao título: preciso saber programar porque a IA escreve o código, mas quem decide se ele vai pra produção sou eu. E aceitar um código que eu não consigo investigar me deixa dependendo da próxima resposta do modelo.
